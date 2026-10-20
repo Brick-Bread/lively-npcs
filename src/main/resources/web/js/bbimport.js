@@ -412,7 +412,7 @@ export function convert(file, anim) {
   if (headClamped) once(approximated, 'The game turns a head at most 80° and nods it at most 60°');
   if (anim.hold) once(approximated, '"Hold on last frame": in game a one-shot animation goes back to rest when it ends');
   length = Math.max(length, keyframes[keyframes.length - 1].at);
-  const result = A.normalize({id: 'import', name: anim.name, length, loop: anim.loop, glance: false, keyframes});
+  const result = A.normalize({id: 'imported', name: anim.name, length, loop: anim.loop, glance: false, keyframes});
   if (!result.loop && !A.endsAtRest(result)) once(approximated, 'It does not end at rest: the NPC jumps back to its own pose when it ends (the editor can add a rest keyframe)');
   return {animation: result, report: {mapped, approximated, ignored}};
 }
