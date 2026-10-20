@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Lively NPCs editor</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/editor.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <!-- Shown until the editor has logged in: loading, no link, or an expired link. -->
+  <div id="gate" class="gate" role="status" aria-live="polite">
+    <div class="gate-card">
+      <div class="brand brand-big"><span class="brand-mark" aria-hidden="true"></span><span>Lively NPCs</span></div>
+      <div id="gate-body" class="gate-body">
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Opening the editor…</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="app" hidden>
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Lively NPCs</span><span class="brand-sub">editor</span></div>
+      <div class="topbar-mid" id="topbar-mid"></div>
+      <div class="topbar-right" id="topbar-right"></div>
+    </header>
+
+    <aside class="sidebar" id="sidebar" aria-label="NPCs and animations"></aside>
+
+    <main class="stage" id="stage">
+      <div class="viewport" id="viewport" aria-label="3D model"></div>
+      <div class="stage-toolbar stage-toolbar-left" id="stage-left"></div>
+      <div class="stage-toolbar stage-toolbar-right" id="stage-right"></div>
+      <div class="stage-hint" id="stage-hint"></div>
+    </main>
+
+    <aside class="inspector" id="inspector" aria-label="Inspector"></aside>
+
+    <section class="timeline" id="timeline" aria-label="Timeline"></section>
+  </div>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <div id="modal-root"></div>
+</body>
+</html>
