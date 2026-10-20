@@ -48,9 +48,10 @@ async function testAxes() {
     for (const v of [0, 1, -37.5, 220]) check(Ax.fromShown(r.key, Ax.toShown(r.key, v)) === v, `axes: ${r.key} ${v} goes there and back`);
   }
   check(Ax.rowsFor('right_arm').some(r => r.key === 'shoulders') && Ax.rowsFor('left_arm').some(r => r.key === 'shoulders'), 'axes: both arms show shoulders as Position Y');
-  check(nearVec(Ax.shownRange('right-arm-forward', -90, 220), [-220, 90]), 'axes: a flipped channel\'s slider range flips');
+  check(nearVec(Ax.shownRange('torso-pitch', -45, 90), [-90, 45]) && nearVec(Ax.shownRange('right-arm-forward', -90, 220), [-90, 220]),
+    'axes: a flipped channel\'s slider range flips, a kept one stays');
 
-  // The table matches what Blockbench's values mean on a player model, checked on the rig itself.
+  // The table matches what Blockbench 5's values mean on a player model, checked on the rig itself.
   // In the rig's frame the NPC faces +z and its right is -x.
   const pose = shown => {
     const values = {};
@@ -62,24 +63,26 @@ async function testAxes() {
   };
   const tip = (posed, part, v) => Rig.rotate(posed.parts[part].rotation, v);
   const facts = [
-    // [what, shown values, test]
-    ['head Rotation X + looks down', [['head', 'Rotation X', 30]], p => tip(p, 'head', [0, 0, 1])[1] < -0.4],
-    ['head Rotation Y + turns to its right', [['head', 'Rotation Y', 30]], p => tip(p, 'head', [0, 0, 1])[0] < -0.4],
+    // [what (Blockbench 5's keyframe panel), shown values, test]
+    ['head Rotation X + looks up', [['head', 'Rotation X', 30]], p => tip(p, 'head', [0, 0, 1])[1] > 0.4],
+    ['head Rotation X - looks down', [['head', 'Rotation X', -30]], p => tip(p, 'head', [0, 0, 1])[1] < -0.4],
+    ['head Rotation Y + turns to its left', [['head', 'Rotation Y', 30]], p => tip(p, 'head', [0, 0, 1])[0] > 0.4],
     ['head Rotation Z + tilts its top to its left', [['head', 'Rotation Z', 20]], p => tip(p, 'head', [0, 1, 0])[0] > 0.3],
-    ['torso Rotation X + bends forward', [['body', 'Rotation X', 30]], p => tip(p, 'body', [0, 1, 0])[2] > 0.4],
-    ['torso Rotation Y + twists to its right', [['body', 'Rotation Y', 30]], p => tip(p, 'body', [0, 0, 1])[0] < -0.4],
+    ['torso Rotation X + leans back', [['body', 'Rotation X', 30]], p => tip(p, 'body', [0, 1, 0])[2] < -0.4],
+    ['torso Rotation Y + twists to its left', [['body', 'Rotation Y', 30]], p => tip(p, 'body', [0, 0, 1])[0] > 0.4],
     ['torso Rotation Z + leans to its left', [['body', 'Rotation Z', 20]], p => tip(p, 'body', [0, 1, 0])[0] > 0.3],
-    ['right arm Rotation X -90 points ahead', [['right_arm', 'Rotation X', -90]], p => tip(p, 'right_arm', [0, -12, 0])[2] > 11.9],
-    ['right arm Rotation X + swings back', [['right_arm', 'Rotation X', 30]], p => tip(p, 'right_arm', [0, -12, 0])[2] < -5],
+    ['right arm Rotation X 90 points ahead', [['right_arm', 'Rotation X', 90]], p => tip(p, 'right_arm', [0, -12, 0])[2] > 11.9],
+    ['left arm Rotation X 90 points ahead', [['left_arm', 'Rotation X', 90]], p => tip(p, 'left_arm', [0, -12, 0])[2] > 11.9],
+    ['right arm Rotation X - swings back', [['right_arm', 'Rotation X', -30]], p => tip(p, 'right_arm', [0, -12, 0])[2] < -5],
     ['right arm Rotation Z + swings out to its right', [['right_arm', 'Rotation Z', 40]], p => tip(p, 'right_arm', [0, -12, 0])[0] < -7],
     ['left arm Rotation Z - swings out to its left', [['left_arm', 'Rotation Z', -40]], p => tip(p, 'left_arm', [0, -12, 0])[0] > 7],
-    ['right arm Rotation Y + (raised) turns to its right, out', [['right_arm', 'Rotation X', -90], ['right_arm', 'Rotation Y', 30]], p => tip(p, 'right_arm', [0, -12, 0])[0] < -5],
-    ['left arm Rotation Y + (raised) turns to its right, across', [['left_arm', 'Rotation X', -90], ['left_arm', 'Rotation Y', 30]], p => tip(p, 'left_arm', [0, -12, 0])[0] < -5],
-    ['right leg Rotation X - swings forward', [['right_leg', 'Rotation X', -30]], p => tip(p, 'right_leg', [0, -12, 0])[2] > 5],
+    ['right arm Rotation Y + (raised) turns to its left, across', [['right_arm', 'Rotation X', 90], ['right_arm', 'Rotation Y', 30]], p => tip(p, 'right_arm', [0, -12, 0])[0] > 5],
+    ['left arm Rotation Y + (raised) turns to its left, out', [['left_arm', 'Rotation X', 90], ['left_arm', 'Rotation Y', 30]], p => tip(p, 'left_arm', [0, -12, 0])[0] > 5],
+    ['right leg Rotation X + swings forward', [['right_leg', 'Rotation X', 30]], p => tip(p, 'right_leg', [0, -12, 0])[2] > 5],
     ['right leg Rotation Z + swings out to its right', [['right_leg', 'Rotation Z', 30]], p => tip(p, 'right_leg', [0, -12, 0])[0] < -5],
     ['left leg Rotation Z - swings out to its left', [['left_leg', 'Rotation Z', -30]], p => tip(p, 'left_leg', [0, -12, 0])[0] > 5],
-    ['whole body Rotation Y + spins to its right', [['root', 'Rotation Y', 90]], p => Rig.rotate(p.Rb, [0, 0, 1])[0] < -0.99],
-    ['whole body Position X + moves to its left', [['root', 'Position X', 3]], p => near(p.o[0], 3) && near(p.o[2], 0)],
+    ['whole body Rotation Y + spins to its left', [['root', 'Rotation Y', 90]], p => Rig.rotate(p.Rb, [0, 0, 1])[0] > 0.99],
+    ['whole body Position X + moves to its right', [['root', 'Position X', 3]], p => near(p.o[0], -3) && near(p.o[2], 0)],
     ['whole body Position Y + rises', [['root', 'Position Y', 3]], p => near(p.o[1], 3)],
     ['whole body Position Z + moves back', [['root', 'Position Z', 3]], p => near(p.o[2], -3)],
     ['arm Position Y + lifts the shoulders', [['right_arm', 'Position Y', 1]], p => near(p.parts.right_arm.origin[1], 25) && near(p.parts.left_arm.origin[1], 25)],
