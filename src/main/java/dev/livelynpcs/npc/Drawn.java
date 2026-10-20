@@ -36,7 +36,7 @@ final class Drawn {
         /** A mob nods for them (a greeting or a click) until this tick. */
         int nodUntil = Integer.MIN_VALUE;
         /** When this NPC last beckoned them. */
-        int lastBeckon = Integer.MIN_VALUE / 2;
+        int lastBeckon = -Beckon.SAME_NPC_TICKS;
     }
 
     final NpcDef def;

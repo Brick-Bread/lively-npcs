@@ -177,7 +177,7 @@ public final class NpcManager implements NpcService {
     private final Random random = new Random();
     private PacketListenerCommon clicks;
     private BukkitTask stepper, spinner;
-    private int ticks, stepTicks = 2, models, spinStep, lastWarned = Integer.MIN_VALUE / 2;
+    private int ticks, stepTicks = 2, models, spinStep, lastWarned = -1200;
     /** The skin keys the pack was last told about (null: not yet). */
     private List<String> packKeys;
 
