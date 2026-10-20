@@ -1,0 +1,22 @@
+# Bow: a polite greeting. It bends forward from the hips with the head dipped, hands at its sides.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/bow.yml and change it there. Ticks: 20 a second.
+name: Bow
+length: 34
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 8
+    ease: ease-in-out
+    torso-pitch: 30
+    head-pitch: 12
+    right-arm-forward: 8
+    left-arm-forward: 8
+  - at: 20
+    torso-pitch: 31
+    head-pitch: 14
+    right-arm-forward: 8
+    left-arm-forward: 8
+  - at: 34
+    ease: ease-in-out
