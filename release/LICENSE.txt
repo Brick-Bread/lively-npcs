@@ -1,0 +1,36 @@
+Lively NPCs - terms of use
+
+Copyright (c) 2026 brick (Brick_Bread). All rights reserved.
+
+Lively NPCs ("the plugin") is free to use, but it is not open source. By using the plugin you agree
+to these terms.
+
+YOU MAY
+- Use the plugin for free, on as many Minecraft servers as you like, including servers that earn
+  money.
+- Copy it onto your own servers, and have your staff or your server host install it for you.
+- Make your own NPCs, skins, animations and settings with it. They are yours: share them however
+  you like.
+
+YOU MAY NOT
+- Sell the plugin, or charge for access to it, whether on its own or inside a bundle, a server
+  setup or any other package.
+- Share copies of the plugin, changed or unchanged: no re-uploads, mirrors, or bundling it into
+  something others can download. Send people to the official download pages instead.
+- Say that you made the plugin, or remove brick's name from it.
+
+NO WARRANTY
+The plugin is provided "as is", without any warranty of any kind. brick is not responsible for any
+damage, lost data or downtime that comes from using it, as far as the law allows. Keep backups.
+
+PARTS MADE BY OTHERS
+The plugin includes three.js (MIT licence, copyright the three.js authors) for its web editor. Its
+licence file is inside this jar at web/vendor/three/LICENSE. These terms do not limit anything
+that licence allows for that part.
+
+CHANGES AND ENDING
+brick may change these terms for later versions; each version comes with the terms that apply to
+it. If you break these terms, your permission to use the plugin ends.
+
+CONTACT
+{{CONTACT_EMAIL}}
