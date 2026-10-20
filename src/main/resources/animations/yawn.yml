@@ -1,0 +1,59 @@
+# Yawn: a sleepy stretch, arms up and chin raised, then it slowly nods off and jerks awake.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/yawn.yml and change it there. Ticks: 20 a second.
+name: Yawn
+length: 60
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 8
+    ease: ease-in-out
+    head-pitch: -10
+    shoulders: 0.5
+    right-arm-forward: 110
+    right-arm-out: -10
+    left-arm-forward: 110
+    left-arm-out: -10
+  - at: 16
+    torso-pitch: -3
+    head-pitch: -22
+    shoulders: 1
+    right-arm-forward: 166
+    right-arm-out: -20
+    left-arm-forward: 166
+    left-arm-out: -20
+  - at: 24
+    torso-pitch: -4
+    head-pitch: -24
+    shoulders: 1
+    right-arm-forward: 170
+    right-arm-out: -22
+    left-arm-forward: 170
+    left-arm-out: -22
+  - at: 30
+    ease: ease-in-out
+    torso-pitch: -1
+    head-pitch: -10
+    shoulders: 0.4
+    right-arm-forward: 120
+    right-arm-out: -12
+    left-arm-forward: 120
+    left-arm-out: -12
+  - at: 37
+    ease: ease-in-out
+    head-pitch: 2
+    right-arm-forward: 8
+    left-arm-forward: 8
+  - at: 48
+    ease: ease-in
+    torso-pitch: 3
+    head-pitch: 26
+  - at: 51
+    ease: ease-out
+    head-pitch: -6
+  - at: 56
+    ease: ease-in-out
+    head-pitch: 2
+  - at: 60
+    ease: ease-in-out
