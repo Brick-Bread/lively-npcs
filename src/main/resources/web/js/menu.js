@@ -106,9 +106,10 @@ export function mountMenubar(root, commands, menus, onExpire) {
   const tabs = h('div', {class: 'modes', role: 'tablist'});
   const drawWho = () => {
     const p = S.player;
+    const console = !p.online && p.name === 'Console';
     fill(who, h('div', {class: 'who-avatar', text: (p.name || '?').slice(0, 1).toUpperCase()}),
       h('span', {class: 'who-name', text: p.name || 'Unknown player'}),
-      h('span', {class: 'who-status', title: p.online ? '' : 'Live preview needs you in game'},
+      h('span', {class: 'who-status', title: p.online ? '' : console ? 'A link from the server console: live preview needs someone in game' : 'Live preview needs you in game'},
         h('span', {class: ['dot', p.online ? 'dot-ok' : 'dot-off']}), p.online ? 'in game' + (p.world ? ' · ' + p.world : '') : 'not in game'));
   };
   let expiredOnce = false;

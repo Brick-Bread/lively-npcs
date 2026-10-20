@@ -383,9 +383,11 @@ function mountStageBar(vp) {
     const st = Act.live;
     const offline = !S.player.online;
     liveStatus.className = 'live-status' + (st.status === 'on' ? ' on' : st.status === 'warn' || (S.live && offline) ? ' warn' : '');
-    const message = S.live ? st.message : offline ? 'You are not in game: live preview needs you in game' : '';
+    const fromConsole = offline && S.player.name === 'Console';
+    const message = S.live ? st.message : offline ? (fromConsole ? 'A console link: live preview needs someone in game (run /npc editor in game)' : 'You are not in game: live preview needs you in game') : '';
     liveStatus.title = message;
-    liveToggle.el.title = offline ? 'Live preview plays your draft on the NPC for you in game: join the server to watch it' : 'Plays your draft on the NPC for you in game as you edit';
+    liveToggle.el.title = fromConsole ? 'Live preview plays your draft on the NPC for the player who opened the editor: open it with /npc editor in game to use it'
+      : offline ? 'Live preview plays your draft on the NPC for you in game: join the server to watch it' : 'Plays your draft on the NPC for you in game as you edit';
     fill(liveStatus, message ? [h('span', {class: ['dot', st.status === 'on' && S.live ? 'dot-ok' : offline && !S.live ? 'dot-off' : 'dot-warn']}),
       h('span', {class: 'ellipsis', style: {maxWidth: '230px'}, text: S.live ? message : 'Not in game'})] : []);
     if (S.mode === 'npcs') {

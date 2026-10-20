@@ -35,6 +35,8 @@ export function mountTimeline(root, hooks = {}) {
     St.pause();
     if (e) St.setTick(e.draft.length);
   }});
+  const loopBtn = button(null, 'repeat', {class: 'btn-xs btn-ghost', title: 'Loop: plays round and round (a preview, or by command until stopped)',
+    onClick: () => St.changeAnim(d => { d.loop = !d.loop; })});
   const readout = h('div', {class: 'tl-readout', attrs: {'aria-live': 'off'}});
   const addBtn = button(null, 'keyplus', {class: 'btn-xs btn-ghost', title: 'Add a keyframe at the playhead from the pose you see (K)', onClick: () => addKey()});
   const delBtn = button(null, 'trash', {class: 'btn-xs btn-ghost', title: 'Delete the selected keyframes (Delete)', onClick: () => deleteKeys()});
@@ -54,7 +56,7 @@ export function mountTimeline(root, hooks = {}) {
   const zoomIn = button(null, 'zoomin', {class: 'btn-xs btn-ghost', title: 'Zoom in (Ctrl + wheel)', onClick: () => zoomBy(1.4)});
   const fitBtn = button(null, 'focus', {class: 'btn-xs btn-ghost', title: 'Fit the whole animation', onClick: () => St.setView({zoom: 0})});
   const toolbar = h('div', {class: 'tl-toolbar'},
-    startBtn, prevBtn, playBtn, nextBtn, endBtn, readout, h('div', {class: 'sep'}),
+    startBtn, prevBtn, playBtn, nextBtn, endBtn, loopBtn, readout, h('div', {class: 'sep'}),
     addBtn, delBtn, h('div', {class: 'sep'}), snapSel, angleSel, h('div', {class: 'sep'}),
     onionBtn, onionSel, graphBtn, h('div', {class: 'spacer'}), zoomOut, fitBtn, zoomIn);
 
@@ -189,7 +191,8 @@ export function mountTimeline(root, hooks = {}) {
   function render() {
     const e = St.animEntry();
     root.hidden = S.mode !== 'animations';
-    for (const b of [playBtn, startBtn, prevBtn, nextBtn, endBtn, addBtn]) b.disabled = !e;
+    for (const b of [playBtn, startBtn, prevBtn, nextBtn, endBtn, addBtn, loopBtn]) b.disabled = !e;
+    loopBtn.classList.toggle('on', !!(e && e.draft.loop));
     delBtn.disabled = !(S.keySel.size && [...S.keySel].some(x => x !== 0));
     snapSel.value = String(S.view.snapTicks);
     angleSel.value = String(S.view.snapAngle);
