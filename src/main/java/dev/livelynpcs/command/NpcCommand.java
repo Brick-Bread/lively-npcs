@@ -16,6 +16,7 @@ import dev.livelynpcs.skin.SkinService;
 import dev.livelynpcs.web.WebServer;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -242,21 +243,21 @@ public final class NpcCommand implements TabExecutor {
         future.whenComplete((skin, failure) -> onMain(() -> {
             if (failure != null || skin == null) {
                 Throwable cause = failure instanceof CompletionException && failure.getCause() != null ? failure.getCause() : failure;
-                say(s, "<red>Could not get the skin: " + esc(cause == null ? "no skin came back" : String.valueOf(cause.getMessage())));
+                later(s, "<red>Could not get the skin: " + esc(cause == null ? "no skin came back" : String.valueOf(cause.getMessage())));
                 return;
             }
             NpcDef now = npcs.get(id);
             if (now == null) {
-                say(s, "<red>" + id + " was removed while its skin was on the way.");
+                later(s, "<red>" + id + " was removed while its skin was on the way.");
                 return;
             }
             try {
                 npcs.put(now.withSkin(skin.key()));
             } catch (IllegalArgumentException | IOException e) {
-                say(s, "<red>Could not give " + id + " the skin: " + esc(e.getMessage()));
+                later(s, "<red>Could not give " + id + " the skin: " + esc(e.getMessage()));
                 return;
             }
-            say(s, "<white>" + id + "</white> now wears " + esc(from) + (skin.slim() ? " <dark_gray>(slim arms)" : "") + ".");
+            later(s, "<white>" + id + "</white> now wears " + esc(from) + (skin.slim() ? " <dark_gray>(slim arms)" : "") + ".");
         }));
     }
 
@@ -412,14 +413,18 @@ public final class NpcCommand implements TabExecutor {
     }
 
     private void editor(CommandSender s) {
-        Player p = player(s);
         if (!web.running()) {
             throw new Stop("<red>The web editor is off: the web server is not running. Turn on <white>web.enabled</white> in config.yml"
                     + " (with a free <white>web.port</white>), then restart the server. The console says why it did not start.");
         }
-        WebServer.Session session = web.newSession(p.getUniqueId());
+        WebServer.Session session = web.newSession(s instanceof Player p ? p.getUniqueId() : WebServer.CONSOLE);
         String link = web.baseUrl() + "/editor/#" + session.token();
         int minutes = plugin.settings().editorMinutes;
+        if (!(s instanceof Player)) {
+            // The console cannot click: the link itself. Without a player there is no live preview.
+            say(s, "Editor link for " + minutes + " minutes (live preview needs someone in game; do not share it): " + link);
+            return;
+        }
         say(s, "<click:open_url:'" + link + "'><hover:show_text:'Open the editor in your browser'><#6fd3a8><u>Open the NPC editor</u></#6fd3a8>"
                 + "</hover></click> <dark_gray>(your own link, for " + (minutes % 60 == 0 ? minutes / 60 + " hour" + (minutes == 60 ? "" : "s")
                 : minutes + " minutes") + "; do not share it)");
@@ -501,6 +506,18 @@ public final class NpcCommand implements TabExecutor {
 
     private static void say(CommandSender to, String miniMessage) {
         to.sendMessage(MM.deserialize(PREFIX + miniMessage));
+    }
+
+    /**
+     * An answer that comes after the command (a skin from the web): to the sender, and also into the
+     * server log when the sender is not a player, as the console or an RCON session that has already
+     * gone would never see it.
+     */
+    private void later(CommandSender to, String miniMessage) {
+        say(to, miniMessage);
+        if (!(to instanceof Player)) {
+            plugin.getLogger().info(PlainTextComponentSerializer.plainText().serialize(MM.deserialize(miniMessage)));
+        }
     }
 
     private static String esc(String text) {

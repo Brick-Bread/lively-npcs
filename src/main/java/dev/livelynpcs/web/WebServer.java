@@ -43,6 +43,9 @@ public final class WebServer {
         }
     }
 
+    /** The "player" of an editor session opened from the console: no one in game, so no live preview. */
+    public static final UUID CONSOLE = new UUID(0, 0);
+
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().serializeSpecialFloatingPointValues().create();
     /** Requests bigger than this are refused (an uploaded skin is a few kilobytes; animations far less). */
     public static final int MAX_BODY = 2 * 1024 * 1024;

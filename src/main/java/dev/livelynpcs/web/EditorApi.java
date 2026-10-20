@@ -297,7 +297,8 @@ public final class EditorApi {
     private Map<String, Object> player(WebServer.Session session) {
         Player p = host.player(session.player());
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("name", p != null ? p.getName() : Objects.requireNonNullElse(host.playerName(session.player()), ""));
+        m.put("name", p != null ? p.getName() : session.player().equals(WebServer.CONSOLE) ? "Console"
+                : Objects.requireNonNullElse(host.playerName(session.player()), ""));
         m.put("uuid", session.player().toString());
         m.put("online", p != null);
         m.put("world", p != null ? p.getWorld().getName() : "");
