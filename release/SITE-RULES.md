@@ -42,7 +42,8 @@ potentially mislead a buyer", and must not depict a product's visual features.
 Rules: <https://builtbybit.com/threads/ai-content-disclosure-improved-buyer-protection-platform-fee-correction.740329/>,
 <https://builtbybit.com/wiki/ai-art/>
 
-**What this means:** publish on **Hangar and SpigotMC**, which have no AI rule today. Do not mark
+**What this means:** once blocker 0 is settled, publish on **Hangar and SpigotMC**, which have no AI
+rule today. Do not mark
 Lively NPCs as "no AI" or "minimal AI" anywhere: that would break both sites' rules above. If you
 still want Modrinth or BuiltByBit, ask their staff first (Modrinth support, a BuiltByBit ticket) and
 expect a no. The store pages for all four are written anyway, so they are ready if a rule changes.
@@ -134,6 +135,7 @@ review: <https://creators.builtbybit.com/approval-process>, BBCode: <https://bui
 
 ## Before you publish (checklist)
 
+- [ ] Settle EntityLib's GPL licence (blocker 0): permission, no bundling, or open source.
 - [ ] Decide about Modrinth and BuiltByBit (blockers 1 and 2). Safe plan: Hangar and SpigotMC only.
 - [ ] Accounts: Hangar and SpigotMC. Only you can make these.
 - [ ] A public home for `TERMS.md` (Hangar's licence URL needs one).
