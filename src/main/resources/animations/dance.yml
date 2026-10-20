@@ -1,0 +1,86 @@
+# Dance: hops on the beat with the arms swinging, the body rocking and twisting and the head bobbing.
+# It loops: played by command it dances until stopped (/npc play <npc> none); as a greet, click or idle
+# animation it dances one round (2 seconds).
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/dance.yml and change it there. Ticks: 20 a second.
+name: Dance
+length: 40
+loop: true
+glance: false
+keyframes:
+  - at: 0
+  - at: 5
+    ease: ease-out
+    root-y: 2.5
+    torso-roll: 5
+    torso-yaw: -10
+    head-pitch: -3
+    head-roll: -4
+    right-arm-forward: 70
+    right-arm-out: 12
+    right-arm-across: 10
+    left-arm-forward: -30
+    left-arm-out: 8
+    left-leg-forward: 12
+  - at: 10
+    ease: ease-in
+    head-pitch: 5
+    right-arm-forward: 20
+    right-arm-out: 6
+    left-arm-forward: 10
+    left-arm-out: 6
+  - at: 15
+    ease: ease-out
+    root-y: 2.5
+    torso-roll: -5
+    torso-yaw: 10
+    head-pitch: -3
+    head-roll: 4
+    right-arm-forward: -30
+    right-arm-out: 8
+    left-arm-forward: 70
+    left-arm-out: 12
+    left-arm-across: 10
+    right-leg-forward: 12
+  - at: 20
+    ease: ease-in
+    head-pitch: 5
+    right-arm-forward: 10
+    right-arm-out: 6
+    left-arm-forward: 20
+    left-arm-out: 6
+  - at: 25
+    ease: ease-out
+    root-y: 3
+    torso-roll: 6
+    torso-yaw: -12
+    head-pitch: -4
+    head-roll: -5
+    right-arm-forward: 110
+    right-arm-out: 10
+    right-arm-across: 8
+    left-arm-forward: -40
+    left-arm-out: 8
+    left-leg-forward: 14
+  - at: 30
+    ease: ease-in
+    head-pitch: 5
+    right-arm-forward: 24
+    right-arm-out: 6
+    left-arm-forward: 12
+    left-arm-out: 6
+  - at: 35
+    ease: ease-out
+    root-y: 3
+    torso-roll: -6
+    torso-yaw: 12
+    head-pitch: -4
+    head-roll: 5
+    right-arm-forward: -40
+    right-arm-out: 8
+    left-arm-forward: 110
+    left-arm-out: 10
+    left-arm-across: 8
+    right-leg-forward: 14
+  - at: 40
+    ease: ease-in
