@@ -118,8 +118,10 @@ player model does (see the pack builder's ModelBuilder and its pixel check).
 edited presets live in `plugins/LivelyNPCs/animations/<id>.yml` (same id = replaces the preset).
 
 Presets (ids are what npcs.yml and commands use). Values were tuned so arms never pass through the
-head or body more than ~0.6 px (the runtime builder keeps a test that checks every preset's every
-tick): `greet` (wave with a hop at the start), `wave`, `talk` (with a hop at the start), `beckon`,
+head or body more than ~0.6 px (0.6 px into the head; into the torso 0.6 px, or 1.2 px within 4 px of
+the shoulder pivot; `RigPoseTest` checks every preset's every tick). The values below were the
+starting point: the files in `src/main/resources/animations/` are the truth (beckon's raised frames
+got right-arm-out -3, shrug's arms 9 not 11, scratch_head was redone to rub beside the head): `greet` (wave with a hop at the start), `wave`, `talk` (with a hop at the start), `beckon`,
 `stretch`, `look_around` (glance), `nod`, `head_shake` (glance), `shrug`, `scratch_head`, `clap`,
 `foot_tap`, `look_up` (glance), `hop`. The default idle mix is stretch, look_around, wave, nod,
 head_shake, shrug, scratch_head, clap, foot_tap, look_up (an NPC never plays the same one twice in a
