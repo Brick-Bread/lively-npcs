@@ -70,14 +70,31 @@ alone needs `livelynpcs.editor`). Tab completion everywhere.
 
 ## The web editor
 
-`/npc editor` gives a private link (valid for `web.editor-minutes`). In your browser you can:
+`/npc editor` gives a private link (valid for `web.editor-minutes`; from the console it prints the
+link, and live preview then needs someone in game). The editor looks and works much like
+Blockbench: a dark grey theme, File/Edit/View/Help menus, and two modes at the top right.
 
-- pose a 3D model of the NPC in its own skin: drag rings on each joint, or use the sliders;
-- make animations on a keyframe timeline, with easing, looping, whole-body moves (hop, step, spin,
-  bend), undo, copy/paste and mirror pose;
-- **preview live**: the NPC in game plays your animation for you while you edit it;
-- change the NPCs themselves: name plate, skin (player name, link or uploaded file), held item,
-  icon, click actions and which animations they play.
+- **Animate**: the Animations list and the Outliner (whole body, torso, head, arms with the held
+  item, legs) on the left, the 3D model of the NPC in its own skin in the middle (drag the rings on
+  a selected joint, or the arrows to move the whole body), the Animation and Keyframe panels on the
+  right, and the animator timeline below: a row per value, keyframes you click, drag or box-select,
+  seconds and ticks, zoom, loop. Values are named the Blockbench way (Rotation X/Y/Z, Position
+  X/Y/Z, with Blockbench's signs: an arm raised in front is Rotation X 90); hover a name for what it
+  does ("raises the arm in front").
+  - **Graph editor**: a value's curve between keyframes, exactly as the game plays it; drag points,
+    pick each segment's easing (linear, ease in, ease out, ease in-out, step).
+  - **Onion skin**: faint ghosts of the poses before (blue) and after (orange) the playhead.
+  - **Snapping**: keyframe times to 1, 2, 5 or 10 ticks, angles to 5 or 15 degrees; hold Shift to
+    drag freely.
+  - **Import from Blockbench**: File > Import, Ctrl+I, or drop a `.bbmodel` (its animations) or a
+    Bedrock `.animation.json` made on a player model onto the page. Bones are matched by name
+    (head, body, arms, legs, root); the editor shows what it mapped, what it approximated (smooth
+    and bezier curves become ease in-out, Molang counts as 0) and what it left out, then saves it as
+    your own animation.
+  - **Live preview**: the NPC in game plays your animation for you while you edit it.
+  - Undo/redo, copy/paste and mirror pose, end-at-rest warning, Save (Ctrl+S).
+- **NPC**: the NPCs on the left and their settings on the right: name plate, skin (player name,
+  link or uploaded file), held item, icon, click actions and which animations they play.
 
 The built-in animations (greet, wave, talk, beckon, stretch, look_around, nod, head_shake, shrug,
 scratch_head, clap, foot_tap, look_up, hop, bow, cheer, point, check_item, dance, wave_both, salute,
