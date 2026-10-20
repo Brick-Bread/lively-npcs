@@ -58,7 +58,7 @@ class NpcFileTest {
                     y: 0
                     z: -2.5
                     yaw: 180
-                    skin: 3f2a9c0d11e4b7a2
+                    skin: '3f2a9c0d11e4b7a2'
                     plate: [<gold><bold>Mob Shop, <gray>Buy mobs, <yellow>Click]
                     icon: cow_spawn_egg
                     held: wheat
@@ -88,10 +88,40 @@ class NpcFileTest {
     }
 
     @Test
-    void numericLookingSkinKeysStayText() {
-        NpcDef digits = MOBSHOP.withSkin("0000000000001234");
-        NpcFile.Loaded back = NpcFile.read(NpcFile.write(List.of(digits)));
-        assertEquals("0000000000001234", back.npcs().getFirst().skin());
+    void skinKeysAreAlwaysQuotedAndStayText() {
+        for (String key : new String[] {"0000000000001234", "0123456789012345", "1234567890123456", "9999999999999999"}) {
+            String text = NpcFile.write(List.of(MOBSHOP.withSkin(key)));
+            assertTrue(text.contains("skin: '" + key + "'"), text);
+            assertEquals(key, NpcFile.read(text).npcs().getFirst().skin());
+            // Typed in by hand without quotes it reads as a number; its digits come back.
+            String bare = text.replace("skin: '" + key + "'", "skin: " + key);
+            assertEquals(key, NpcFile.read(bare).npcs().getFirst().skin(), "unquoted " + key);
+        }
+        assertTrue(NpcFile.write(List.of(MOBSHOP.withSkin(""))).contains("skin: ''"));
+        // Ids and other text keep their digits too, typed with or without quotes.
+        NpcFile.Loaded odd = NpcFile.read("""
+                npcs:
+                  007:
+                    world: 0123
+                    x: 1_000.5
+                    y: -64
+                    z: 1e2
+                    yaw: -90
+                    look: no
+                    icon: 08
+                """);
+        assertEquals(List.of(), odd.problems());
+        NpcDef bond = odd.npcs().getFirst();
+        assertEquals("007", bond.id());
+        assertEquals("0123", bond.world());
+        assertEquals(1000.5, bond.x());
+        assertEquals(-64, bond.y());
+        assertEquals(100, bond.z());
+        assertEquals(-90, bond.yaw());
+        assertEquals("08", bond.icon());
+        assertTrue(!bond.look());
+        assertEquals(List.of(), NpcFile.read(NpcFile.write(List.of(bond))).problems());
+        assertEquals(bond, NpcFile.read(NpcFile.write(List.of(bond))).npcs().getFirst());
     }
 
     @Test

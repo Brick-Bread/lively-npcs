@@ -4,7 +4,9 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
+import org.yaml.snakeyaml.resolver.Resolver;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,7 +48,7 @@ public final class NpcFile {
         List<NpcDef> out = new ArrayList<>();
         Object root;
         try {
-            root = yaml().load(text);
+            root = reader().load(text);
         } catch (RuntimeException e) {
             problems.add("is not valid YAML (" + firstLine(e.getMessage()) + "), so no NPCs were read: fix it and /npc reload");
             return new Loaded(out, problems);
@@ -100,7 +102,7 @@ public final class NpcFile {
         npcs.stream().sorted((a, b) -> a.id().compareTo(b.id())).forEach(n -> all.put(n.id(), toMap(n)));
         Map<String, Object> root = new LinkedHashMap<>();
         root.put("npcs", all);
-        return HEADER + yaml().dump(root);
+        return HEADER + writer().dump(root);
     }
 
     /** One NPC as npcs.yml keeps it, keys in DESIGN.md's order. */
@@ -113,7 +115,7 @@ public final class NpcFile {
         m.put("y", tidy(n.y(), 4));
         m.put("z", tidy(n.z(), 4));
         m.put("yaw", tidy(n.yaw(), 2));
-        m.put("skin", n.skin());
+        m.put("skin", new Quoted(n.skin()));       // always quoted: a key of digits must stay text
         m.put("plate", new ArrayList<>(n.plate()));
         m.put("icon", n.icon());
         m.put("held", n.held());
@@ -134,7 +136,38 @@ public final class NpcFile {
         return r;
     }
 
-    private static Yaml yaml() {
+    /** A value written in single quotes whatever it holds. */
+    private record Quoted(String text) {
+    }
+
+    /** SnakeYAML's representer, plus Quoted values in single quotes. */
+    private static final class Writer extends Representer {
+        Writer(DumperOptions options) {
+            super(options);
+            representers.put(Quoted.class, data -> representScalar(Tag.STR, ((Quoted) data).text(), DumperOptions.ScalarStyle.SINGLE_QUOTED));
+        }
+    }
+
+    /**
+     * Reads every plain value as the exact text typed (only empty and null stay null), so a skin key of
+     * digits or an id like 007 keeps its digits; Fields reads numbers and true/false from that text.
+     */
+    private static final class TextOnly extends Resolver {
+        @Override
+        protected void addImplicitResolvers() {
+            addImplicitResolver(Tag.NULL, NULL, "~nN\0", 10);
+            addImplicitResolver(Tag.NULL, EMPTY, null, 10);
+        }
+    }
+
+    private static Yaml reader() {
+        LoaderOptions loader = new LoaderOptions();
+        DumperOptions options = new DumperOptions();
+        return new Yaml(new SafeConstructor(loader), new Representer(options), options, loader, new TextOnly());
+    }
+
+    /** Writes with YAML's usual rules, so any text that could be read as something else is quoted. */
+    private static Yaml writer() {
         DumperOptions options = new DumperOptions();
         // AUTO: lists of plain values in [flow, style], maps (which hold lists) as blocks.
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.AUTO);
@@ -143,7 +176,7 @@ public final class NpcFile {
         options.setLineBreak(DumperOptions.LineBreak.UNIX);
         options.setSplitLines(false);
         LoaderOptions loader = new LoaderOptions();
-        return new Yaml(new SafeConstructor(loader), new Representer(options), options, loader);
+        return new Yaml(new SafeConstructor(loader), new Writer(options), options, loader);
     }
 
     private static String firstLine(String s) {
@@ -168,13 +201,33 @@ public final class NpcFile {
         double number(String key) {
             Object v = m.get(key);
             if (v instanceof Number n && Double.isFinite(n.doubleValue())) return n.doubleValue();
+            if (v instanceof String text) {
+                try {
+                    double d = Double.parseDouble(text.trim().replace("_", ""));
+                    if (Double.isFinite(d)) return d;
+                } catch (NumberFormatException ignored) {
+                    // reported below
+                }
+            }
             problems.add(at + key + ": " + (v == null ? "missing" : "'" + v + "' is not a number") + ", using 0");
             return 0;
         }
 
         boolean bool(String key, boolean def) {
             if (!m.containsKey(key)) return def;
-            if (m.get(key) instanceof Boolean b) return b;
+            Object v = m.get(key);
+            if (v instanceof Boolean b) return b;
+            if (v instanceof String text) {
+                switch (text.trim().toLowerCase(Locale.ROOT)) {
+                    case "true", "yes", "on" -> {
+                        return true;
+                    }
+                    case "false", "no", "off" -> {
+                        return false;
+                    }
+                    default -> { }
+                }
+            }
             problems.add(at + key + ": should be true or false, using " + def);
             return def;
         }
