@@ -337,6 +337,7 @@ function mountStageBars(viewport) {
     liveToggle.input.disabled = !S.modelNpcId;
     const st = Act.live;
     liveStatus.className = 'live-status' + (st.status === 'on' ? ' on' : st.status === 'warn' ? ' warn' : '');
+    liveStatus.title = S.live ? st.message : '';
     fill(liveStatus, S.live && st.message ? [h('span', {class: ['dot', st.status === 'on' ? 'dot-ok' : 'dot-warn']}), h('span', {class: 'ellipsis', style: {maxWidth: '220px'}, text: st.message})] : []);
     if (S.mode === 'npcs') {
       const n = St.shownNpc();
@@ -363,7 +364,8 @@ function mountPlate(viewport) {
       lastText = text;
       fill(plate, n ? n.plate.flatMap(l => renderMini(l, {npc: n.id})) : []);
     }
-    if (!n || !n.plate.length || !viewport.posed) {
+    // Only with NPCs open: while posing it would sit under the toolbars and add nothing.
+    if (!n || !n.plate.length || !viewport.posed || S.mode !== 'npcs') {
       plate.hidden = true;
       return;
     }
