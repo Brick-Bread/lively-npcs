@@ -7,9 +7,11 @@ implementation, when you report to him.
 ## What it is (owner's decisions, 2026-10-20)
 
 - A standalone Paper **26.3** plugin, **LivelyNPCs** (jar `LivelyNPCs-<version>.jar`), usable on any
-  server. **Free, closed source**; released later on Modrinth, Hangar, SpigotMC and BuiltByBit. Own
-  private repo (Brick-Bread/lively-npcs). Needs **PacketEvents** on the server; EntityLib is shaded
-  and relocated to `dev.livelynpcs.libs.entitylib`.
+  server. **Free and open source under the GPL-3.0** (brick, 2026-10-20: EntityLib, which is
+  shaded in, is GPL-3.0, so a closed release was not allowed); published on **Hangar only** for now
+  (Modrinth and BuiltByBit ban mainly AI-made projects, SpigotMC wants plain Spigot support). Repo
+  Brick-Bread/lively-npcs. Needs **PacketEvents** on the server; EntityLib is shaded and relocated to
+  `dev.livelynpcs.libs.entitylib`.
 - NPCs are **packets only**: nothing exists or ticks in the world. Players whose game has loaded the
   NPC models (a resource pack) see each person-NPC as a **moving model** (a rig of item displays);
   everyone else sees a **player model** (a fake player wearing the skin). Mob NPCs (villagers etc.)

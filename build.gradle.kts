@@ -45,6 +45,8 @@ tasks {
         val props = mapOf("version" to project.version)
         inputs.properties(props)
         filesMatching("plugin.yml") { expand(props) }
+        // The GPL-3.0 text travels inside the jar.
+        from(rootProject.file("LICENSE"))
     }
     test {
         useJUnitPlatform()

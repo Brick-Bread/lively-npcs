@@ -3,6 +3,11 @@
 Checked on 2026-10-20 against each site's own rule pages (links below). Rules change: read the
 linked pages again on the day you publish. Nothing here is legal advice.
 
+**brick's decisions (2026-10-20), after reading this:** Lively NPCs is open source under the GPL-3.0
+(blocker 0 settled: `LICENSE` at the repo root, also inside the jar), and it is published on **Hangar
+only** for now: Modrinth and BuiltByBit (AI rules) and SpigotMC (Paper only) are skipped. The
+freeware TERMS.md and LICENSE.txt are gone; the store pages say GPL and link the source.
+
 ## Blockers and risks (read these first)
 
 **0. Every site: the jar carries EntityLib, which is GPL-3.0, so it cannot simply be closed
@@ -79,7 +84,7 @@ a remote server, BuiltByBit requires such services in the Dependencies tab.
 | Question | Answer |
 |---|---|
 | Free, closed source allowed? | Yes. No open-source rule. Not allowed: obfuscation "in any capacity", features behind a paywall or licence key, ads (donation links are fine). |
-| Licence field | Options: Unspecified, MIT, Apache 2.0, GPL, LGPL, AGPL, **Other** (custom name up to 20 characters, plus a URL). Use **Other**, name `All Rights Reserved`, URL = wherever `TERMS.md` is public. No source link needed. |
+| Licence field | Options: Unspecified, MIT, Apache 2.0, GPL, LGPL, AGPL, **Other** (custom name up to 20 characters, plus a URL). Use **GPL** and give the public source repo's link. |
 | Web server, ports, outside requests | Nothing in the guidelines. Staff "may choose to allow or disallow" anything not listed, so the page says what the plugin does. Not allowed: plugins made for offline-mode servers (Lively NPCs is not). |
 | Images | Project avatar: one square image (no size published; use `art/icon-512.png`). No banner field: images in the description are Markdown links to images hosted elsewhere. Jar up to 10 MB. |
 | Description format | Markdown pages (up to 75,000 characters each, up to 50 pages). Summary up to **120 characters**. |
@@ -110,7 +115,7 @@ categories: <https://www.spigotmc.org/resources/>, premium rules (for comparison
 | Question | Answer |
 |---|---|
 | Free, closed source allowed? | Closed source is allowed (no rule against it; "All Rights Reserved" is a licence choice), but the AI rule blocks this project. |
-| Licence field | Required: pick **All Rights Reserved** (`LicenseRef-All-Rights-Reserved`), licence URL optional (link `TERMS.md`). Source link optional. |
+| Licence field | Required: **GPL-3.0-only**, with the source repo's link. (Skipped for now: the AI rule.) |
 | Web server, ports, outside requests | No port rule. Section 1.11: nothing may "upload any data to a remote server ... without clear disclosure": MineSkin uploads must be disclosed on the page. |
 | Images | Icon up to 256 KiB (`art/icon-512.png` fits); gallery images up to 5 MiB each. No banner. **No AI-made images anywhere on the page** (6.2). |
 | Description format | Markdown, with a plain-text version (no text only in images; no headers used as body text). English. Summary: "a sentence or two", unformatted, not repeating the title. |
@@ -138,10 +143,10 @@ review: <https://creators.builtbybit.com/approval-process>, BBCode: <https://bui
 - [ ] Settle EntityLib's GPL licence (blocker 0): permission, no bundling, or open source.
 - [ ] Decide about Modrinth and BuiltByBit (blockers 1 and 2). Safe plan: Hangar and SpigotMC only.
 - [ ] Accounts: Hangar and SpigotMC. Only you can make these.
-- [ ] A public home for `TERMS.md` (Hangar's licence URL needs one).
-- [ ] `LICENSE.txt` into the jar: the build does not add it yet (`build.gradle.kts` belongs to the lead).
+- [ ] Make the GitHub repo Brick-Bread/lively-npcs public (the GPL and Hangar's source link need the code to be reachable).
+- [x] `LICENSE` (GPL-3.0) is in the jar: the build adds it.
 - [ ] Contact details: fill every `{{...}}` placeholder in the store pages (Discord invite, e-mail).
 - [ ] Host the banner and screenshots somewhere public for the BBCode pages (`{{BANNER_URL}}`...).
 - [ ] In-game screenshots from `SCREENSHOTS-TO-TAKE.md` (only real screenshots: no AI images).
 - [ ] Version 1.0.0 in `build.gradle.kts`, build, upload `LivelyNPCs-1.0.0.jar`.
-- [ ] Have the terms checked by someone who knows the law if you want certainty (see `TERMS.md`).
+- [x] No terms of our own any more: the GPL-3.0 is the licence.

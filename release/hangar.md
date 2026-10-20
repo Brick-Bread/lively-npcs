@@ -1,11 +1,12 @@
 <!--
-Hangar page for Lively NPCs (hangar.papermc.io). Hangar allows free, closed-source plugins that are not obfuscated.
+Hangar page for Lively NPCs (hangar.papermc.io). Open source (GPL-3.0), not obfuscated.
 Form fields:
   Name:      LivelyNPCs   (Hangar names cannot contain spaces)
   Summary:   NPCs that look at you, wave, beckon and talk: moving models built from their skins, with a web animation editor.
   Category:  Gameplay
   Keywords:  npc, animation, hub, packets, editor
-  Licence:   Other, custom name "All Rights Reserved", URL {{TERMS_URL}}
+  Licence:   GPL (GNU General Public License v3.0)
+  Source:    {{SOURCE_URL}}   (the public GitHub repo)
   Platform:  Paper, version 26.3
   Dependency (external link): PacketEvents, https://github.com/retrooper/packetevents/releases
   Avatar:    art/icon-512.png
@@ -222,8 +223,8 @@ Claude, an AI model.
 
 ## Terms
 
-Lively NPCs is free to use on as many servers as you like. It is not open source: please don't
-re-upload it, sell it, share modified copies or claim it as yours. Full terms: {{TERMS_URL}}
+Lively NPCs is free and open source under the GNU GPL 3.0: use it on as many servers as you like,
+change it and share it, as long as what you share stays GPL with its source. Source: {{SOURCE_URL}}
 
 ## Support
 

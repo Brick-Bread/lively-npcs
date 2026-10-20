@@ -102,4 +102,5 @@ which needs a port open to your browser.
 - `animations/<id>.yml`: your own animations, and edited built-in ones.
 - `export/`: the NPC models (the pack and its parts).
 
-Lively NPCs is free to use. It is not open source: please don't redistribute modified copies.
+Lively NPCs is free and open source under the GNU GPL 3.0 (see `LICENSE`): use it, change it and
+share it, as long as what you share stays under the same licence with its source code.
