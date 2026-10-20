@@ -1,0 +1,67 @@
+# Cheer: both fists up in a V, pumping, with two little hops.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/cheer.yml and change it there. Ticks: 20 a second.
+name: Cheer
+length: 40
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    ease: ease-out
+    head-pitch: -6
+    right-arm-forward: 150
+    right-arm-out: -20
+    left-arm-forward: 150
+    left-arm-out: -20
+  - at: 8
+    ease: ease-out
+    root-y: 4
+    head-pitch: -12
+    right-arm-forward: 176
+    right-arm-out: -18
+    left-arm-forward: 176
+    left-arm-out: -18
+  - at: 12
+    ease: ease-in
+    head-pitch: -8
+    right-arm-forward: 146
+    right-arm-out: -26
+    left-arm-forward: 146
+    left-arm-out: -26
+  - at: 16
+    ease: ease-out
+    root-y: 4
+    head-pitch: -12
+    right-arm-forward: 176
+    right-arm-out: -18
+    left-arm-forward: 176
+    left-arm-out: -18
+  - at: 20
+    ease: ease-in
+    head-pitch: -8
+    right-arm-forward: 146
+    right-arm-out: -26
+    left-arm-forward: 146
+    left-arm-out: -26
+  - at: 24
+    head-pitch: -12
+    right-arm-forward: 174
+    right-arm-out: -18
+    left-arm-forward: 174
+    left-arm-out: -18
+  - at: 28
+    head-pitch: -8
+    right-arm-forward: 148
+    right-arm-out: -24
+    left-arm-forward: 148
+    left-arm-out: -24
+  - at: 33
+    ease: ease-in-out
+    head-pitch: -2
+    right-arm-forward: 70
+    right-arm-out: -8
+    left-arm-forward: 70
+    left-arm-out: -8
+  - at: 40
+    ease: ease-in-out

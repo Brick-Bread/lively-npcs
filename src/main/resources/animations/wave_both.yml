@@ -1,0 +1,68 @@
+# Wave both: both hands up above the head, waving side to side together, mirrored.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/wave_both.yml and change it there. Ticks: 20 a second.
+name: Wave both
+length: 44
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    ease: ease-out
+    right-arm-forward: 90
+    left-arm-forward: 90
+  - at: 8
+    head-pitch: -4
+    right-arm-forward: 160
+    right-arm-out: -8
+    left-arm-forward: 160
+    left-arm-out: -8
+  - at: 12
+    head-pitch: -5
+    right-arm-forward: 166
+    right-arm-out: -26
+    left-arm-forward: 166
+    left-arm-out: -26
+  - at: 16
+    head-pitch: -4
+    right-arm-forward: 160
+    right-arm-out: -6
+    left-arm-forward: 160
+    left-arm-out: -6
+  - at: 20
+    head-pitch: -5
+    right-arm-forward: 166
+    right-arm-out: -26
+    left-arm-forward: 166
+    left-arm-out: -26
+  - at: 24
+    head-pitch: -4
+    right-arm-forward: 160
+    right-arm-out: -6
+    left-arm-forward: 160
+    left-arm-out: -6
+  - at: 28
+    head-pitch: -5
+    right-arm-forward: 166
+    right-arm-out: -26
+    left-arm-forward: 166
+    left-arm-out: -26
+  - at: 32
+    head-pitch: -4
+    right-arm-forward: 160
+    right-arm-out: -6
+    left-arm-forward: 160
+    left-arm-out: -6
+  - at: 36
+    head-pitch: -2
+    right-arm-forward: 150
+    right-arm-out: -10
+    left-arm-forward: 150
+    left-arm-out: -10
+  - at: 40
+    right-arm-forward: 70
+    right-arm-out: -4
+    left-arm-forward: 70
+    left-arm-out: -4
+  - at: 44
+    ease: ease-in-out

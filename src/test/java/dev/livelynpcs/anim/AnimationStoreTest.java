@@ -16,6 +16,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,19 +65,35 @@ class AnimationStoreTest {
         Map<String, Integer> lengths = Map.ofEntries(Map.entry("greet", 48), Map.entry("wave", 48), Map.entry("talk", 40),
                 Map.entry("beckon", 36), Map.entry("stretch", 40), Map.entry("look_around", 60), Map.entry("nod", 20),
                 Map.entry("head_shake", 24), Map.entry("shrug", 24), Map.entry("scratch_head", 40), Map.entry("clap", 36),
-                Map.entry("foot_tap", 32), Map.entry("look_up", 44), Map.entry("hop", 10));
-        List<String> glances = List.of("look_around", "head_shake", "look_up");
+                Map.entry("foot_tap", 32), Map.entry("look_up", 44), Map.entry("hop", 10), Map.entry("bow", 34),
+                Map.entry("cheer", 40), Map.entry("point", 40), Map.entry("check_item", 50), Map.entry("dance", 40),
+                Map.entry("wave_both", 44), Map.entry("salute", 40), Map.entry("yawn", 60), Map.entry("laugh", 38),
+                Map.entry("think", 60), Map.entry("spin_hop", 22));
+        List<String> glances = List.of("look_around", "head_shake", "look_up", "check_item");
+        List<String> loops = List.of("dance");
         for (String id : AnimationStore.PRESETS) {
             Animation a = store.get(id);
             assertNotNull(a, id);
             assertSame(a, store.preset(id));
             assertTrue(a.builtin(), id);
-            assertTrue(a.endsAtRest(), id + " ends at rest");
-            assertFalse(a.loop(), id);
+            assertEquals(loops.contains(id), a.loop(), id + " loop");
+            if (a.loop()) {
+                // Round and round without a jump: the last keyframe is at the end and is the first again.
+                assertEquals(a.length(), a.keyframes().getLast().at(), id + " last keyframe at its length");
+                assertArrayEquals(a.keyframes().getFirst().values(), a.keyframes().getLast().values(), id + " loops seamlessly");
+            } else {
+                // A whole turn round counts as rest: spin_hop ends at root-yaw 360, facing the way it started.
+                assertTrue(AnimationStore.endsAtRest(a), id + " ends at rest");
+            }
             assertEquals(lengths.get(id), a.length(), id + " length");
             assertEquals(glances.contains(id), a.glance(), id + " glance");
             assertEquals(0, at(a, 0, Channel.RIGHT_ARM_FORWARD), id + " starts at rest");
         }
+        assertEquals(360, store.get("spin_hop").keyframes().getLast().value(Channel.ROOT_YAW), "spin_hop ends one whole turn round");
+        assertFalse(store.get("spin_hop").endsAtRest(), "not every channel 0, but at rest all the same");
+        // The default idle mix: the calm presets (the lively ones are for greet, clicked or a command).
+        assertEquals(List.of("stretch", "look_around", "wave", "nod", "head_shake", "shrug", "scratch_head", "clap", "foot_tap",
+                "look_up", "check_item", "yawn", "think", "laugh", "point"), AnimationStore.DEFAULT_IDLE);
         for (String id : AnimationStore.DEFAULT_IDLE) assertNotNull(store.get(id), "idle " + id);
         assertEquals(AnimationStore.PRESETS.size(), store.all().size());
     }
@@ -138,17 +155,17 @@ class AnimationStoreTest {
     @Test
     void ownAnimationsComeAndGo() throws IOException {
         AnimationStore store = store();
-        Animation dance = new Animation("dance", "Dance", 30, true, false,
+        Animation jig = new Animation("jig", "Jig", 30, true, false,
                 List.of(new Keyframe(15, Easing.EASE_IN_OUT, values(Channel.ROOT_YAW, 180))), false);
-        store.save(dance);
-        assertNotNull(store.get("dance"));
-        assertNull(store.preset("dance"));
-        String text = Files.readString(dir.resolve("animations/dance.yml"));
+        store.save(jig);
+        assertNotNull(store.get("jig"));
+        assertNull(store.preset("jig"));
+        String text = Files.readString(dir.resolve("animations/jig.yml"));
         assertTrue(text.contains("root-yaw: 180\n"), text);
         assertTrue(text.contains("  - at: 15\n    ease: ease-in-out\n"), text);
-        assertTrue(store.delete("dance"));
-        assertNull(store.get("dance"));
-        assertThrows(IllegalArgumentException.class, () -> store.save(dance.withId("none", "None")));
+        assertTrue(store.delete("jig"));
+        assertNull(store.get("jig"));
+        assertThrows(IllegalArgumentException.class, () -> store.save(jig.withId("none", "None")));
     }
 
     @Test

@@ -1,0 +1,58 @@
+# Check item: it holds up what is in its left hand and looks down at it (like checking a phone), turning
+# it a little in its hand. Only for players it is not looking at.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/check_item.yml and change it there. Ticks: 20 a second.
+name: Check item
+length: 50
+loop: false
+glance: true
+keyframes:
+  - at: 0
+  - at: 8
+    ease: ease-in-out
+    head-yaw: -4
+    head-pitch: 32
+    shoulders: -0.8
+    left-arm-forward: 80
+    left-arm-out: 12
+    left-arm-across: 22
+  - at: 15
+    ease: ease-in-out
+    head-yaw: -4
+    head-pitch: 33
+    shoulders: -0.8
+    left-arm-forward: 81
+    left-arm-out: 22
+    left-arm-across: 22
+  - at: 22
+    ease: ease-in-out
+    head-yaw: -4
+    head-pitch: 33
+    shoulders: -0.8
+    left-arm-forward: 81
+    left-arm-out: 6
+    left-arm-across: 22
+  - at: 28
+    ease: ease-in-out
+    head-yaw: -4
+    head-pitch: 32
+    shoulders: -0.8
+    left-arm-forward: 80
+    left-arm-out: 12
+    left-arm-across: 22
+  - at: 38
+    head-yaw: -3
+    head-pitch: 31
+    shoulders: -0.8
+    left-arm-forward: 80
+    left-arm-out: 12
+    left-arm-across: 22
+  - at: 45
+    ease: ease-in-out
+    head-pitch: 8
+    shoulders: -0.2
+    left-arm-forward: 24
+    left-arm-out: 3
+    left-arm-across: 6
+  - at: 50
+    ease: ease-in-out

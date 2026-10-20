@@ -1,0 +1,39 @@
+# Point: "over there!" The right arm points straight out ahead, held, with a small nod that way.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/point.yml and change it there. Ticks: 20 a second.
+name: Point
+length: 40
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 6
+    ease: ease-out
+    torso-yaw: 4
+    head-yaw: 6
+    right-arm-forward: 92
+    right-arm-across: -4
+  - at: 12
+    ease: ease-in-out
+    torso-yaw: 4
+    head-yaw: 6
+    head-pitch: 10
+    right-arm-forward: 90
+    right-arm-across: -4
+  - at: 17
+    ease: ease-in-out
+    torso-yaw: 4
+    head-yaw: 6
+    head-pitch: 1
+    right-arm-forward: 91
+    right-arm-across: -4
+  - at: 28
+    torso-yaw: 4
+    head-yaw: 6
+    right-arm-forward: 90
+    right-arm-across: -4
+  - at: 35
+    ease: ease-in-out
+    right-arm-forward: 24
+  - at: 40
+    ease: ease-in-out

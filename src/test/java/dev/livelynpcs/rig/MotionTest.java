@@ -271,6 +271,29 @@ class MotionTest {
     }
 
     @Test
+    void aSpinToAWholeTurnNeverSpinsBack() {
+        run(40, standing(12, 0));                 // out of look-radius: it faces its own way (south, yaw 0)
+        Animation spin = TestAnimations.preset("spin_hop");
+        assertTrue(watch.request(spin, Motion.Kind.COMMAND, now));
+        int start = now + STEP, end = start + spin.length();
+        run(spin.length() + 40, standing(12, 0));
+        // While it spins, each keyframe turns it on round to its right, never half a turn at once: one whole turn.
+        float turned = 0, last = 0;
+        for (Key k : keys(Part.BODY, start, end)) {
+            float step = Look.wrap(facing(k.t) - last);
+            assertTrue(step >= 0 && step < 180, "turned " + step + " at tick " + (k.tick - start));
+            turned += step;
+            last = facing(k.t);
+        }
+        assertEquals(360, turned, 1, "one whole turn");
+        // Over at root-yaw 360, it is home already: what it sends next never turns back through 180 degrees.
+        List<Key> after = keys(Part.BODY, end, now);
+        assertFalse(after.isEmpty(), "it keeps breathing");
+        for (Key k : after) assertTrue(Look.apart(0, facing(k.t)) < 2, "turned back to " + facing(k.t) + " at tick " + (k.tick - start));
+        for (Key k : keys(Part.HEAD, end, now)) assertTrue(Look.apart(0, facing(k.t)) < 2, "head at " + facing(k.t));
+    }
+
+    @Test
     void itLooksAtSomeoneItBeckonsWhateverLookRadiusSays() {
         run(20, standing(12, 60));
         List<Key> before = keys(Part.HEAD, 0, now);

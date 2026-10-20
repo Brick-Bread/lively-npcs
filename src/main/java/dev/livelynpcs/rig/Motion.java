@@ -364,7 +364,11 @@ public final class Motion {
         return null;
     }
 
-    /** The animation shown changes at now: fade out from where the old one was to where the new one starts. */
+    /**
+     * The animation shown changes at now: fade out from where the old one was to where the new one starts.
+     * Turns (RigPose.wholeTurns) take the short way round, so an animation that ends a whole turn round
+     * (a spin to 360) counts as ending at rest.
+     */
     private void blend(Watch w, Playing next, int now) {
         float[] from = new float[Channel.COUNT];
         if (!w.parked) {
@@ -379,7 +383,8 @@ public final class Motion {
         boolean any = false;
         Arrays.fill(w.residualMoves, false);
         for (Channel c : Channel.ALL) {
-            from[c.ordinal()] -= to[c.ordinal()];
+            // Turns blend the short way round: a spin that ended at 360 is already home, so it never spins back.
+            from[c.ordinal()] = RigPose.shortWay(c, from[c.ordinal()] - to[c.ordinal()]);
             if (Math.abs(from[c.ordinal()]) < 1e-3f) {
                 from[c.ordinal()] = 0;
                 continue;

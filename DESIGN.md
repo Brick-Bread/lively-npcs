@@ -80,7 +80,8 @@ shift `λ` (pixels, hips towards its left), and the slim flag of the skin.
    - neck `N = H + Rt·(0, 12 + ρ, 0)`.
    - **body**: origin `N`, rotation `Rt`, height stretch `k = 1 + ρ/12` (scale y only).
    - **head**: origin `N`, rotation `Rt · about(UP, -hy) · about(ACROSS, hp) · about(FRONT, HEAD_ROLL)`
-     with `hy = clamp(gy + HEAD_YAW, -80, 80)`, `hp = clamp(gp + HEAD_PITCH - 1.5·b, -60, 60)`.
+     with `hy = clamp(gy + wrap(HEAD_YAW), -80, 80)` (wrap: into -180..180, so whole turns are no turn;
+     nothing changes within ±180), `hp = clamp(gp + HEAD_PITCH - 1.5·b, -60, 60)`.
    - **arms** (side `s` = -1 right, +1 left; `e` = 0.5 slim, 0 classic): shoulder pivot
      `P = H + Rt·(5s, 10 + ρ + SHOULDERS - e, 0)` (a player's: 22 px up, 21.5 slim);
      `Ra = about(FRONT, s·(OUT + 2.5·b)) · about(UP, -s·ACROSS) · about(ACROSS, -FORWARD)`;
@@ -119,13 +120,30 @@ edited presets live in `plugins/LivelyNPCs/animations/<id>.yml` (same id = repla
 
 Presets (ids are what npcs.yml and commands use). Values were tuned so arms never pass through the
 head or body more than ~0.6 px (0.6 px into the head; into the torso 0.6 px, or 1.2 px within 4 px of
-the shoulder pivot; `RigPoseTest` checks every preset's every tick). The values below were the
+the shoulder pivot; `ArmClippingTest` checks every preset's every tick, classic and slim, and that
+salute's and think's hand really comes up to the face). The values below were the
 starting point: the files in `src/main/resources/animations/` are the truth (beckon's raised frames
 got right-arm-out -3, shrug's arms 9 not 11, scratch_head was redone to rub beside the head): `greet` (wave with a hop at the start), `wave`, `talk` (with a hop at the start), `beckon`,
 `stretch`, `look_around` (glance), `nod`, `head_shake` (glance), `shrug`, `scratch_head`, `clap`,
-`foot_tap`, `look_up` (glance), `hop`. The default idle mix is stretch, look_around, wave, nod,
-head_shake, shrug, scratch_head, clap, foot_tap, look_up (an NPC never plays the same one twice in a
-row). Starting values (ticks; channel short names: raf = right-arm-forward, rao = right-arm-out,
+`foot_tap`, `look_up` (glance), `hop`.
+
+More presets (2026-10-20; no starting values here, the files are the truth): `bow` (a polite
+greeting: bends 30° from the hips, head dipped, hands at its sides), `cheer` (fists up in a V,
+pumping, two hops), `point` (right arm straight out ahead, held, a small nod that way), `check_item`
+(glance; looks down at the item in its left hand, like a phone, and turns it in its hand), `dance`
+(loops seamlessly: hops on the beat, arms swinging, body rocking and twisting, head bobbing; one
+round is 2 s), `wave_both` (both hands waving above the head, mirrored), `salute` (right hand to the
+brow, held, then down), `yawn` (sleepy stretch, chin up, then nods off and jerks awake), `laugh`
+(head back, shoulders bobbing, a hand on its belly), `think` (right hand up under the chin, head
+tilted, slow nods), `spin_hop` (a hop with a full spin to its right; ends at root-yaw 360, a whole
+turn, which counts as rest).
+
+The default idle mix (`AnimationStore.DEFAULT_IDLE`, used when npcs.yml says `idle: []`) is the calm
+ones: stretch, look_around, wave, nod, head_shake, shrug, scratch_head, clap, foot_tap, look_up,
+check_item, yawn, think, laugh, point (an NPC never plays the same one twice in a row). Bow, cheer,
+dance, salute, wave_both and spin_hop are for greet, clicked or `/npc play`.
+
+Starting values of the first fourteen (ticks; channel short names: raf = right-arm-forward, rao = right-arm-out,
 raa = right-arm-across, laf/lao/laa the left arm, hy/hp/hr head yaw/pitch/roll, ry = root-y):
 
 - greet (48): 0 rest; 4 ease-out ry 3.5, raf 90; 8 ry 0, raf 160, rao -8; then every 4 ticks
@@ -157,7 +175,10 @@ raa = right-arm-across, laf/lao/laa the left arm, hy/hp/hr head yaw/pitch/roll, 
 
 Playing: one animation at a time per NPC per viewer; a viewer's own (greet, clicked, beckon,
 command for them, preview) wins over the NPC's idle one, which everyone sees at the same moment. A
-glance animation is skipped for viewers the NPC is looking at. Keyframe packets go every
+glance animation is skipped for viewers the NPC is looking at. Starting, switching or stopping one
+blends over 10 ticks. Whole turns: ROOT_YAW, TORSO_YAW and HEAD_YAW values a whole turn apart (360,
+720...) are the same pose, so they blend the short way round, and a one-shot that ends a whole turn
+round (spin_hop: root-yaw 360) ends at rest and never spins back (RigPose.wholeTurns/atRest). Keyframe packets go every
 `npcs.key-ticks` ticks for moving parts (each glides one tick longer than the gap), at rest only
 every quarter breath, and nothing beyond `animate-radius`. While beckoning, the NPC looks at that
 player whatever look-radius says.

@@ -1,0 +1,108 @@
+# Laugh: head thrown back, shoulders bobbing and the body shaking, a hand on its belly.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/laugh.yml and change it there. Ticks: 20 a second.
+name: Laugh
+length: 38
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    ease: ease-out
+    torso-pitch: -3
+    head-pitch: -12
+    head-roll: 4
+    shoulders: 0.8
+    right-arm-forward: 60
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 7
+    torso-pitch: -2
+    torso-roll: 1.5
+    head-pitch: -8
+    head-roll: 4
+    shoulders: 0.1
+    right-arm-forward: 58
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 10
+    torso-pitch: -4
+    torso-roll: -1.5
+    head-pitch: -13
+    head-roll: 4
+    shoulders: 0.8
+    right-arm-forward: 60
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 13
+    torso-pitch: -2
+    torso-roll: 1.5
+    head-pitch: -8
+    head-roll: 4
+    shoulders: 0.1
+    right-arm-forward: 58
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 16
+    torso-pitch: -4
+    torso-roll: -1.5
+    head-pitch: -13
+    head-roll: 4
+    shoulders: 0.8
+    right-arm-forward: 60
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 19
+    torso-pitch: -2
+    torso-roll: 1.5
+    head-pitch: -8
+    head-roll: 4
+    shoulders: 0.1
+    right-arm-forward: 58
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 22
+    torso-pitch: -3
+    torso-roll: -1
+    head-pitch: -12
+    head-roll: 3
+    shoulders: 0.7
+    right-arm-forward: 60
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 25
+    torso-pitch: -2
+    head-pitch: -7
+    head-roll: 3
+    shoulders: 0.1
+    right-arm-forward: 58
+    right-arm-out: 4
+    right-arm-across: 32
+    left-arm-out: 4
+  - at: 28
+    torso-pitch: -2
+    head-pitch: -10
+    head-roll: 2
+    shoulders: 0.6
+    right-arm-forward: 58
+    right-arm-out: 4
+    right-arm-across: 30
+    left-arm-out: 3
+  - at: 32
+    ease: ease-in-out
+    head-pitch: -3
+    head-roll: 1
+    shoulders: 0.2
+    right-arm-forward: 30
+    right-arm-out: 2
+    right-arm-across: 12
+    left-arm-out: 1
+  - at: 38
+    ease: ease-in-out

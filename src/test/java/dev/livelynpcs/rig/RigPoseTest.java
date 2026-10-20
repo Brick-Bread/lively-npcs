@@ -233,6 +233,29 @@ class RigPoseTest {
     }
 
     @Test
+    void wholeTurnsOfTheNpcTorsoOrHeadAreTheSamePose() {
+        float[] want = new float[8], got = new float[8];
+        RigPose rest = pose().solve();
+        for (Channel c : new Channel[] {Channel.ROOT_YAW, Channel.TORSO_YAW, Channel.HEAD_YAW}) {
+            for (float turns : new float[] {360, -360, 720}) {
+                RigPose p = set(pose(), c, turns).solve();
+                for (Part part : Part.values()) {
+                    rest.display(part, SCALE, want);
+                    p.display(part, SCALE, got);
+                    assertArrayEquals(new float[] {want[0], want[1], want[2]}, new float[] {got[0], got[1], got[2]}, 1e-6f, c + " " + turns + " " + part);
+                    assertEquals(1, Math.abs(want[3] * got[3] + want[4] * got[4] + want[5] * got[5] + want[6] * got[6]), 1e-6, c + " " + part);
+                }
+                assertTrue(RigPose.atRest(c, turns), c + " " + turns);
+            }
+            assertEquals(-10, RigPose.shortWay(c, 350), 1e-4f, "the short way round");
+            assertEquals(30, RigPose.shortWay(c, 30), 1e-4f);
+        }
+        // Only turns: an arm raised 360 is not at rest.
+        assertEquals(350, RigPose.shortWay(Channel.RIGHT_ARM_FORWARD, 350), 1e-4f);
+        assertTrue(!RigPose.atRest(Channel.RIGHT_ARM_FORWARD, 360) && !RigPose.atRest(Channel.ROOT_YAW, 359));
+    }
+
+    @Test
     void displayTranslationTurnsWithTheBodyAndScales() {
         float[] t = new float[8];
         RigPose p = pose();

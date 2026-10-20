@@ -1,6 +1,7 @@
 package dev.livelynpcs.anim;
 
 import dev.livelynpcs.LivelyNpcs;
+import dev.livelynpcs.rig.RigPose;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -35,10 +36,15 @@ public final class AnimationStore implements AnimationService {
 
     /** The presets the jar ships, by id. */
     public static final List<String> PRESETS = List.of("greet", "wave", "talk", "beckon", "stretch", "look_around", "nod",
-            "head_shake", "shrug", "scratch_head", "clap", "foot_tap", "look_up", "hop");
-    /** What an NPC plays now and then when npcs.yml says idle: [] (it never plays one twice in a row). */
+            "head_shake", "shrug", "scratch_head", "clap", "foot_tap", "look_up", "hop",
+            "bow", "cheer", "point", "check_item", "dance", "wave_both", "salute", "yawn", "laugh", "think",
+            "spin_hop");
+    /**
+     * What an NPC plays now and then when npcs.yml says idle: [] (it never plays one twice in a row): the
+     * calm ones. Bow, cheer, dance, salute, wave_both and spin_hop are for greet, clicked or /npc play.
+     */
     public static final List<String> DEFAULT_IDLE = List.of("stretch", "look_around", "wave", "nod", "head_shake", "shrug",
-            "scratch_head", "clap", "foot_tap", "look_up");
+            "scratch_head", "clap", "foot_tap", "look_up", "check_item", "yawn", "think", "laugh", "point");
     /** Means "no animation" in commands and npcs.yml, so no animation may be called it. */
     public static final String NONE = "none";
 
@@ -194,7 +200,7 @@ public final class AnimationStore implements AnimationService {
         try {
             Animation a = parse(id, map, builtin, problems);
             for (String problem : problems) log.warning(where + ": " + problem);
-            if (!a.loop() && !a.endsAtRest()) {
+            if (!a.loop() && !endsAtRest(a)) {
                 log.warning(where + ": does not end at rest (every value 0), so the NPC jumps back to its own pose at the end");
             }
             return a;
@@ -202,6 +208,15 @@ public final class AnimationStore implements AnimationService {
             log.warning(where + ": " + e.getMessage() + ", so it is left out");
             return null;
         }
+    }
+
+    /**
+     * Whether it leaves the NPC in its own pose: every channel 0 at the last keyframe, where a whole turn
+     * of the NPC, its torso or its head (root-yaw 360, say: a full spin) is the same as 0 (RigPose.atRest).
+     */
+    static boolean endsAtRest(Animation animation) {
+        for (Channel c : Channel.ALL) if (!RigPose.atRest(c, animation.keyframes().getLast().value(c))) return false;
+        return true;
     }
 
     /** Animation.fromMap, plus a check of the keys it does not look at (so a typo is reported). */

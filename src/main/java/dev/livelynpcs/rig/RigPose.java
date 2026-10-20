@@ -89,7 +89,9 @@ public final class RigPose {
         set(Part.BODY, neck, torso);
         stretch = 1 + rise / TORSO;
 
-        double hy = clamp(gazeYaw + ch(Channel.HEAD_YAW), -HEAD_YAW_LIMIT, HEAD_YAW_LIMIT);
+        // Whole turns of the head's own yaw are no turn at all (wrapped first, so 360 is straight ahead).
+        double hy = clamp(gazeYaw + shortWay(Channel.HEAD_YAW, channels[Channel.HEAD_YAW.ordinal()]), -HEAD_YAW_LIMIT,
+                HEAD_YAW_LIMIT);
         double hp = clamp(gazePitch + ch(Channel.HEAD_PITCH) - BREATH_CHIN * breath, -HEAD_PITCH_LIMIT, HEAD_PITCH_LIMIT);
         set(Part.HEAD, neck, mul(torso, about(UP, -hy), about(ACROSS, hp), about(FRONT, ch(Channel.HEAD_ROLL))));
 
@@ -172,6 +174,24 @@ public final class RigPose {
         out[5] = (float) q[2];
         out[6] = (float) q[3];
         out[7] = part == Part.BODY ? (float) (scale * stretch) : scale;
+    }
+
+    /**
+     * Whether a channel turns the NPC, its torso or its head about the vertical (ROOT_YAW, TORSO_YAW,
+     * HEAD_YAW): values a whole turn apart (360, 720...) are the same pose.
+     */
+    public static boolean wholeTurns(Channel c) {
+        return c == Channel.ROOT_YAW || c == Channel.TORSO_YAW || c == Channel.HEAD_YAW;
+    }
+
+    /** A change in a channel taken the short way round: for a turning channel 360 is no change and 350 is -10. */
+    public static float shortWay(Channel c, float change) {
+        return wholeTurns(c) ? Look.wrap(change) : change;
+    }
+
+    /** Whether a channel value is its rest pose: 0, or a whole number of turns for a turning channel. */
+    public static boolean atRest(Channel c, float value) {
+        return shortWay(c, value) == 0;
     }
 
     /** The fixed right rotation of a part's display: the half turn for body parts, none for the held item. */

@@ -1,0 +1,29 @@
+# Salute: the right hand snaps up to the brow, chin up, held for a moment, then down.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/salute.yml and change it there. Ticks: 20 a second.
+name: Salute
+length: 40
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 6
+    ease: ease-out
+    torso-pitch: -2
+    head-pitch: -5
+    right-arm-forward: 152
+    right-arm-out: -18
+    right-arm-across: 20
+  - at: 28
+    torso-pitch: -2
+    head-pitch: -6
+    right-arm-forward: 152
+    right-arm-out: -18
+    right-arm-across: 20
+  - at: 35
+    ease: ease-in-out
+    right-arm-forward: 30
+    right-arm-out: -4
+    right-arm-across: 4
+  - at: 40
+    ease: ease-in-out
