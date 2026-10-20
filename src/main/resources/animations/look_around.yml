@@ -1,0 +1,20 @@
+# Look around: the head turns to its left, then its right. Only for players it is not looking at.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/look_around.yml and change it there. Ticks: 20 a second.
+name: Look around
+length: 60
+loop: false
+glance: true
+keyframes:
+  - at: 0
+  - at: 12
+    head-yaw: -45
+    head-pitch: 5
+  - at: 24
+    head-yaw: -45
+    head-pitch: 5
+  - at: 40
+    head-yaw: 45
+  - at: 52
+    head-yaw: 45
+  - at: 60

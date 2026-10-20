@@ -1,0 +1,20 @@
+# Head shake: no, no. Only for players it is not looking at.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/head_shake.yml and change it there. Ticks: 20 a second.
+name: Head shake
+length: 24
+loop: false
+glance: true
+keyframes:
+  - at: 0
+  - at: 4
+    head-yaw: -18
+  - at: 8
+    head-yaw: 18
+  - at: 12
+    head-yaw: -18
+  - at: 16
+    head-yaw: 18
+  - at: 20
+    head-yaw: -6
+  - at: 24

@@ -1,0 +1,41 @@
+# Shrug: shoulders up, hands out a little, the head tilted.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/shrug.yml and change it there. Ticks: 20 a second.
+name: Shrug
+length: 24
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    head-pitch: -4
+    head-roll: 5
+    shoulders: 1
+    right-arm-forward: 12
+    right-arm-out: 9
+    left-arm-forward: 12
+    left-arm-out: 9
+  - at: 8
+    head-pitch: -4
+    head-roll: 5
+    shoulders: 1
+    right-arm-forward: 12
+    right-arm-out: 9
+    left-arm-forward: 12
+    left-arm-out: 9
+  - at: 12
+    head-pitch: -4
+    head-roll: 5
+    shoulders: 1
+    right-arm-forward: 12
+    right-arm-out: 9
+    left-arm-forward: 12
+    left-arm-out: 9
+  - at: 18
+    head-roll: 2
+    shoulders: 0.4
+    right-arm-forward: 6
+    right-arm-out: 5
+    left-arm-forward: 6
+    left-arm-out: 5
+  - at: 24

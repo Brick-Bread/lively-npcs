@@ -1,0 +1,45 @@
+# Beckon: come over here! The right arm swings up and down in front.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/beckon.yml and change it there. Ticks: 20 a second.
+name: Beckon
+length: 36
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    right-arm-forward: 80
+    right-arm-across: 4
+  - at: 8
+    head-pitch: -4
+    head-roll: 4
+    right-arm-forward: 145
+    right-arm-out: -3
+    right-arm-across: 4
+  - at: 12
+    head-roll: 4
+    right-arm-forward: 85
+    right-arm-across: 4
+  - at: 16
+    head-pitch: -4
+    head-roll: 4
+    right-arm-forward: 145
+    right-arm-out: -3
+    right-arm-across: 4
+  - at: 20
+    head-roll: 4
+    right-arm-forward: 85
+    right-arm-across: 4
+  - at: 24
+    head-pitch: -4
+    head-roll: 4
+    right-arm-forward: 145
+    right-arm-out: -3
+    right-arm-across: 4
+  - at: 28
+    right-arm-forward: 90
+    right-arm-across: 3
+  - at: 32
+    right-arm-forward: 40
+  - at: 36
+    ease: ease-in-out
