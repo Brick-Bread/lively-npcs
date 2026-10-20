@@ -208,8 +208,83 @@ async function testGraph() {
   check(G.gridStep(100, 5) === 20 && G.gridStep(7, 6) === 2 && G.gridStep(1, 4) === 0.25, 'graph: value grid lines at round steps');
   console.log(`${failed === before ? 'ok  ' : 'BAD '} graph.js: curves drawn exactly as the game plays them, every easing`);
 }
-async function testImport() {}
-void SAMPLES;
+async function testImport() {
+  const Bb = await load('bbimport.js');
+  const Ax = await load('axes.js');
+  const An = await load('anim.js');
+  const Rig = await load('rig.js');
+  const before = failed;
+  const bbText = fs.readFileSync(path.join(SAMPLES, 'wave.bbmodel'), 'utf8');
+  const bedText = fs.readFileSync(path.join(SAMPLES, 'wave.animation.json'), 'utf8');
+
+  // Reading the files.
+  const bb = Bb.readFile('wave.bbmodel', bbText);
+  check(bb.kind === 'bbmodel' && !bb.flipped && bb.animations.length === 2, 'import: a Blockbench 5 .bbmodel with two animations');
+  check(bb.animations[0].bones.rightArm && !bb.animations[0].bones.Effects, 'import: bone animators are read, effect animators are not');
+  const bed = Bb.readFile('wave.animation.json', bedText);
+  check(bed.kind === 'bedrock' && bed.flipped && bed.animations.length === 2, 'import: a Bedrock .animation.json with two animations');
+  for (const [text, what] of [['not json', 'not JSON'], ['{}', 'no animations'], ['{"meta": {"format_version": "5.0"}, "animations": []}', 'a .bbmodel without animations']]) {
+    let threw = false;
+    try {
+      Bb.readFile('x', text);
+    } catch (e) {
+      threw = e.message.length > 10;
+    }
+    check(threw, `import: ${what} is refused with a message`);
+  }
+
+  // The wave from the .bbmodel.
+  const wave = Bb.convert(bb, bb.animations[0]);
+  const a = wave.animation;
+  const ats = a.keyframes.map(k => k.at).join(',');
+  check(ats === '0,4,5,7,8,10,15,20,32', `import: keyframes at every source keyframe, in ticks, and a tick before a jump (got ${ats})`);
+  check(a.length === 40 && a.loop === false, 'import: 2 seconds is 40 ticks, "once" plays once');
+  const at = t => a.keyframes.find(k => k.at === t);
+  check(near(at(10).values['right-arm-forward'], 165) && near(at(10).values['right-arm-out'], -30), 'import: right arm X 165, Z -30 is forward 165, out -30');
+  check(at(5).ease === 'ease-in-out' && at(32).ease === 'ease-in-out', 'import: catmullrom becomes ease in and out');
+  check(near(at(4).values['root-y'], 3) && at(8).ease === 'step' && !at(8).values['root-y'], 'import: a step hold, then the jump at the next keyframe');
+  // The head's three values together turn it exactly as Blockbench would.
+  const head = Rig.pose(at(10).values, {}).parts.head.rotation;
+  check(sameTurn(head, Ax.bbRotation(-10, -20, 8), 1e-3), 'import: the head turns exactly as Blockbench turns it (X -10, Y -20, Z 8)');
+  check(wave.report.mapped.some(m => m.startsWith('rightArm: rotation')) && wave.report.mapped.some(m => m.startsWith('root: position')), 'import: the report says what mapped');
+  check(wave.report.ignored.some(m => m.startsWith('rightArm scale')), 'import: scale is reported as left out');
+  check(wave.report.approximated.some(m => /catmullrom|ease in and out/.test(m)), 'import: smooth moves are reported as approximated');
+
+  // The same wave from the Bedrock file (rotation X/Y the other way round) is the same motion.
+  const wave2 = Bb.convert(bed, bed.animations[0]).animation;
+  for (const k of a.keyframes) {
+    const v1 = An.sample(a, k.at), v2 = An.sample(wave2, k.at);
+    check(An.DEFAULT_CHANNELS.every(c => near(v1[c], v2[c], 1e-3)), `import: the Bedrock file gives the same pose at tick ${k.at}`);
+  }
+  for (let t = 0; t <= 12; t++) check(near(An.sample(a, t)['root-y'], An.sample(wave2, t)['root-y'], 1e-6), `import: the hop is the same at tick ${t} (pre/post jump vs step)`);
+
+  // Extras: a value all the time, a leg's twist, Molang, a tail, a head's position, hold on last frame.
+  const extras = Bb.convert(bed, bed.animations[1]);
+  const e = extras.animation;
+  check(e.keyframes.every(k => near(k.values['left-arm-out'] || 0, 20)), 'import: a value all the time ([0, 0, -20] on the left arm) is on every keyframe: out 20');
+  const k10 = e.keyframes.find(k => k.at === 10);
+  check(k10 && near(k10.values['right-leg-forward'], 30), 'import: Bedrock right leg X -30 swings it forward 30');
+  const r = extras.report;
+  check(r.ignored.some(m => m.startsWith('tail')), 'import: a bone the rig does not have is reported');
+  check(r.ignored.some(m => m.startsWith('right_leg rotation Y')), 'import: a leg\'s twist is reported');
+  check(r.ignored.some(m => m.startsWith('head position')), 'import: a head\'s position is reported');
+  check(r.approximated.some(m => m.includes('Molang')), 'import: Molang is reported');
+  check(r.approximated.some(m => m.includes('Hold on last frame')), 'import: hold on last frame is reported');
+  check(r.approximated.some(m => m.includes('at the hips')), 'import: the body bone turning at the hips is reported');
+
+  // A loop, and a file from before Blockbench 5 (rotation X/Y the Bedrock way round).
+  const nod = Bb.convert(bb, bb.animations[1]).animation;
+  check(nod.loop && nod.length === 20 && near(nod.keyframes.find(k => k.at === 5).values['head-pitch'], 15), 'import: a looping nod, X -15 looks down 15');
+  const old = Bb.readFile('old.bbmodel', JSON.stringify({meta: {format_version: '4.10'}, outliner: [], animations: [{name: 'old', loop: 'once', length: 1,
+    animators: {a: {name: 'RightArm', type: 'bone', keyframes: [{channel: 'rotation', time: 0.5, interpolation: 'linear', data_points: [{x: -90, y: 0, z: 0}]}]}}}]}));
+  const oldAnim = Bb.convert(old, old.animations[0]).animation;
+  check(old.flipped && near(oldAnim.keyframes.find(k => k.at === 10).values['right-arm-forward'], 90), 'import: a pre-5.0 .bbmodel\'s X -90 is an arm raised in front');
+
+  // Names and ids.
+  check(Bb.boneOf('RightArm') === 'right_arm' && Bb.boneOf('right_arm') === 'right_arm' && Bb.boneOf('rightArm') === 'right_arm' && Bb.boneOf('Torso') === 'body' && !Bb.boneOf('tail'), 'import: bone names, case and separators ignored');
+  check(Bb.suggestId('animation.player.wave_hello') === 'player_wave_hello' && Bb.suggestId('Wave', new Set(['wave'])) === 'wave_2', 'import: ids made from the animation\'s name');
+  console.log(`${failed === before ? 'ok  ' : 'BAD '} bbimport.js: .bbmodel and Bedrock files converted, with their report`);
+}
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const {failed: f} = await run();

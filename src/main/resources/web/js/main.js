@@ -173,8 +173,30 @@ function redo() {
   if (!St.redo()) toast('Nothing to redo.', 'info', 1400);
 }
 
-function openImport() {
-  import('./import-dialog.js').then(m => m.openImportDialog()).catch(() => toast('Import from Blockbench is not here yet.', 'info'));
+/** File > Import from Blockbench; with {name, text}, a file already read (dropped on the page). */
+function openImport(initial = null) {
+  import('./import-dialog.js').then(m => m.openImportDialog(initial)).catch(e => toast('The importer could not open: ' + e.message, 'error'));
+}
+
+/** A .bbmodel or .animation.json dropped anywhere on the page opens the importer with it. */
+function bindDrop() {
+  const files = e => e.dataTransfer && [...(e.dataTransfer.types || [])].includes('Files');
+  window.addEventListener('dragover', e => {
+    if (files(e) && !e.defaultPrevented) e.preventDefault();
+  });
+  window.addEventListener('drop', async e => {
+    if (!files(e) || e.defaultPrevented) return;
+    // Never let the browser open the file in place of the editor.
+    e.preventDefault();
+    if (document.querySelector('.modal-back')) return;
+    const f = e.dataTransfer.files[0];
+    if (!f) return;
+    if (!/\.(bbmodel|json)$/i.test(f.name)) {
+      toast('Drop a Blockbench .bbmodel or a Bedrock .animation.json here to import its animations.', 'info');
+      return;
+    }
+    openImport({name: f.name, text: await f.text()});
+  });
 }
 
 const animOpen = () => S.mode === 'animations' && !!St.animEntry();
@@ -231,7 +253,7 @@ function mount() {
   });
   mountGizmo(viewport);
   mountOnion(viewport, {S, St});
-  window.__editor = {S, viewport, St};
+  window.__editor = {S, viewport, St, importText: (name, text) => openImport({name, text})};
   mountTimeline(document.getElementById('timeline'), {graph: graphView()});
   mountStageBar(viewport);
   mountPlate(viewport);
@@ -300,6 +322,7 @@ function mount() {
   requestAnimationFrame(frame);
 
   bindKeys();
+  bindDrop();
   setInterval(() => refresh(false), 5000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(true); });
   window.addEventListener('beforeunload', e => {

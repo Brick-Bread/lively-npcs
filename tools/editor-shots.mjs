@@ -53,10 +53,10 @@ export const SHOTS = {
   'npc-mode': `
     const {St, viewport} = window.__editor;
     St.setMode('npcs'); St.selectNpc('mobshop'); viewport.view('three-quarter', false);`,
-  'import-dialog': `
+  'import-dialog': () => `
     const {St} = window.__editor;
-    St.setMode('animations'); St.setView({graph: false, onion: false});
-    return window.__editor.importSample && window.__editor.importSample();`,
+    St.setMode('animations'); St.selectAnim('wave'); St.setView({graph: false, onion: false});
+    window.__editor.importText('wave.bbmodel', ${JSON.stringify(fs.readFileSync(path.join(ROOT, 'src/test/resources/blockbench/wave.bbmodel'), 'utf8'))});`,
 };
 
 /** A TCP port nothing listens on right now. */
@@ -166,7 +166,8 @@ async function main() {
     await sleep(800);
     for (const name of names) {
       await cdp.evaluate(`document.querySelectorAll('.modal-back').forEach(m => m.remove()); undefined`);
-      await cdp.evaluate(`(async () => { ${SHOTS[name]} })()`);
+      const code = typeof SHOTS[name] === 'function' ? SHOTS[name]() : SHOTS[name];
+      await cdp.evaluate(`(async () => { ${code} })()`);
       await sleep(900);
       const shot = await cdp.send('Page.captureScreenshot', {format: 'png'});
       const file = path.join(OUT, name + '.png');

@@ -470,6 +470,24 @@ input[type="range"].slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0
 .modal-head { height: 32px; flex: none; display: flex; align-items: center; padding: 0 12px; font-weight: 600; font-size: 13px; background: var(--head); border-bottom: 1px solid var(--line); }
 .modal-body { padding: 12px 14px 6px; color: var(--text-2); display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; }
 .modal-foot { padding: 10px 14px 12px; display: flex; justify-content: flex-end; gap: 6px; flex: none; }
+.import-body { display: flex; flex-direction: column; gap: 10px; min-height: 120px; }
+.import-file { display: flex; align-items: center; gap: 6px; color: var(--text); }
+.import-file:empty { display: none; }
+.import-grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 14px; }
+.import-left { display: flex; flex-direction: column; gap: 4px; }
+.import-preview { position: relative; width: 300px; height: 330px; background: #2a2d34; border-radius: var(--radius); overflow: hidden; }
+.import-preview canvas { display: block; width: 100%; height: 100%; }
+.import-time { font: 11.5px/1 var(--mono); color: var(--text-3); text-align: center; }
+.import-right { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.import-right .prop-grid { grid-template-columns: 84px minmax(0, 1fr); }
+.import-facts { display: flex; gap: 12px; color: var(--text-2); font-size: 12px; }
+.import-report { display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; }
+.import-list-head { display: flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; }
+.import-list.ok .import-list-head { color: var(--ok); }
+.import-list.warn .import-list-head { color: var(--warn); }
+.import-list.off .import-list-head { color: var(--text-3); }
+.import-list ul { margin: 3px 0 0; padding-left: 20px; color: var(--text-2); font-size: 12px; }
+.import-list li { margin: 1px 0; }
 .shortcuts { display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; align-items: center; font-size: 12.5px; }
 .shortcuts .keys { display: flex; gap: 3px; justify-content: flex-end; }
 .shortcuts .group { grid-column: 1 / 3; color: var(--text-3); font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; margin-top: 6px; }

@@ -140,7 +140,7 @@ export function toast(message, kind = 'info', ms = 4200) {
  * A dialog. actions: [{label, kind ('primary' | 'danger' | ''), value, disabled}]; resolves with the
  * chosen action's value (undefined when closed). body may be a Node or text. onOpen(el) after showing.
  */
-export function dialog({title, body, actions = [{label: 'OK', kind: 'primary', value: true}], onOpen, enterValue}) {
+export function dialog({title, body, actions = [{label: 'OK', kind: 'primary', value: true}], onOpen, enterValue, wide = false}) {
   return new Promise(resolve => {
     const root = document.getElementById('modal-root');
     const previous = document.activeElement;
@@ -160,7 +160,7 @@ export function dialog({title, body, actions = [{label: 'OK', kind: 'primary', v
       disabled: !!a.disabled,
       on: {click: () => finish(typeof a.value === 'function' ? a.value() : a.value)},
     }));
-    const modal = h('div', {class: 'modal', role: 'dialog', attrs: {'aria-modal': 'true', 'aria-label': title}},
+    const modal = h('div', {class: ['modal', wide && 'wide'], role: 'dialog', attrs: {'aria-modal': 'true', 'aria-label': title}},
       h('div', {class: 'modal-head', text: title}),
       h('div', {class: 'modal-body'}, typeof body === 'string' ? h('p', {text: body, style: {margin: 0}}) : body),
       h('div', {class: 'modal-foot'}, buttons));
