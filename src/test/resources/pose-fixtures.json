@@ -1,0 +1,2497 @@
+{
+  "about": "Lively NPCs rig poses (DESIGN.md 'Coordinates and the rig maths'): inputs and the parts' origins and rotations in the body frame (rig pixels, +y up, facing +z, its right -x), and the item display transformations made from them. Written by PoseFixturesTest (see its javadoc for the shape); checked by it and by tools/check-editor-pose.mjs.",
+  "parts": [
+    "head",
+    "body",
+    "right_arm",
+    "left_arm",
+    "right_leg",
+    "left_leg",
+    "held"
+  ],
+  "poses": [
+    {
+      "name": "rest facing south",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "rest facing west",
+      "input": {
+        "yaw": 90,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, -0.707106781, 0, 0.707106781],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -0.707106781, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -0.707106781, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, -0.3515625],
+            "leftRotation": [0, -0.707106781, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0.3515625],
+            "leftRotation": [0, -0.707106781, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 0.703125, -0.1171875],
+            "leftRotation": [0, -0.707106781, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 0.703125, 0.1171875],
+            "leftRotation": [0, -0.707106781, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [-0.1171875, 0.703125, 0.3515625],
+            "leftRotation": [0.5, -0.5, 0.5, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "rest facing north-east",
+      "input": {
+        "yaw": -135,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, 0.923879533, 0, 0.382683432],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0.923879533, 0, 0.382683432],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0.923879533, 0, 0.382683432],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.248592228, 1.40625, 0.248592228],
+            "leftRotation": [0, 0.923879533, 0, 0.382683432],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.248592228, 1.40625, -0.248592228],
+            "leftRotation": [0, 0.923879533, 0, 0.382683432],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.082864076, 0.703125, 0.082864076],
+            "leftRotation": [0, 0.923879533, 0, 0.382683432],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.082864076, 0.703125, -0.082864076],
+            "leftRotation": [0, 0.923879533, 0, 0.382683432],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [-0.165728152, 0.703125, -0.331456304],
+            "leftRotation": [0.27059805, 0.653281482, -0.653281482, 0.27059805],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "rest facing north, slim",
+      "input": {
+        "yaw": 180,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": true,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, -1, 0, 0],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -1, 0, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -1, 0, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.5, 23.5, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.322265625, 1.376953125, 0],
+            "leftRotation": [0, -1, 0, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [5.5, 23.5, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.322265625, 1.376953125, 0],
+            "leftRotation": [0, -1, 0, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, -1, 0, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, -1, 0, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [5.5, 11.5, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [-0.322265625, 0.673828125, -0.1171875],
+            "leftRotation": [0, -0.707106781, 0.707106781, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "head yaw",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "head-yaw": 30
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, -0.258819045, 0, 0.965925826],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -0.258819045, 0, 0.965925826],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "head pitch and roll",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "head-pitch": 20,
+          "head-roll": 10
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0.172987394, -0.015134436, 0.085831651, 0.981060262],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0.172987394, -0.015134436, 0.085831651, 0.981060262],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "gaze: body, head yaw and pitch",
+      "input": {
+        "yaw": 40,
+        "gazeBody": 20,
+        "gazeYaw": 40,
+        "gazePitch": -15,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, -0.5, 0, 0.866025404],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [-0.1226545, -0.339094114, -0.044642587, 0.93165342],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [-0.083900619, -0.759490827, -0.099988864, 0.637288473],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.17578125, 1.40625, -0.304462056],
+            "leftRotation": [0, -0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.17578125, 1.40625, 0.304462056],
+            "leftRotation": [0, -0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.05859375, 0.703125, -0.101487352],
+            "leftRotation": [0, -0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.05859375, 0.703125, 0.101487352],
+            "leftRotation": [0, -0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.074293898, 0.703125, 0.363055806],
+            "leftRotation": [0.612372436, -0.353553391, 0.353553391, 0.612372436],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "gaze plus head yaw past the limit",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 70,
+        "gazePitch": 50,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "head-yaw": 30,
+          "head-pitch": 30
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0.383022222, -0.556670399, 0.321393805, 0.663413948],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0.383022222, -0.556670399, 0.321393805, 0.663413948],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "deep breath",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 1,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1.025,
+        "parts": {
+          "head": {
+            "origin": [0, 24.3, 0],
+            "rotation": [-0.013089596, 0, 0, 0.999914328],
+            "translation": [0, 1.423828125, 0],
+            "leftRotation": [-0.013089596, 0, 0, 0.999914328],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24.3, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.423828125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9609375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.911809447, 24.341715831, 0],
+            "rotation": [0, 0, -0.021814885, 0.999762027],
+            "translation": [-0.346395085, 1.426272412, 0],
+            "leftRotation": [0, 0, -0.021814885, 0.999762027],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [5.911809447, 24.341715831, 0],
+            "rotation": [0, 0, 0.021814885, 0.999762027],
+            "translation": [0.346395085, 1.426272412, 0],
+            "leftRotation": [0, 0, 0.021814885, 0.999762027],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6.435242095, 12.353137172, 2],
+            "rotation": [0.706938509, 0.015425453, 0.015425453, 0.706938509],
+            "translation": [0.377064967, 0.723816631, 0.1171875],
+            "leftRotation": [0.706938509, 0.015425453, 0.015425453, 0.706938509],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "half breath, slim",
+      "input": {
+        "yaw": -60,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0.5,
+        "lean": 0,
+        "slim": true,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, 0.5, 0, 0.866025404],
+        "root": [0, 0, 0],
+        "stretch": 1.0125,
+        "parts": {
+          "head": {
+            "origin": [0, 24.15, 0],
+            "rotation": [-0.006544938, 0, 0, 0.999978582],
+            "translation": [0, 1.415039062, 0],
+            "leftRotation": [-0.005668083, 0.499989291, 0.003272469, 0.866006855],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24.15, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.415039062, 0],
+            "leftRotation": [0, 0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.94921875, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.456251243, 23.660431497, 0],
+            "rotation": [0, 0, -0.010908091, 0.999940505],
+            "translation": [-0.159851111, 1.386353408, 0.276870245],
+            "leftRotation": [-0.005454046, 0.499970253, -0.009446684, 0.86597388],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [5.456251243, 23.660431497, 0],
+            "rotation": [0, 0, 0.010908091, 0.999940505],
+            "translation": [0.159851111, 1.386353408, -0.276870245],
+            "leftRotation": [0.005454046, 0.499970253, 0.009446684, 0.86597388],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.05859375, 0.703125, 0.101487352],
+            "leftRotation": [0, 0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.05859375, 0.703125, -0.101487352],
+            "leftRotation": [0, 0.5, 0, 0.866025404],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [5.717910877, 11.674194614, 2],
+            "rotation": [0.707064712, 0.007713185, 0.007713185, 0.707064712],
+            "translation": [0.269004272, 0.684034841, -0.231554067],
+            "leftRotation": [0.616192595, 0.36021217, -0.346852541, 0.60847941],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "weight on the left foot",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0.5,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.029296875, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.029296875, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.322265625, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.380859375, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-1.5, 11.989578808, 0],
+            "rotation": [0, 0, -0.020837858, 0.999782868],
+            "translation": [-0.087890625, 0.702514383, 0],
+            "leftRotation": [0, 0, -0.020837858, 0.999782868],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2.5, 11.989578808, 0],
+            "rotation": [0, 0, -0.020837858, 0.999782868],
+            "translation": [0.146484375, 0.702514383, 0],
+            "leftRotation": [0, 0, -0.020837858, 0.999782868],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6.5, 11.989578808, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.380859375, 0.702514383, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "weight on the right foot, facing south-west",
+      "input": {
+        "yaw": 45,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": -0.5,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {}
+      },
+      "expect": {
+        "bodyTurn": [0, -0.382683432, 0, 0.923879533],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [-0.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.020716019, 1.405639383, -0.020716019],
+            "leftRotation": [0, -0.382683432, 0, 0.923879533],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [-0.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.020716019, 1.405639383, -0.020716019],
+            "leftRotation": [0, -0.382683432, 0, 0.923879533],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.269308247, 1.405639383, -0.269308247],
+            "leftRotation": [0, -0.382683432, 0, 0.923879533],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [5.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.227876209, 1.405639383, 0.227876209],
+            "leftRotation": [0, -0.382683432, 0, 0.923879533],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2.5, 11.989578808, 0],
+            "rotation": [0, 0, 0.020837858, 0.999782868],
+            "translation": [-0.103580095, 0.702514383, -0.103580095],
+            "leftRotation": [-0.007974303, -0.38260034, 0.01925167, 0.923678929],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [1.5, 11.989578808, 0],
+            "rotation": [0, 0, 0.020837858, 0.999782868],
+            "translation": [0.062148057, 0.702514383, 0.062148057],
+            "leftRotation": [-0.007974303, -0.38260034, 0.01925167, 0.923678929],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [5.5, 11.989578808, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.145012133, 0.702514383, 0.310740285],
+            "leftRotation": [0.653281482, -0.27059805, 0.27059805, 0.653281482],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "right arm pointing ahead",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-arm-forward": 90
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 22, -2],
+            "rotation": [-0.707106781, 0, 0, 0.707106781],
+            "translation": [-0.3515625, 1.2890625, -0.1171875],
+            "leftRotation": [-0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "right arm out to its side",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-arm-out": 90
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-3, 23, 0],
+            "rotation": [0, 0, -0.707106781, 0.707106781],
+            "translation": [-0.17578125, 1.34765625, 0],
+            "leftRotation": [0, 0, -0.707106781, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "right arm ahead and across",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-arm-forward": 90,
+          "right-arm-across": 30
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6.866025404, 22, -1.232050808],
+            "rotation": [-0.683012702, 0.183012702, 0.183012702, 0.683012702],
+            "translation": [-0.402306176, 1.2890625, -0.072190477],
+            "leftRotation": [-0.683012702, 0.183012702, 0.183012702, 0.683012702],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "left arm waving, slim",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": true,
+        "scale": 0.9375,
+        "channels": {
+          "left-arm-forward": 160,
+          "left-arm-out": -8
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.5, 23.5, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.322265625, 1.376953125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [5.233574162, 19.569318256, -0.684040287],
+            "rotation": [-0.982408811, 0.068696716, -0.012113085, 0.173225179],
+            "translation": [0.306654736, 1.146639742, -0.040080486],
+            "leftRotation": [-0.982408811, 0.068696716, -0.012113085, 0.173225179],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6.893267436, 31.343686121, 1.540816192],
+            "rotation": [-0.572179233, 0.04001067, -0.057141158, 0.817156631],
+            "translation": [0.403902389, 1.836544109, 0.090282199],
+            "leftRotation": [-0.572179233, 0.04001067, -0.057141158, 0.817156631],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "stretch top",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-arm-forward": 176,
+          "left-arm-forward": 176,
+          "right-arm-out": -12,
+          "left-arm-out": -12,
+          "shoulders": 1,
+          "head-pitch": -16
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [-0.139173101, 0, 0, 0.990268069],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [-0.139173101, 0, 0, 0.990268069],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.563337144, 20.840558545, -0.139512947],
+            "rotation": [-0.99391606, -0.104464787, 0.003647991, 0.034708314],
+            "translation": [-0.325976786, 1.221126477, -0.008174587],
+            "leftRotation": [-0.99391606, -0.104464787, 0.003647991, 0.034708314],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [5.563337144, 20.840558545, -0.139512947],
+            "rotation": [-0.99391606, 0.104464787, -0.003647991, 0.034708314],
+            "translation": [0.325976786, 1.221126477, -0.008174587],
+            "leftRotation": [-0.99391606, 0.104464787, -0.003647991, 0.034708314],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [8.081206257, 32.686201387, -1.297563363],
+            "rotation": [-0.678262302, 0.071288241, -0.076447279, 0.72734727],
+            "translation": [0.473508179, 1.915207113, -0.076029103],
+            "leftRotation": [-0.678262302, 0.071288241, -0.076447279, 0.72734727],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "bow",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "torso-pitch": 30
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 22.392304845, 6],
+            "rotation": [0.258819045, 0, 0, 0.965925826],
+            "translation": [0, 1.312049112, 0.3515625],
+            "leftRotation": [0.258819045, 0, 0, 0.965925826],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 22.392304845, 6],
+            "rotation": [0.258819045, 0, 0, 0.965925826],
+            "translation": [0, 1.312049112, 0.3515625],
+            "leftRotation": [0.258819045, 0, 0, 0.965925826],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 22.392304845, 6],
+            "rotation": [0.258819045, 0, 0, 0.965925826],
+            "translation": [-0.3515625, 1.312049112, 0.3515625],
+            "leftRotation": [0.258819045, 0, 0, 0.965925826],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 22.392304845, 6],
+            "rotation": [0.258819045, 0, 0, 0.965925826],
+            "translation": [0.3515625, 1.312049112, 0.3515625],
+            "leftRotation": [0.258819045, 0, 0, 0.965925826],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 11, 1.732050808],
+            "rotation": [0.866025404, 0, 0, 0.5],
+            "translation": [0.3515625, 0.64453125, 0.101487352],
+            "leftRotation": [0.866025404, 0, 0, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "torso roll and twist",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "torso-roll": -15,
+          "torso-yaw": 20
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [2.918524162, 23.591109915, 1.062255923],
+            "rotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "translation": [0.171007275, 1.382291597, 0.062241558],
+            "leftRotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [2.918524162, 23.591109915, 1.062255923],
+            "rotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "translation": [0.171007275, 1.382291597, 0.062241558],
+            "leftRotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-2.527516066, 25.144024186, -0.919940614],
+            "rotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "translation": [-0.148096644, 1.473282667, -0.05390277],
+            "leftRotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [8.364564389, 22.038195645, 3.04445246],
+            "rotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "translation": [0.490111195, 1.291300526, 0.178385886],
+            "leftRotation": [0.022665635, -0.172162593, -0.128543206, 0.976382586],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [4.76199994, 10.447085729, 3.861581779],
+            "rotation": [0.706433772, -0.21263111, 0.030843565, 0.674379723],
+            "translation": [0.279023434, 0.612133929, 0.226264557],
+            "leftRotation": [0.706433772, -0.21263111, 0.030843565, 0.674379723],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "bent with arms forward",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "torso-pitch": 20,
+          "right-arm-forward": 45,
+          "left-arm-forward": 45,
+          "head-pitch": 10
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 23.276311449, 4.10424172],
+            "rotation": [0.258819045, 0, 0, 0.965925826],
+            "translation": [0, 1.363846374, 0.240482913],
+            "leftRotation": [0.258819045, 0, 0, 0.965925826],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 23.276311449, 4.10424172],
+            "rotation": [0.173648178, 0, 0, 0.984807753],
+            "translation": [0, 1.363846374, 0.240482913],
+            "leftRotation": [0.173648178, 0, 0, 0.984807753],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 23.209541782, 2.57496491],
+            "rotation": [-0.216439614, 0, 0, 0.976296007],
+            "translation": [-0.3515625, 1.359934089, 0.15087685],
+            "leftRotation": [-0.216439614, 0, 0, 0.976296007],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 23.209541782, 2.57496491],
+            "rotation": [-0.216439614, 0, 0, 0.976296007],
+            "translation": [0.3515625, 1.359934089, 0.15087685],
+            "leftRotation": [-0.216439614, 0, 0, 0.976296007],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 13.179084861, 9.458999625],
+            "rotation": [0.537299608, 0, 0, 0.843391446],
+            "translation": [0.3515625, 0.772212004, 0.554238259],
+            "leftRotation": [0.537299608, 0, 0, 0.843391446],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "root step",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "root-x": 3,
+          "root-y": 2,
+          "root-z": -4
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [-3, 2, -4],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.17578125, 1.5234375, -0.234375],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.17578125, 1.5234375, -0.234375],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.52734375, 1.5234375, -0.234375],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.17578125, 1.5234375, -0.234375],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.29296875, 0.8203125, -0.234375],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.05859375, 0.8203125, -0.234375],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.17578125, 0.8203125, -0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "root spin",
+      "input": {
+        "yaw": 30,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "root-yaw": 90
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, -0.866025404, 0, 0.5],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -0.866025404, 0, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, -0.866025404, 0, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.17578125, 1.40625, -0.304462056],
+            "leftRotation": [0, -0.866025404, 0, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.17578125, 1.40625, 0.304462056],
+            "leftRotation": [0, -0.866025404, 0, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.05859375, 0.703125, -0.101487352],
+            "leftRotation": [0, -0.866025404, 0, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.05859375, 0.703125, 0.101487352],
+            "leftRotation": [0, -0.866025404, 0, 0.5],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [-0.277268602, 0.703125, 0.245868306],
+            "leftRotation": [0.353553391, -0.612372436, 0.612372436, 0.353553391],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "greet frame: hop and arm up",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "root-y": 3.5,
+          "right-arm-forward": 90
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 3.5, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.611328125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.611328125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 22, -2],
+            "rotation": [-0.707106781, 0, 0, 0.707106781],
+            "translation": [-0.3515625, 1.494140625, -0.1171875],
+            "leftRotation": [-0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.611328125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.908203125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.908203125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.908203125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "legs forward and out",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-leg-forward": 30,
+          "left-leg-out": 15
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [-0.258819045, 0, 0, 0.965925826],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [-0.258819045, 0, 0, 0.965925826],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0.130526192, 0.991444861],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0.130526192, 0.991444861],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "legs with a lean",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0.5,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "left-leg-forward": -20,
+          "right-leg-out": 10
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.029296875, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.029296875, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.322265625, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6.5, 23.989578808, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.380859375, 1.405639383, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-1.5, 11.989578808, 0],
+            "rotation": [0, 0, -0.107895382, 0.994162254],
+            "translation": [-0.087890625, 0.702514383, 0],
+            "leftRotation": [0, 0, -0.107895382, 0.994162254],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2.5, 11.989578808, 0],
+            "rotation": [0.173610473, -0.003618456, -0.020521284, 0.98459392],
+            "translation": [0.146484375, 0.702514383, 0],
+            "leftRotation": [0.173610473, -0.003618456, -0.020521284, 0.98459392],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6.5, 11.989578808, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.380859375, 0.702514383, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "held item, arm reaching",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "left-arm-forward": 70,
+          "left-arm-across": 20
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6.58248023, 22.684040287, -1.4240243],
+            "rotation": [-0.564862521, -0.14224426, -0.099600503, 0.806707284],
+            "translation": [0.385692201, 1.329142986, -0.083438924],
+            "leftRotation": [-0.564862521, -0.14224426, -0.099600503, 0.806707284],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [2.491799015, 20.459183808, 9.815029969],
+            "rotation": [0.171010072, -0.171010072, 0.03015369, 0.96984631],
+            "translation": [0.146003849, 1.198780301, 0.575099412],
+            "leftRotation": [0.171010072, -0.171010072, 0.03015369, 0.96984631],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "held item, slim, arm out, breathing",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 1,
+        "lean": 0,
+        "slim": true,
+        "scale": 0.9375,
+        "channels": {
+          "left-arm-out": 40,
+          "left-arm-forward": 10
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1.025,
+        "parts": {
+          "head": {
+            "origin": [0, 24.3, 0],
+            "rotation": [-0.013089596, 0, 0, 0.999914328],
+            "translation": [0, 1.423828125, 0],
+            "leftRotation": [-0.013089596, 0, 0, 0.999914328],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24.3, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.423828125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9609375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-5.412285336, 23.819906137, 0],
+            "rotation": [0, 0, -0.021814885, 0.999762027],
+            "translation": [-0.317126094, 1.395697625, 0],
+            "leftRotation": [0, 0, -0.021814885, 0.999762027],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [4.03798572, 23.589947979, -0.347296355],
+            "rotation": [-0.081229838, -0.031588556, 0.361058852, 0.928461298],
+            "translation": [0.236600726, 1.382223514, -0.020349396],
+            "leftRotation": [-0.081229838, -0.031588556, 0.361058852, 0.928461298],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [11.655912063, 15.470879565, 3.706097283],
+            "rotation": [0.599083111, 0.23297068, 0.277643645, 0.713959449],
+            "translation": [0.682963597, 0.90649685, 0.217154138],
+            "leftRotation": [0.599083111, 0.23297068, 0.277643645, 0.713959449],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "scratch head frame",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-arm-forward": 204,
+          "right-arm-out": 10,
+          "right-arm-across": 10,
+          "head-pitch": 8,
+          "head-roll": 5
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0.069690081, -0.003042735, 0.043513133, 0.99661459],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0.069690081, -0.003042735, 0.043513133, 0.99661459],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6.148005193, 20.347147552, 0.974762977],
+            "rotation": [0.972296794, -0.066875031, -0.102978517, 0.198902238],
+            "translation": [-0.360234679, 1.192215677, 0.057115018],
+            "leftRotation": [0.972296794, -0.066875031, -0.102978517, 0.198902238],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.3515625, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [6, 12, 2],
+            "rotation": [0.707106781, 0, 0, 0.707106781],
+            "translation": [0.3515625, 0.703125, 0.1171875],
+            "leftRotation": [0.707106781, 0, 0, 0.707106781],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "clap frame",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-arm-forward": 65,
+          "left-arm-forward": 65,
+          "right-arm-across": 25,
+          "left-arm-across": 25,
+          "head-pitch": 6
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0.052335956, 0, 0, 0.998629535],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0.052335956, 0, 0, 0.998629535],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6.67235223, 22.845236523, -1.220169348],
+            "rotation": [-0.524563462, 0.182543319, 0.11629292, 0.823399701],
+            "translation": [-0.390958138, 1.338588078, -0.071494298],
+            "leftRotation": [-0.524563462, 0.182543319, 0.11629292, 0.823399701],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [6.67235223, 22.845236523, -1.220169348],
+            "rotation": [-0.524563462, -0.182543319, -0.11629292, 0.823399701],
+            "translation": [0.390958138, 1.338588078, -0.071494298],
+            "leftRotation": [-0.524563462, -0.182543319, -0.11629292, 0.823399701],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [1.718873181, 19.586432957, 9.402600753],
+            "rotation": [0.211309131, -0.211309131, 0.046846106, 0.953153894],
+            "translation": [0.100715225, 1.147642556, 0.550933638],
+            "leftRotation": [0.211309131, -0.211309131, 0.046846106, 0.953153894],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "everything at once",
+      "input": {
+        "yaw": 200,
+        "gazeBody": -15,
+        "gazeYaw": -30,
+        "gazePitch": 25,
+        "breath": 0.7,
+        "lean": -0.3,
+        "slim": true,
+        "scale": 1.5,
+        "channels": {
+          "torso-pitch": 10,
+          "torso-roll": 5,
+          "torso-yaw": -10,
+          "root-x": 1,
+          "root-y": 1,
+          "root-z": 1,
+          "root-yaw": -20,
+          "head-yaw": 10,
+          "head-pitch": 5,
+          "head-roll": -5,
+          "shoulders": 0.5,
+          "right-arm-forward": 45,
+          "right-arm-out": 20,
+          "right-arm-across": 10,
+          "left-arm-forward": 120,
+          "left-arm-out": 5,
+          "left-arm-across": -10,
+          "right-leg-forward": 15,
+          "right-leg-out": 5,
+          "left-leg-forward": -10,
+          "left-leg-out": 3
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, -0.991444861, 0, 0.130526192],
+        "root": [0.707106781, 1, -1.224744871],
+        "stretch": 1.0175,
+        "parts": {
+          "head": {
+            "origin": [-0.981228945, 23.974995211, 2.264878841],
+            "rotation": [0.309275514, 0.272323167, -0.053931748, 0.909549402],
+            "translation": [0.100191317, 2.341405801, -0.343725991],
+            "leftRotation": [0.09383891, -0.866222775, 0.299590113, 0.388713425],
+            "scale": [1.5, 1.5, 1.5],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [-0.981228945, 23.974995211, 2.264878841],
+            "rotation": [0.090528665, 0.082954238, 0.035699155, 0.991790666],
+            "translation": [0.100191317, 2.341405801, -0.343725991],
+            "leftRotation": [-0.023577382, -0.972478059, 0.094413855, 0.211699212],
+            "scale": [1.5, 1.52625, 1.5],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-6.258713364, 23.353573057, 1.737671362],
+            "rotation": [-0.290925563, 0.225191333, -0.063774682, 0.927676652],
+            "translation": [0.590889114, 2.283147474, -0.424038819],
+            "leftRotation": [0.025255674, -0.890346882, -0.296760921, 0.344350891],
+            "scale": [1.5, 1.5, 1.5],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [4.099225375, 21.827568642, -0.863726886],
+            "rotation": [-0.803153139, -0.00666115, 0.192400552, 0.563810866],
+            "translation": [-0.283958616, 2.14008456, 0.062860203],
+            "leftRotation": [-0.29558706, -0.55985684, -0.771168741, 0.066987923],
+            "scale": [1.5, 1.5, 1.5],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2.299999952, 11.996249414, 0],
+            "rotation": [-0.130462945, 0.004062876, -0.030860605, 0.990964448],
+            "translation": [0.274569013, 1.218398383, -0.170627687],
+            "leftRotation": [0.013567757, -0.981956298, -0.133374933, 0.133374933],
+            "scale": [1.5, 1.5, 1.5],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [1.700000048, 11.996249414, 0],
+            "rotation": [0.087090548, 0.003370452, 0.038524439, 0.995449519],
+            "translation": [-0.087653172, 1.218398383, -0.073570545],
+            "leftRotation": [-0.02682726, -0.986493378, 0.091373925, 0.133273852],
+            "scale": [1.5, 1.5, 1.5],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [5.912250291, 28.074410166, 9.38273955],
+            "rotation": [-0.169240544, 0.131337591, 0.140757879, 0.966589517],
+            "translation": [-0.696761265, 2.725725953, -0.821022408],
+            "leftRotation": [-0.161644, -0.941177214, -0.149420078, 0.256379229],
+            "scale": [1.5, 1.5, 1.5],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    },
+    {
+      "name": "arms at the ends of their range",
+      "input": {
+        "yaw": 0,
+        "gazeBody": 0,
+        "gazeYaw": 0,
+        "gazePitch": 0,
+        "breath": 0,
+        "lean": 0,
+        "slim": false,
+        "scale": 0.9375,
+        "channels": {
+          "right-arm-forward": 220,
+          "right-arm-out": 180,
+          "left-arm-forward": -90,
+          "left-arm-out": -60,
+          "left-arm-across": 90
+        }
+      },
+      "expect": {
+        "bodyTurn": [0, 0, 0, 1],
+        "root": [0, 0, 0],
+        "stretch": 1,
+        "parts": {
+          "head": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "body": {
+            "origin": [0, 24, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0, 1.40625, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_arm": {
+            "origin": [-4, 23.532088886, 1.285575219],
+            "rotation": [0, -0.939692621, -0.342020143, 0],
+            "translation": [-0.234375, 1.378833333, 0.075326673],
+            "leftRotation": [0, -0.939692621, -0.342020143, 0],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_arm": {
+            "origin": [4, 23.732050808, 1],
+            "rotation": [0.183012702, -0.683012702, 0.183012702, 0.683012702],
+            "translation": [0.234375, 1.390549852, 0.05859375],
+            "leftRotation": [0.183012702, -0.683012702, 0.183012702, 0.683012702],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "right_leg": {
+            "origin": [-2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [-0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "left_leg": {
+            "origin": [2, 12, 0],
+            "rotation": [0, 0, 0, 1],
+            "translation": [0.1171875, 0.703125, 0],
+            "leftRotation": [0, 0, 0, 1],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 1, 0, 0]
+          },
+          "held": {
+            "origin": [8.267949192, 12.339745962, 1],
+            "rotation": [0.612372436, -0.353553391, 0.612372436, 0.353553391],
+            "translation": [0.484450148, 0.72303199, 0.05859375],
+            "leftRotation": [0.612372436, -0.353553391, 0.612372436, 0.353553391],
+            "scale": [0.9375, 0.9375, 0.9375],
+            "rightRotation": [0, 0, 0, 1]
+          }
+        }
+      }
+    }
+  ]
+}
