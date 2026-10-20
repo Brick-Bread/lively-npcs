@@ -220,8 +220,9 @@ export function mountTimeline(root, hooks = {}) {
       }));
       out.push(h('div', {class: 'tl-graph-row'}, names, graphHost));
       fill(content, out, playhead);
-      hooks.graph.render(graphHost, {px, pad: PAD, width: trackW});
+      hooks.graph.render(graphHost, {px, pad: PAD, width: trackW, scrollEl: scroller, overlay: root});
     } else {
+      if (hooks.graph) hooks.graph.hide();
       const channel = S.channel || (S.part && rowsFor(S.part)[0] ? rowsFor(S.part)[0].key : null);
       for (const r of rowsNow) {
         const active = r.kind !== 'all' && S.part === r.part;
@@ -430,6 +431,7 @@ export function mountTimeline(root, hooks = {}) {
   });
   on('play', updateHead);
   new ResizeObserver(() => later()).observe(scroller);
+  scroller.addEventListener('scroll', () => { if (S.view.graph && hooks.graph) hooks.graph.redraw(); });
   render();
   return {render, addKey, deleteKeys, step};
 }

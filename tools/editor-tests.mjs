@@ -167,7 +167,44 @@ export async function run({quiet = false} = {}) {
   return {passed, failed};
 }
 
-async function testGraph() {}
+async function testGraph() {
+  const G = await load('graph.js');
+  const An = await load('anim.js');
+  const before = failed;
+  // Easing.apply, written out again here from anim/Easing.java.
+  const easing = {
+    'linear': f => f, 'ease-in': f => f * f, 'ease-out': f => 1 - (1 - f) * (1 - f),
+    'ease-in-out': f => (f < 0.5 ? 2 * f * f : 1 - Math.pow(-2 * f + 2, 2) / 2), 'step': f => (f >= 1 ? 1 : 0),
+  };
+  for (const ease of Object.keys(easing)) {
+    const anim = An.normalize({id: 't', length: 30, keyframes: [{at: 0, values: {'head-yaw': 10}}, {at: 20, ease, values: {'head-yaw': 50}}]});
+    const pts = G.curve(anim, 'head-yaw', 0.5);
+    // Every point is exactly what the game plays at that tick.
+    check(pts.every(([t, v]) => near(v, An.sample(anim, t, ['head-yaw'])['head-yaw'], 1e-4)), `graph: ${ease} curve points are Animation.sample`);
+    for (const f of [0.25, 0.5, 0.75]) {
+      const t = 20 * f;
+      const p = pts.find(([x]) => near(x, t, 1e-9));
+      check(p && near(p[1], 10 + 40 * easing[ease](f), 1e-4), `graph: ${ease} at ${f} of the way is ${10 + 40 * easing[ease](f)} (got ${p && p[1]})`);
+    }
+    check(near(pts[0][1], 10) && near(pts[pts.length - 1][0], 30) && near(pts[pts.length - 1][1], 50), `graph: ${ease} starts at the first keyframe and holds the last to the end`);
+    if (ease === 'step') {
+      const justBefore = pts.find(([x]) => x > 19.99 && x < 20);
+      check(justBefore && near(justBefore[1], 10), 'graph: a step holds until its keyframe, then jumps (drawn upright)');
+    }
+  }
+  // A loop glides back to its first keyframe by its length, with the first keyframe's easing.
+  const loop = An.normalize({id: 'l', length: 40, loop: true, keyframes: [{at: 0, values: {'root-y': 0}}, {at: 20, ease: 'ease-out', values: {'root-y': 4}}]});
+  const segs = G.segments(loop);
+  check(segs.length === 2 && segs[1].from === 20 && segs[1].to === 40 && segs[1].b === 0, 'graph: a loop adds the glide back to the start');
+  const lp = G.curve(loop, 'root-y', 1);
+  check(near(lp[lp.length - 1][0], 40) && near(lp[lp.length - 1][1], 0), 'graph: the loop\'s curve ends back at the first value');
+  check(lp.every(([t, v]) => t >= 40 || near(v, An.sample(loop, t, ['root-y'])['root-y'], 1e-4)), 'graph: loop curve points are Animation.sample');
+  const r = G.range(loop, 'root-y');
+  check(near(r[0], 0) && near(r[1], 4), 'graph: the range covers the curve and 0');
+  check(G.segmentAt(loop, 30).from === 20 && G.segmentAt(loop, 5).to === 20, 'graph: clicking a tick finds its segment');
+  check(G.gridStep(100, 5) === 20 && G.gridStep(7, 6) === 2 && G.gridStep(1, 4) === 0.25, 'graph: value grid lines at round steps');
+  console.log(`${failed === before ? 'ok  ' : 'BAD '} graph.js: curves drawn exactly as the game plays them, every easing`);
+}
 async function testImport() {}
 void SAMPLES;
 

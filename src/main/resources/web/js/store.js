@@ -679,7 +679,8 @@ export function setEase(ease, ticks = null) {
     const i = keyUnderPlayhead();
     if (i >= 0) set.add(e.draft.keyframes[i].at);
   }
-  set.delete(0);
+  // The first keyframe's easing only matters for a loop: it is the glide from the end back to the start.
+  if (!e.draft.loop) set.delete(0);
   if (!set.size) return;
   changeAnim(d => {
     for (const k of d.keyframes) if (set.has(k.at)) k.ease = ease;

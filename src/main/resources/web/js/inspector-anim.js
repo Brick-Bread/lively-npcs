@@ -292,7 +292,7 @@ export function mountAnimInspector(root) {
     }
     // The interpolation of the selected keyframes (or the one under the playhead).
     const ticks = S.keySel.size ? [...S.keySel] : onKey ? [t] : [];
-    const keys = e.draft.keyframes.filter(k => ticks.includes(k.at) && k.at !== 0);
+    const keys = e.draft.keyframes.filter(k => ticks.includes(k.at) && (k.at !== 0 || e.draft.loop));
     if (document.activeElement !== easeSel) {
       if (easeSel.options.length !== S.easings.length) {
         fill(easeSel, ...S.easings.map(k => h('option', {value: k, text: EASING_NAMES[k] || k, title: EASING_HINTS[k] || ''})));
@@ -300,7 +300,7 @@ export function mountAnimInspector(root) {
       const eases = new Set(keys.map(k => k.ease));
       easeSel.value = eases.size === 1 ? [...eases][0] : 'linear';
       easeSel.disabled = !keys.length;
-      easeSel.title = !keys.length ? (ticks.includes(0) ? 'The first keyframe has nothing before it' : 'Select a keyframe to set how it is reached')
+      easeSel.title = !keys.length ? (ticks.includes(0) ? 'The first keyframe has nothing before it (in a loop it sets the glide back to the start)' : 'Select a keyframe to set how it is reached')
         : (EASING_HINTS[easeSel.value] || '') + (keys.length > 1 ? ` (${keys.length} keyframes)` : '');
     }
     delBtn.disabled = !(S.keySel.size && [...S.keySel].some(x => x !== 0));
