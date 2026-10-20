@@ -103,7 +103,7 @@ categories: <https://www.spigotmc.org/resources/>, premium rules (for comparison
 | Question | Answer |
 |---|---|
 | Free, closed source allowed? | Free resources yes; closed source yes (there are "open source" and "DRM-free" disclosure fields). Blocked by the AI rule. |
-| Licence field | No licence field; buyers get BuiltByBit's standard licence unless the resource has its own EULA (<https://builtbybit.com/wiki/resource-eulas/>). Attach `TERMS.md` as the EULA if allowed. |
+| Licence field | No licence field: BuiltByBit's own resource EULAs cover downloads made there (<https://builtbybit.com/wiki/resource-eulas/>, updated 2026-07-03). Careful: its **Free EULA allows redistribution** (and modification), which is against your terms; its **Standard EULA** (unlimited projects, no redistribution) fits them better, so pick that if the form lets a free resource use it. Every BuiltByBit EULA lets people decompile and change a product for their own use. Attach `TERMS.md` as well if the form allows. |
 | Web server, ports, outside requests | Must be listed in the **Dependencies tab**: "a website from which data will be downloaded or communicated for the functioning of the product" — Mojang, MineSkin, and PacketEvents (with a public link; use GitHub, since rule 1.19 forbids linking competing sites such as Modrinth, Hangar or SpigotMC). |
 | Images | Cover: 2:1, at least 1000x500 (`art/cover-builtbybit.png` is 1200x600). Image carousel: up to 3 images on an unranked account. Icon: square (`art/icon-512.png`). AI art may be rejected (see blocker 2). |
 | Description format | **BBCode**: `[B] [I] [U] [S] [COLOR] [SIZE] [URL] [IMG] [MEDIA] [LIST] [CENTER] [QUOTE] [SPOILER] [CODE] [ICODE] [INDENT] [HEADING=1-3]`. `[TABLE]`, `[HR]` and `[BUTTON]` are for Ultimate members only, so the page uses none. English. |
@@ -117,7 +117,7 @@ review: <https://creators.builtbybit.com/approval-process>, BBCode: <https://bui
 ## Before you publish (checklist)
 
 - [ ] Decide about Modrinth and BuiltByBit (blockers 1 and 2). Safe plan: Hangar and SpigotMC only.
-- [ ] Accounts: Hangar (PaperMC login) and SpigotMC. Only you can make these.
+- [ ] Accounts: Hangar and SpigotMC. Only you can make these.
 - [ ] A public home for `TERMS.md` (Hangar's licence URL needs one).
 - [ ] `LICENSE.txt` into the jar: the build does not add it yet (`build.gradle.kts` belongs to the lead).
 - [ ] Contact details: fill every `{{...}}` placeholder in the store pages (Discord invite, e-mail).
