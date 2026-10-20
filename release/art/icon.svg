@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Lively NPCs icon: a friendly blocky NPC waving, with motion lines. Drawn by hand for Lively NPCs. -->
+  <defs>
+    <radialGradient id="bg" cx="0.42" cy="0.38" r="0.85">
+      <stop offset="0" stop-color="#1f2b36"/>
+      <stop offset="1" stop-color="#0e1218"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6fd3a8" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#6fd3a8" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tile">
+      <rect width="512" height="512" rx="112"/>
+    </clipPath>
+    <clipPath id="face">
+      <rect x="100" y="138" width="208" height="208" rx="30"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#tile)">
+    <rect width="512" height="512" fill="url(#bg)"/>
+    <circle cx="230" cy="300" r="230" fill="url(#glow)"/>
+
+    <!-- the arm hanging down (behind the body) -->
+    <rect x="72" y="380" width="54" height="170" rx="18" fill="#4fb88d"/>
+    <!-- body: a mint shirt -->
+    <rect x="112" y="368" width="184" height="190" rx="26" fill="#6fd3a8"/>
+    <rect x="112" y="368" width="184" height="26" rx="13" fill="#8fe2bf"/>
+
+    <!-- the waving arm: sleeve and hand, turned out from the shoulder -->
+    <g transform="rotate(17 300 404)">
+      <rect x="270" y="214" width="60" height="196" rx="20" fill="#5cc69a"/>
+      <rect x="266" y="146" width="68" height="84" rx="22" fill="#f6cfa8"/>
+      <rect x="266" y="146" width="68" height="20" rx="10" fill="#ffe1c2"/>
+    </g>
+
+    <!-- head -->
+    <rect x="100" y="138" width="208" height="208" rx="30" fill="#f6cfa8"/>
+    <g clip-path="url(#face)">
+      <!-- hair -->
+      <rect x="100" y="138" width="208" height="56" fill="#6b4528"/>
+      <rect x="100" y="190" width="34" height="34" fill="#6b4528"/>
+      <rect x="274" y="190" width="34" height="34" fill="#6b4528"/>
+      <rect x="100" y="138" width="208" height="14" fill="#86593a"/>
+      <!-- shade under the chin -->
+      <rect x="100" y="326" width="208" height="20" fill="#e9b98f"/>
+    </g>
+    <!-- eyes -->
+    <rect x="142" y="226" width="34" height="40" rx="8" fill="#1b2330"/>
+    <rect x="232" y="226" width="34" height="40" rx="8" fill="#1b2330"/>
+    <rect x="149" y="232" width="12" height="12" rx="3" fill="#ffffff"/>
+    <rect x="239" y="232" width="12" height="12" rx="3" fill="#ffffff"/>
+    <!-- cheeks -->
+    <rect x="122" y="280" width="30" height="16" rx="8" fill="#ff9c96" opacity="0.6"/>
+    <rect x="256" y="280" width="30" height="16" rx="8" fill="#ff9c96" opacity="0.6"/>
+    <!-- smile -->
+    <path d="M168 282 H240 V292 A36 36 0 0 1 204 328 A36 36 0 0 1 168 292 Z" fill="#3b1f27"/>
+    <path d="M184 312 A22 14 0 0 1 224 312 A36 36 0 0 1 204 328 A36 36 0 0 1 184 312 Z" fill="#ff7f86"/>
+
+    <!-- motion lines beside the waving hand -->
+    <g fill="none" stroke="#a6ecd0" stroke-width="18" stroke-linecap="round">
+      <path d="M396 118 A92 92 0 0 1 452 214"/>
+      <path d="M392 64 A150 150 0 0 1 482 196" stroke="#6fd3a8" opacity="0.75"/>
+    </g>
+  </g>
+</svg>

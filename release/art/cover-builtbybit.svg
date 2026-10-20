@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600">
+  <!-- Lively NPCs 1200x600: drawn by hand for Lively NPCs (the same NPC as icon.svg). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#18222d"/>
+      <stop offset="1" stop-color="#0c1016"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#6fd3a8" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#6fd3a8" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="face2">
+      <rect x="100" y="138" width="208" height="208" rx="30"/>
+    </clipPath>
+    <clipPath id="frame">
+      <rect width="1200" height="600"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#frame)">
+    <rect width="1200" height="600" fill="url(#bg)"/>
+    <circle cx="264.0" cy="380.0" r="317.0" fill="url(#glow)"/>
+    <g opacity="0.07" stroke="#6fd3a8" stroke-width="2">
+      <line x1="560" y1="0" x2="-40" y2="600"/><line x1="616" y1="0" x2="16" y2="600"/><line x1="672" y1="0" x2="72" y2="600"/><line x1="728" y1="0" x2="128" y2="600"/><line x1="784" y1="0" x2="184" y2="600"/><line x1="840" y1="0" x2="240" y2="600"/><line x1="896" y1="0" x2="296" y2="600"/><line x1="952" y1="0" x2="352" y2="600"/><line x1="1008" y1="0" x2="408" y2="600"/><line x1="1064" y1="0" x2="464" y2="600"/><line x1="1120" y1="0" x2="520" y2="600"/><line x1="1176" y1="0" x2="576" y2="600"/><line x1="1232" y1="0" x2="632" y2="600"/><line x1="1288" y1="0" x2="688" y2="600"/><line x1="1344" y1="0" x2="744" y2="600"/><line x1="1400" y1="0" x2="800" y2="600"/><line x1="1456" y1="0" x2="856" y2="600"/><line x1="1512" y1="0" x2="912" y2="600"/><line x1="1568" y1="0" x2="968" y2="600"/><line x1="1624" y1="0" x2="1024" y2="600"/><line x1="1680" y1="0" x2="1080" y2="600"/><line x1="1736" y1="0" x2="1136" y2="600"/><line x1="1792" y1="0" x2="1192" y2="600"/>
+    </g>
+    <path d="M520 454 L524.48 465.52 L536 470 L524.48 474.48 L520 486 L515.52 474.48 L504 470 L515.52 465.52 Z" fill="#a6ecd0" opacity="0.9"/><path d="M70 139 L73.08 146.92 L81 150 L73.08 153.08 L70 161 L66.92 153.08 L59 150 L66.92 146.92 Z" fill="#6fd3a8" opacity="0.8"/><path d="M560 100 L562.8 107.2 L570 110 L562.8 112.8 L560 120 L557.2 112.8 L550 110 L557.2 107.2 Z" fill="#cdf5e3" opacity="0.7"/>
+    <g transform="translate(24 92) scale(0.96)">
+
+    <!-- the arm hanging down (behind the body) -->
+    <rect x="72" y="380" width="54" height="170" rx="18" fill="#4fb88d"/>
+    <!-- body: a mint shirt -->
+    <rect x="112" y="368" width="184" height="190" rx="26" fill="#6fd3a8"/>
+    <rect x="112" y="368" width="184" height="26" rx="13" fill="#8fe2bf"/>
+
+    <!-- the waving arm: sleeve and hand, turned out from the shoulder -->
+    <g transform="rotate(17 300 404)">
+      <rect x="270" y="214" width="60" height="196" rx="20" fill="#5cc69a"/>
+      <rect x="266" y="146" width="68" height="84" rx="22" fill="#f6cfa8"/>
+      <rect x="266" y="146" width="68" height="20" rx="10" fill="#ffe1c2"/>
+    </g>
+
+    <!-- head -->
+    <rect x="100" y="138" width="208" height="208" rx="30" fill="#f6cfa8"/>
+    <g clip-path="url(#face2)">
+      <!-- hair -->
+      <rect x="100" y="138" width="208" height="56" fill="#6b4528"/>
+      <rect x="100" y="190" width="34" height="34" fill="#6b4528"/>
+      <rect x="274" y="190" width="34" height="34" fill="#6b4528"/>
+      <rect x="100" y="138" width="208" height="14" fill="#86593a"/>
+      <!-- shade under the chin -->
+      <rect x="100" y="326" width="208" height="20" fill="#e9b98f"/>
+    </g>
+    <!-- eyes -->
+    <rect x="142" y="226" width="34" height="40" rx="8" fill="#1b2330"/>
+    <rect x="232" y="226" width="34" height="40" rx="8" fill="#1b2330"/>
+    <rect x="149" y="232" width="12" height="12" rx="3" fill="#ffffff"/>
+    <rect x="239" y="232" width="12" height="12" rx="3" fill="#ffffff"/>
+    <!-- cheeks -->
+    <rect x="122" y="280" width="30" height="16" rx="8" fill="#ff9c96" opacity="0.6"/>
+    <rect x="256" y="280" width="30" height="16" rx="8" fill="#ff9c96" opacity="0.6"/>
+    <!-- smile -->
+    <path d="M168 282 H240 V292 A36 36 0 0 1 204 328 A36 36 0 0 1 168 292 Z" fill="#3b1f27"/>
+    <path d="M184 312 A22 14 0 0 1 224 312 A36 36 0 0 1 204 328 A36 36 0 0 1 184 312 Z" fill="#ff7f86"/>
+
+    <!-- motion lines beside the waving hand -->
+    <g fill="none" stroke="#a6ecd0" stroke-width="18" stroke-linecap="round">
+      <path d="M396 118 A92 92 0 0 1 452 214"/>
+      <path d="M392 64 A150 150 0 0 1 482 196" stroke="#6fd3a8" opacity="0.75"/>
+    </g>
+  </g>
+  </g>
+  <g font-family="'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif">
+    <text x="536" y="292" font-size="98" font-weight="800" fill="#f1f5f9" letter-spacing="-1">Lively <tspan fill="#6fd3a8">NPCs</tspan></text>
+    <text x="540" y="348" font-size="27" font-weight="500" fill="#aab8c8">NPCs that look at you, wave, beckon and talk</text>
+        <rect x="538" y="392" width="258" height="42" rx="21.0" fill="#6fd3a8" fill-opacity="0.12" stroke="#6fd3a8" stroke-opacity="0.7" stroke-width="2"/>
+    <text x="667.0" y="420.2" text-anchor="middle" font-size="20" font-weight="600" fill="#cdf5e3">Web animation editor</text>
+    <rect x="808" y="392" width="168" height="42" rx="21.0" fill="#6fd3a8" fill-opacity="0.12" stroke="#6fd3a8" stroke-opacity="0.7" stroke-width="2"/>
+    <text x="892.0" y="420.2" text-anchor="middle" font-size="20" font-weight="600" fill="#cdf5e3">Packets only</text>
+    <rect x="988" y="392" width="146" height="42" rx="21.0" fill="#6fd3a8" fill-opacity="0.12" stroke="#6fd3a8" stroke-opacity="0.7" stroke-width="2"/>
+    <text x="1061.0" y="420.2" text-anchor="middle" font-size="20" font-weight="600" fill="#cdf5e3">Paper 26.3</text>
+  </g>
+</svg>
