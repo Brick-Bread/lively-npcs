@@ -1,0 +1,52 @@
+# Talk: a little hop, then small nods and the right hand moving about in front, as if explaining.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/talk.yml and change it there. Ticks: 20 a second.
+name: Talk
+length: 40
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    root-y: 3
+    head-pitch: 7
+    right-arm-forward: 25
+    right-arm-out: 4
+    right-arm-across: 4
+  - at: 8
+    head-pitch: 1
+    right-arm-forward: 40
+    right-arm-out: 2
+    right-arm-across: 6
+  - at: 12
+    head-pitch: 9
+    right-arm-forward: 22
+    right-arm-out: 6
+    right-arm-across: 2
+  - at: 16
+    head-pitch: 2
+    right-arm-forward: 38
+    right-arm-out: 2
+    right-arm-across: 6
+  - at: 20
+    head-pitch: 8
+    right-arm-forward: 24
+    right-arm-out: 7
+    right-arm-across: 2
+  - at: 24
+    head-pitch: 1
+    right-arm-forward: 40
+    right-arm-out: 3
+    right-arm-across: 6
+  - at: 28
+    head-pitch: 7
+    right-arm-forward: 26
+    right-arm-out: 4
+  - at: 32
+    head-pitch: 2
+    right-arm-forward: 34
+    right-arm-out: 3
+  - at: 36
+    right-arm-forward: 14
+    right-arm-out: 1
+  - at: 40

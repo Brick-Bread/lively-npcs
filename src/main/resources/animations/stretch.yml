@@ -1,0 +1,60 @@
+# Stretch: both arms up over the head, the chin raised, held for a moment.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/stretch.yml and change it there. Ticks: 20 a second.
+name: Stretch
+length: 40
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    right-arm-forward: 60
+    left-arm-forward: 60
+  - at: 8
+    head-pitch: -8
+    right-arm-forward: 130
+    right-arm-out: -6
+    left-arm-forward: 130
+    left-arm-out: -6
+  - at: 12
+    head-pitch: -14
+    shoulders: 0.8
+    right-arm-forward: 170
+    right-arm-out: -10
+    left-arm-forward: 170
+    left-arm-out: -10
+  - at: 16
+    head-pitch: -16
+    shoulders: 1
+    right-arm-forward: 176
+    right-arm-out: -12
+    left-arm-forward: 176
+    left-arm-out: -12
+  - at: 20
+    head-pitch: -16
+    shoulders: 1
+    right-arm-forward: 176
+    right-arm-out: -12
+    left-arm-forward: 176
+    left-arm-out: -12
+  - at: 24
+    head-pitch: -14
+    shoulders: 0.6
+    right-arm-forward: 168
+    right-arm-out: -10
+    left-arm-forward: 168
+    left-arm-out: -10
+  - at: 28
+    head-pitch: -8
+    right-arm-forward: 120
+    right-arm-out: -6
+    left-arm-forward: 120
+    left-arm-out: -6
+  - at: 32
+    head-pitch: -3
+    right-arm-forward: 50
+    left-arm-forward: 50
+  - at: 36
+    right-arm-forward: 12
+    left-arm-forward: 12
+  - at: 40

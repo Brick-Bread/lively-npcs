@@ -1,0 +1,14 @@
+# Hop: a little jump on the spot.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/hop.yml and change it there. Ticks: 20 a second.
+name: Hop
+length: 10
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    ease: ease-out
+    root-y: 4
+  - at: 10
+    ease: ease-in
