@@ -143,7 +143,7 @@ review: <https://creators.builtbybit.com/approval-process>, BBCode: <https://bui
 - [ ] Settle EntityLib's GPL licence (blocker 0): permission, no bundling, or open source.
 - [ ] Decide about Modrinth and BuiltByBit (blockers 1 and 2). Safe plan: Hangar and SpigotMC only.
 - [ ] Accounts: Hangar and SpigotMC. Only you can make these.
-- [ ] Make the GitHub repo Brick-Bread/lively-npcs public (the GPL and Hangar's source link need the code to be reachable).
+- [x] The GitHub repo is public: https://github.com/Brick-Bread/lively-npcs
 - [x] `LICENSE` (GPL-3.0) is in the jar: the build adds it.
 - [ ] Contact details: fill every `{{...}}` placeholder in the store pages (Discord invite, e-mail).
 - [ ] Host the banner and screenshots somewhere public for the BBCode pages (`{{BANNER_URL}}`...).

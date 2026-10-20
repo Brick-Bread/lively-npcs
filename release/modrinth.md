@@ -3,7 +3,7 @@ Modrinth page for Lively NPCs. Read SITE-RULES.md first: Modrinth's AI rule bloc
 Form fields:
   Name:     Lively NPCs
   Summary:  NPCs that turn to look at you, wave when you walk up, beckon you over and talk when clicked, with a web animation editor.
-  Licence:  GPL-3.0-only, source link: {{SOURCE_URL}}
+  Licence:  GPL-3.0-only, source link: https://github.com/Brick-Bread/lively-npcs
   Loader:   Paper    Game version: 26.3    Categories: Decoration, Utility
   Version dependency: PacketEvents (required)
   Gallery:  only real screenshots (screenshots/ and the in-game shots); no drawn art (section 6.2).
@@ -217,7 +217,7 @@ Claude, an AI model.
 ## Terms
 
 Lively NPCs is free and open source under the GNU GPL 3.0: use it on as many servers as you like,
-change it and share it, as long as what you share stays GPL with its source. Source: {{SOURCE_URL}}
+change it and share it, as long as what you share stays GPL with its source. Source: https://github.com/Brick-Bread/lively-npcs
 
 ## Support
 

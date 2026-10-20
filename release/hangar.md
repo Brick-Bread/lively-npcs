@@ -6,7 +6,7 @@ Form fields:
   Category:  Gameplay
   Keywords:  npc, animation, hub, packets, editor
   Licence:   GPL (GNU General Public License v3.0)
-  Source:    {{SOURCE_URL}}   (the public GitHub repo)
+  Source:    https://github.com/Brick-Bread/lively-npcs   (the public GitHub repo)
   Platform:  Paper, version 26.3
   Dependency (external link): PacketEvents, https://github.com/retrooper/packetevents/releases
   Avatar:    art/icon-512.png
@@ -224,7 +224,7 @@ Claude, an AI model.
 ## Terms
 
 Lively NPCs is free and open source under the GNU GPL 3.0: use it on as many servers as you like,
-change it and share it, as long as what you share stays GPL with its source. Source: {{SOURCE_URL}}
+change it and share it, as long as what you share stays GPL with its source. Source: https://github.com/Brick-Bread/lively-npcs
 
 ## Support
 
