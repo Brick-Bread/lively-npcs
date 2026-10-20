@@ -67,7 +67,7 @@ class AnimationStoreTest {
                 Map.entry("head_shake", 24), Map.entry("shrug", 24), Map.entry("scratch_head", 40), Map.entry("clap", 36),
                 Map.entry("foot_tap", 32), Map.entry("look_up", 44), Map.entry("hop", 10), Map.entry("bow", 34),
                 Map.entry("cheer", 40), Map.entry("point", 40), Map.entry("check_item", 50), Map.entry("dance", 40),
-                Map.entry("wave_both", 44), Map.entry("salute", 40), Map.entry("yawn", 60));
+                Map.entry("wave_both", 44), Map.entry("salute", 40), Map.entry("yawn", 60), Map.entry("laugh", 38));
         List<String> glances = List.of("look_around", "head_shake", "look_up", "check_item");
         List<String> loops = List.of("dance");
         for (String id : AnimationStore.PRESETS) {
