@@ -1,11 +1,13 @@
-// The editor page: logs in with the link's token, loads /api/state, puts the parts together (sidebar,
-// 3D view, inspector, timeline), runs the frame loop, the shortcuts and the 5-second refresh.
+// The editor page: logs in with the link's token, loads /api/state, puts the parts together (menu bar,
+// side panels, 3D view, timeline), runs the frame loop, the shortcuts and the 5-second refresh.
 
 import {api, ApiError, takeTokenFromUrl, extractToken, setToken, hasToken, setUnauthorizedHandler} from './api.js';
 import * as St from './store.js';
 import {S, on, emit} from './store.js';
 import * as Act from './actions.js';
+import * as A from './anim.js';
 import {Viewport} from './viewport.js';
+import {mountMenubar} from './menu.js';
 import {mountSidebar} from './sidebar.js';
 import {mountTimeline} from './timeline.js';
 import {mountAnimInspector} from './inspector-anim.js';
@@ -13,7 +15,7 @@ import {mountNpcInspector} from './inspector-npc.js';
 import {loadSkin} from './skins.js';
 import {render as renderMini} from './minimessage.js';
 import {PART_NAMES} from './labels.js';
-import {h, fill, icon, button, toggle, toast, dialog, duration, isTyping} from './ui.js';
+import {h, fill, icon, button, toggle, toast, dialog, isTyping} from './ui.js';
 import {mountGizmo} from './gizmo.js';
 
 const gate = document.getElementById('gate');
@@ -21,6 +23,7 @@ const gateBody = document.getElementById('gate-body');
 const app = document.getElementById('app');
 let started = false;
 let expired = false;
+let viewport = null;
 
 // ---- the gate: loading, no link, expired ----
 
@@ -140,27 +143,94 @@ function connection(ok, message) {
   else toast('Connected again.', 'ok', 2000);
 }
 
+// ---- what the menus and keys do ----
+
+function copyPose() {
+  if (!St.animEntry()) return;
+  S.clipboard = A.compact(St.currentValues());
+  toast('Pose copied.', 'ok', 1400);
+  emit('anim', {});
+}
+
+function pastePose() {
+  if (!St.animEntry()) return;
+  if (S.clipboard) St.setPose(S.clipboard);
+  else toast('Copy a pose first.', 'info', 1500);
+}
+
+function mirrorPose() {
+  if (!St.animEntry()) return;
+  St.setPose(A.mirror(A.compact(St.currentValues())));
+}
+
+function undo() {
+  if (!St.undo()) toast('Nothing to undo.', 'info', 1400);
+}
+
+function redo() {
+  if (!St.redo()) toast('Nothing to redo.', 'info', 1400);
+}
+
+function openImport() {
+  import('./import-dialog.js').then(m => m.openImportDialog()).catch(() => toast('Import from Blockbench is not here yet.', 'info'));
+}
+
+const animOpen = () => S.mode === 'animations' && !!St.animEntry();
+const COMMANDS = {
+  save: {label: 'Save', icon: 'save', keys: 'Ctrl+S', run: () => Act.saveCurrent(), enabled: () => !!(S.mode === 'npcs' ? St.npcEntry() : St.animEntry())},
+  revert: {label: 'Revert', icon: 'revert', run: () => Act.revertCurrent(), hint: 'Drop the unsaved changes',
+    enabled: () => !!((S.mode === 'npcs' ? St.npcEntry() : St.animEntry()) || {}).dirty},
+  importBb: {label: 'Import from Blockbench…', icon: 'upload', keys: 'Ctrl+I', run: () => openImport(), hint: 'A .bbmodel or Bedrock .animation.json made on a player model'},
+  exportAnim: {label: 'Export animation (.yml)', icon: 'download', run: () => Act.exportAnim(), enabled: () => !!St.animEntry()},
+  undo: {label: 'Undo', icon: 'undo', keys: 'Ctrl+Z', run: undo, enabled: () => St.canUndo()},
+  redo: {label: 'Redo', icon: 'redo', keys: 'Ctrl+Y', run: redo, enabled: () => St.canRedo()},
+  copyPose: {label: 'Copy pose', icon: 'copy', keys: 'Ctrl+C', run: copyPose, enabled: animOpen},
+  pastePose: {label: 'Paste pose', icon: 'paste', keys: 'Ctrl+V', run: pastePose, enabled: () => animOpen() && !!S.clipboard},
+  mirrorPose: {label: 'Mirror pose', icon: 'mirror', keys: 'M', run: mirrorPose, enabled: animOpen},
+  selectAll: {label: 'Select all keyframes', icon: 'diamond', keys: 'Ctrl+A', run: () => St.selectAllKeys(), enabled: animOpen},
+  onion: {label: 'Onion skin', keys: 'O', run: () => St.setView({onion: !S.view.onion}), checked: () => !!S.view.onion},
+  graph: {label: 'Graph editor', keys: 'G', run: () => St.setView({graph: !S.view.graph}), checked: () => !!S.view.graph},
+  grid: {label: 'Grid', run: () => St.setView({grid: !S.view.grid}), checked: () => !!S.view.grid},
+  layers: {label: 'Breathing and weight shift', run: () => { S.layers = !S.layers; emit('view'); }, checked: () => !!S.layers,
+    hint: 'Show the breathing and weight shift every NPC adds on top of its animation'},
+  resetCamera: {label: 'Reset camera', icon: 'focus', run: () => viewport && viewport.view('three-quarter')},
+  shortcuts: {label: 'Shortcuts', icon: 'keyboard', keys: '?', run: () => shortcuts()},
+  about: {label: 'About', icon: 'info', run: () => about()},
+};
+const MENUS = [
+  ['File', ['save', 'revert', '-', 'importBb', 'exportAnim']],
+  ['Edit', ['undo', 'redo', '-', 'copyPose', 'pastePose', 'mirrorPose', '-', 'selectAll']],
+  ['View', ['onion', 'graph', 'grid', 'layers', '-', 'resetCamera']],
+  ['Help', ['shortcuts', 'about']],
+];
+
 // ---- the page ----
 
 function mount() {
-  mountSidebar(document.getElementById('sidebar'));
-  mountTimeline(document.getElementById('timeline'));
-  const inspector = document.getElementById('inspector');
-  const animBox = h('div');
-  const npcBox = h('div');
-  inspector.append(animBox, npcBox);
-  mountAnimInspector(animBox);
-  mountNpcInspector(npcBox);
+  mountMenubar(document.getElementById('menubar'), COMMANDS, MENUS, () => {
+    if (!expired) {
+      expired = true;
+      showGate('expired');
+    }
+  });
+  mountSidebar(document.getElementById('left'), {onImport: openImport});
 
-  const viewport = new Viewport(document.getElementById('viewport'), {
+  const right = document.getElementById('right');
+  const animBox = h('div', {class: 'side', style: {flex: '1', minHeight: '0'}});
+  const npcBody = h('div', {class: 'panel-body'});
+  const npcBox = h('div', {class: 'panel grow-panel'}, h('div', {class: 'panel-head'}, h('span', {class: 'title', text: 'NPC settings'})), npcBody);
+  right.append(animBox, npcBox);
+  mountAnimInspector(animBox);
+  mountNpcInspector(npcBody);
+
+  viewport = new Viewport(document.getElementById('viewport'), {
     onPick: part => { if (S.mode === 'animations') St.selectPart(part); },
     partName: part => PART_NAMES[part] || part,
   });
   mountGizmo(viewport);
-  window.__editor = {S, viewport};
-
-  mountTopbar();
-  mountStageBars(viewport);
+  window.__editor = {S, viewport, St};
+  mountTimeline(document.getElementById('timeline'));
+  mountStageBar(viewport);
   mountPlate(viewport);
 
   const layout = () => {
@@ -171,6 +241,8 @@ function mount() {
   };
   on('select', layout);
   layout();
+  viewport.setGrid(S.view.grid);
+  on('viewset', () => viewport.setGrid(S.view.grid));
 
   // The skin on the model, the slim arms, the held item.
   let shownKey = null;
@@ -209,7 +281,6 @@ function mount() {
     const dt = Math.min(0.1, (now - last) / 1000);
     last = now;
     St.advance(dt);
-    const n = St.shownNpc();
     const values = S.mode === 'animations' ? St.currentValues() : {};
     const t = now / 1000;
     const layers = S.mode === 'npcs' || S.layers;
@@ -219,9 +290,9 @@ function mount() {
       shift: layers ? 0.9 * Math.sin(2 * Math.PI * t / 9.5) : 0,
     };
     viewport.setPose(values, live);
+    if (viewport.onion) viewport.onion.update(live);
     viewport.render(now);
     requestAnimationFrame(frame);
-    void n;
   };
   requestAnimationFrame(frame);
 
@@ -237,73 +308,21 @@ function mount() {
   });
 }
 
-function mountTopbar() {
-  const right = document.getElementById('topbar-right');
-  const mid = document.getElementById('topbar-mid');
-  const who = h('div', {class: 'who'});
-  const timer = h('div', {class: 'timer', title: 'How long this editor link still works'});
-  const help = button(null, 'keyboard', {class: 'btn-ghost', title: 'Keyboard shortcuts (?)', onClick: () => shortcuts()});
-  // On a narrow window the inspector slides in over the view.
-  const panel = button('Settings', 'dots', {class: 'btn-sm narrow-only', title: 'Show or hide the settings panel', onClick: () => app.classList.toggle('show-inspector')});
-  fill(right, timer, who, panel, help);
-
-  const drawWho = () => {
-    const p = S.player;
-    fill(who, h('div', {class: 'who-avatar', text: (p.name || '?').slice(0, 1).toUpperCase()}),
-      h('div', {}, h('div', {class: 'who-name', text: p.name || 'Unknown player'}),
-        h('div', {class: 'who-status'}, h('span', {class: ['dot', p.online ? 'dot-ok' : 'dot-off']}), p.online ? 'in game' + (p.world ? ' · ' + p.world : '') : 'not in game')));
-  };
-  const drawTimer = () => {
-    if (!S.expiresAt) return;
-    const left = S.expiresAt - Date.now();
-    timer.classList.toggle('soon', left < 10 * 60_000);
-    timer.classList.toggle('very-soon', left < 2 * 60_000);
-    fill(timer, icon('clock', 14), left > 0 ? duration(left) + ' left' : 'expired');
-    if (left <= 0 && !expired) {
-      expired = true;
-      showGate('expired');
-    }
-  };
-  const drawMid = () => {
-    const e = S.mode === 'npcs' ? St.npcEntry() : St.animEntry();
-    const what = S.mode === 'npcs' ? 'NPC' : 'Animation';
-    if (!e) {
-      fill(mid);
-      return;
-    }
-    const name = S.mode === 'npcs' ? e.draft.id : (e.draft.name || e.id);
-    fill(mid, h('div', {class: 'row muted small'}, h('span', {text: what}), icon('next', 12), h('span', {style: {color: 'var(--text)', fontWeight: 600}, text: name}),
-      e.dirty ? h('span', {class: 'badge badge-unsaved', text: e.isNew ? 'not saved yet' : 'unsaved'}) : null));
-  };
-  on('server', () => { drawWho(); drawTimer(); });
-  on('select', drawMid);
-  on('lists', drawMid);
-  on('anim', drawMid);
-  on('npc', drawMid);
-  setInterval(drawTimer, 1000);
-  drawWho();
-  drawTimer();
-  drawMid();
-}
-
-function mountStageBars(viewport) {
-  const left = document.getElementById('stage-left');
-  const right = document.getElementById('stage-right');
+/** The strip above the 3D view: camera views, the NPC animations are shown on, live preview, play for everyone. */
+function mountStageBar(vp) {
+  const bar = document.getElementById('stage-bar');
   const hint = document.getElementById('stage-hint');
-
   const views = h('div', {class: 'seg'}, ...[['front', 'Front'], ['side', 'Side'], ['back', 'Back'], ['three-quarter', '3/4']].map(([k, label]) =>
-    h('button', {type: 'button', text: label, title: 'Look from the ' + (k === 'three-quarter' ? 'front, a little to the side' : k), on: {click: () => viewport.view(k)}})));
+    h('button', {type: 'button', text: label, title: 'Look from the ' + (k === 'three-quarter' ? 'front, a little to the side' : k), on: {click: () => vp.view(k)}})));
   const modelSel = h('select', {class: 'select', title: 'The NPC this animation is shown on (and live-previewed on)', on: {change: () => St.setModelNpc(modelSel.value)}});
-  const modelGroup = h('div', {class: 'glass toolbar-group'}, h('span', {class: 'toolbar-label', text: 'Shown on'}), modelSel);
-  const viewGroup = h('div', {class: 'glass toolbar-group'}, icon('camera', 14), views);
-  fill(left, modelGroup, viewGroup);
-
+  const modelGroup = h('div', {class: 'row', style: {gap: '2px'}}, h('span', {class: 'label', text: 'Shown on'}), modelSel);
   const liveToggle = toggle('Live preview in game', S.live, v => Act.setLive(v), 'Plays your draft on the NPC for you in game as you edit');
   const liveStatus = h('span', {class: 'live-status'});
-  const playAll = button('Play for everyone', 'broadcast', {class: 'btn-sm', title: 'Plays the saved animation on this NPC for everyone near it',
+  const playAll = button('Play for everyone', 'broadcast', {class: 'btn-xs btn-ghost', title: 'Plays the saved animation on this NPC for everyone near it',
     onClick: () => (Act.forEveryone.playing ? Act.stopForEveryone() : Act.playForEveryone())});
-  const liveGroup = h('div', {class: 'glass toolbar-group'}, liveToggle.el, liveStatus, h('div', {class: 'sep'}), playAll);
-  fill(right, liveGroup);
+  const liveGroup = h('div', {class: 'row', style: {gap: '6px', minWidth: '0'}}, liveToggle.el, liveStatus, h('div', {class: 'sep'}), playAll);
+  const panelBtn = button('Settings', 'tune', {class: 'btn-xs btn-ghost narrow-only', title: 'Show or hide the settings panel', onClick: () => app.classList.toggle('show-right')});
+  fill(bar, h('span', {class: 'label'}, icon('camera', 14)), views, h('div', {class: 'sep'}), modelGroup, h('div', {class: 'spacer'}), liveGroup, panelBtn);
 
   let options = '';
   const draw = () => {
@@ -323,12 +342,12 @@ function mountStageBars(viewport) {
     const e = St.animEntry();
     const looping = Act.forEveryone.playing;
     if (looping) {
-      playAll.replaceChildren(icon('x', 15), h('span', {text: 'Stop for everyone'}));
+      playAll.replaceChildren(icon('stop', 14), h('span', {text: 'Stop for everyone'}));
       playAll.disabled = false;
       playAll.title = `${looping.name} goes round and round on ${looping.npc} for everyone: stop it`;
       playAll.classList.add('on');
     } else {
-      playAll.replaceChildren(icon('broadcast', 15), h('span', {text: 'Play for everyone'}));
+      playAll.replaceChildren(icon('broadcast', 14), h('span', {text: 'Play for everyone'}));
       playAll.classList.remove('on');
       playAll.disabled = !e || !S.modelNpcId || e.isNew;
       playAll.title = !e ? '' : e.isNew ? 'Save it first: players only see saved animations' : e.dirty ? 'Plays the saved version (your unsaved changes are not in it) for everyone near the NPC' : 'Plays it on this NPC for everyone near it';
@@ -336,16 +355,18 @@ function mountStageBars(viewport) {
     liveToggle.input.checked = S.live;
     liveToggle.input.disabled = !S.modelNpcId;
     const st = Act.live;
-    liveStatus.className = 'live-status' + (st.status === 'on' ? ' on' : st.status === 'warn' ? ' warn' : '');
-    liveStatus.title = S.live ? st.message : '';
-    fill(liveStatus, S.live && st.message ? [h('span', {class: ['dot', st.status === 'on' ? 'dot-ok' : 'dot-warn']}), h('span', {class: 'ellipsis', style: {maxWidth: '220px'}, text: st.message})] : []);
+    const offline = !S.player.online;
+    liveStatus.className = 'live-status' + (st.status === 'on' ? ' on' : st.status === 'warn' || (S.live && offline) ? ' warn' : '');
+    const message = S.live ? st.message : offline ? 'You are not in game: live preview needs you in game' : '';
+    liveStatus.title = message;
+    liveToggle.el.title = offline ? 'Live preview plays your draft on the NPC for you in game: join the server to watch it' : 'Plays your draft on the NPC for you in game as you edit';
+    fill(liveStatus, message ? [h('span', {class: ['dot', st.status === 'on' && S.live ? 'dot-ok' : offline && !S.live ? 'dot-off' : 'dot-warn']}),
+      h('span', {class: 'ellipsis', style: {maxWidth: '230px'}, text: S.live ? message : 'Not in game'})] : []);
     if (S.mode === 'npcs') {
       const n = St.shownNpc();
-      hint.className = 'stage-hint glass';
       hint.textContent = !n ? '' : n.entity !== 'player' ? `${n.id} is a ${n.entity.replace(/_/g, ' ')}: shown here as a person` : 'Drag to turn the view · scroll to zoom · double-click to reset';
     } else {
-      hint.className = 'stage-hint glass';
-      hint.textContent = S.part ? `${PART_NAMES[S.part]}: drag a ring to turn it, or use the sliders · Esc to let go` : 'Click a body part to pose it · drag to turn the view · scroll to zoom';
+      hint.textContent = S.part ? `${PART_NAMES[S.part]}: drag a ring to turn it, or use the Keyframe panel · Esc to let go` : 'Click a body part (or pick one in the Outliner) to pose it · drag to turn the view · scroll to zoom';
     }
   };
   for (const ev of ['select', 'lists', 'live', 'server', 'part', 'view', 'anim']) on(ev, draw);
@@ -353,23 +374,23 @@ function mountStageBars(viewport) {
 }
 
 /** The name plate floating over the NPC's head in the 3D view. */
-function mountPlate(viewport) {
+function mountPlate(vp) {
   const plate = h('div', {class: 'plate-3d'});
-  document.getElementById('stage').append(plate);
+  document.querySelector('.viewport-wrap').append(plate);
   let lastText = null;
-  viewport.addOverlay(project => {
+  vp.addOverlay(project => {
     const n = St.shownNpc();
     const text = n ? JSON.stringify([n.plate, n.id]) : '';
     if (text !== lastText) {
       lastText = text;
       fill(plate, n ? n.plate.flatMap(l => renderMini(l, {npc: n.id})) : []);
     }
-    // Only with NPCs open: while posing it would sit under the toolbars and add nothing.
-    if (!n || !n.plate.length || !viewport.posed || S.mode !== 'npcs') {
+    // Only with NPCs open: while posing it would sit in the way and add nothing.
+    if (!n || !n.plate.length || !vp.posed || S.mode !== 'npcs') {
       plate.hidden = true;
       return;
     }
-    const o = viewport.posed.o;
+    const o = vp.posed.o;
     const p = project([o[0], o[1] + 37, o[2]]);
     if (!p) {
       plate.hidden = true;
@@ -396,11 +417,16 @@ function bindKeys() {
       Act.saveCurrent();
       return;
     }
+    if (ctrl && key === 'i') {
+      e.preventDefault();
+      openImport();
+      return;
+    }
     if (typing) return;
     if (ctrl && (key === 'z' || key === 'y')) {
       e.preventDefault();
-      const redo = key === 'y' || (key === 'z' && e.shiftKey);
-      if (!(redo ? St.redo() : St.undo())) toast(redo ? 'Nothing to redo.' : 'Nothing to undo.', 'info', 1400);
+      if (key === 'y' || (key === 'z' && e.shiftKey)) redo();
+      else undo();
       return;
     }
     if (key === '?' || (e.shiftKey && key === '/')) {
@@ -415,15 +441,17 @@ function bindKeys() {
     if (ctrl && key === 'c') {
       if (String(window.getSelection())) return;
       e.preventDefault();
-      S.clipboard = Object.fromEntries(Object.entries(St.currentValues()).filter(([, v]) => v));
-      toast('Pose copied.', 'ok', 1400);
-      emit('anim', {});
+      copyPose();
       return;
     }
     if (ctrl && key === 'v') {
       e.preventDefault();
-      if (S.clipboard) St.setPose(S.clipboard);
-      else toast('Copy a pose first.', 'info', 1500);
+      pastePose();
+      return;
+    }
+    if (ctrl && key === 'a') {
+      e.preventDefault();
+      St.selectAllKeys();
       return;
     }
     if (ctrl || e.altKey) return;
@@ -451,8 +479,13 @@ function bindKeys() {
       St.setTick(St.animEntry().draft.length);
     } else if (key === 'm') {
       e.preventDefault();
-      const values = Object.fromEntries(Object.entries(St.currentValues()).filter(([, v]) => v));
-      import('./anim.js').then(A => St.setPose(A.mirror(values)));
+      mirrorPose();
+    } else if (key === 'o') {
+      e.preventDefault();
+      St.setView({onion: !S.view.onion});
+    } else if (key === 'g') {
+      e.preventDefault();
+      St.setView({graph: !S.view.graph});
     } else if (key === ',' || key === '.') {
       // Jump to the previous / next keyframe.
       e.preventDefault();
@@ -467,23 +500,45 @@ function bindKeys() {
 
 function shortcuts() {
   const row = (keys, what) => [h('div', {class: 'keys'}, ...keys.map(k => h('span', {class: 'kbd', text: k}))), h('div', {text: what})];
+  const group = title => h('div', {class: 'group', text: title});
   dialog({
     title: 'Keyboard shortcuts',
     body: h('div', {class: 'shortcuts'},
+      group('Playing'),
       row(['Space'], 'Play or pause'),
-      row(['K'], 'Add a keyframe from the pose you see'),
-      row(['Delete'], 'Delete the selected keyframe'),
       row(['←', '→'], 'One tick back or on (Shift: 5)'),
       row([',', '.'], 'Previous or next keyframe'),
       row(['Home', 'End'], 'To the start or the end'),
+      group('Keyframes'),
+      row(['K'], 'Add a keyframe from the pose you see'),
+      row(['Delete'], 'Delete the selected keyframes'),
+      row(['Ctrl', 'A'], 'Select all keyframes'),
+      row(['Shift', 'drag'], 'Drag without snapping (keyframes, rings, numbers, graph)'),
+      row(['Ctrl', 'wheel'], 'Zoom the timeline'),
+      group('Posing'),
       row(['Ctrl', 'C'], 'Copy the pose'),
       row(['Ctrl', 'V'], 'Paste the pose'),
       row(['M'], 'Mirror the pose left and right'),
+      row(['Esc'], 'Let go of the selected part'),
+      group('Editor'),
+      row(['O'], 'Onion skin on or off'),
+      row(['G'], 'Graph editor on or off'),
       row(['Ctrl', 'Z'], 'Undo'),
       row(['Ctrl', 'Y'], 'Redo'),
       row(['Ctrl', 'S'], 'Save'),
-      row(['Esc'], 'Let go of the selected part'),
+      row(['Ctrl', 'I'], 'Import from Blockbench'),
       row(['Double-click'], 'Reset the view (on empty space)')),
+    actions: [{label: 'Close', kind: 'primary', value: true}],
+  });
+}
+
+function about() {
+  dialog({
+    title: 'About the Lively NPCs editor',
+    body: h('div', {style: {display: 'flex', flexDirection: 'column', gap: '8px'}},
+      h('p', {style: {margin: 0}, text: 'Make NPCs and their animations, see them in 3D, and watch your draft play in game as you edit.'}),
+      h('p', {style: {margin: 0}, text: 'Values use Blockbench\'s names and signs (Rotation X/Y/Z, Position X/Y/Z); hover a name to see what it does. Files and commands keep Lively NPCs\' own channel names.'}),
+      h('p', {class: 'small muted', style: {margin: 0}, text: 'Icons: Material Icons by Google (Apache License 2.0). 3D: three.js (MIT). Lively NPCs is free to use, not open source.'})),
     actions: [{label: 'Close', kind: 'primary', value: true}],
   });
 }

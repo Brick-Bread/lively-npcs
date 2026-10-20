@@ -340,3 +340,69 @@ St.on('server', () => {
 window.addEventListener('pagehide', () => {
   if (S.live) stopPreviewOnExit();
 });
+
+// ---- rename, revert, export ----
+
+/** Renames an animation (its name; the id that npcs.yml and commands use stays). */
+export async function renameAnim(id) {
+  const e = S.anims.get(id);
+  if (!e) return;
+  const name = await promptDialog({
+    title: `Rename ${e.draft.name || id}`, label: 'Name', value: e.draft.name || id, confirm: 'Rename',
+    hint: `Its id stays ${id}: npcs.yml and commands use the id.`,
+    validate: v => (v.trim() ? '' : 'Give it a name.'),
+  });
+  if (name === null || name.trim() === e.draft.name) return;
+  if (S.animId !== id) St.selectAnim(id);
+  St.changeAnim(d => { d.name = name.trim(); });
+}
+
+/** Drops the unsaved changes of what is open (after asking). */
+export async function revertCurrent() {
+  const kind = S.mode === 'npcs' ? 'npc' : 'anim';
+  const e = kind === 'npc' ? St.npcEntry() : St.animEntry();
+  if (!e || !e.dirty) {
+    toast('Nothing to revert: it is as saved.', 'info', 1800);
+    return;
+  }
+  const name = kind === 'npc' ? e.draft.id : (e.draft.name || e.id);
+  const ok = await confirmDialog({
+    title: `Revert ${name}?`, confirm: e.isNew ? 'Discard' : 'Revert', danger: true,
+    message: e.isNew ? 'It was never saved, so it goes away.' : 'Your unsaved changes go, and it is back as last saved. Undo brings them back.',
+  });
+  if (ok && St.revert(kind)) toast(e.isNew ? `Discarded ${name}.` : `${name} is back as saved.`, 'ok', 2000);
+}
+
+/** An animation as its .yml file (the same shape as the presets in animations/). */
+export function animationYaml(anim, channels) {
+  const map = A.toMap(anim, channels);
+  const str = v => (/^[A-Za-z0-9 _().,!?'-]*$/.test(v) && v.trim() === v && v !== '' && !/^(true|false|null|yes|no|on|off|~|[-0-9.].*)$/i.test(v) ? v : JSON.stringify(v));
+  const lines = [`# ${map.name} (${anim.id}): made in the Lively NPCs web editor. Ticks: 20 a second.`,
+    `# Put it in plugins/LivelyNPCs/animations/${anim.id}.yml and run /npc reload.`,
+    `name: ${str(map.name)}`, `length: ${map.length}`, `loop: ${map.loop}`, `glance: ${map.glance}`, 'keyframes:'];
+  for (const k of map.keyframes) {
+    const entries = Object.entries(k);
+    lines.push(`  - ${entries[0][0]}: ${entries[0][1]}`);
+    for (const [key, v] of entries.slice(1)) lines.push(`    ${key}: ${v}`);
+  }
+  return lines.join('\n') + '\n';
+}
+
+/** Downloads the open animation as <id>.yml. */
+export function exportAnim() {
+  const e = St.animEntry();
+  if (!e) {
+    toast('Open an animation first.', 'info', 1800);
+    return;
+  }
+  const blob = new Blob([animationYaml(e.draft, S.channelKeys)], {type: 'text/yaml'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = e.id + '.yml';
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast(`Downloaded ${e.id}.yml${e.dirty ? ' (with your unsaved changes)' : ''}.`, 'ok', 2600);
+}

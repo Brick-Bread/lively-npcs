@@ -58,10 +58,10 @@ function blobTexture() {
   return t;
 }
 
-const ACCENT = new THREE.Color('#8b7bff');
-const SELECT_GLOW = new THREE.Color('#231d55');
-const ROOT_GLOW = new THREE.Color('#110e2a');
-const HOVER_GLOW = new THREE.Color('#15132b');
+const ACCENT = new THREE.Color('#3d8ef0');
+const SELECT_GLOW = new THREE.Color('#123a6e');
+const ROOT_GLOW = new THREE.Color('#0a1d38');
+const HOVER_GLOW = new THREE.Color('#0f2440');
 const NO_GLOW = new THREE.Color(0, 0, 0);
 
 export class Viewport {
@@ -102,15 +102,16 @@ export class Viewport {
     scene.add(rim);
 
     // The floor: a grid of blocks and a soft shadow under the feet.
-    const grid = new THREE.GridHelper(16 * 12, 12, 0x3a4256, 0x232938);
+    const grid = new THREE.GridHelper(16 * 12, 12, 0x4a4f5a, 0x393d46);
     grid.material.transparent = true;
     grid.material.opacity = 0.9;
     scene.add(grid);
-    const fine = new THREE.GridHelper(16 * 2, 32, 0x262c3a, 0x1d2230);
+    const fine = new THREE.GridHelper(16 * 2, 32, 0x353942, 0x30343c);
     fine.position.y = 0.01;
     fine.material.transparent = true;
     fine.material.opacity = 0.55;
     scene.add(fine);
+    this.grids = [grid, fine];
     this.shadow = new THREE.Mesh(new THREE.PlaneGeometry(26, 26), new THREE.MeshBasicMaterial({map: blobTexture(), transparent: true, depthWrite: false}));
     this.shadow.rotation.x = -Math.PI / 2;
     this.shadow.position.y = 0.05;
@@ -124,13 +125,13 @@ export class Viewport {
     arrowShape.closePath();
     // Drawn in x/y with its tip at y 20; a quarter turn about x lays it on the floor pointing +z.
     this.front = new THREE.Mesh(new THREE.ShapeGeometry(arrowShape),
-      new THREE.MeshBasicMaterial({color: 0x8b7bff, transparent: true, opacity: 0.55, depthWrite: false, side: THREE.DoubleSide}));
+      new THREE.MeshBasicMaterial({color: 0x3d8ef0, transparent: true, opacity: 0.6, depthWrite: false, side: THREE.DoubleSide}));
     this.front.rotation.x = Math.PI / 2;
     this.front.position.y = 0.06;
     this.frontHolder = new THREE.Group();
     this.frontHolder.add(this.front);
     scene.add(this.frontHolder);
-    this.ring = new THREE.Mesh(new THREE.RingGeometry(11, 12.6, 64), new THREE.MeshBasicMaterial({color: 0x8b7bff, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide}));
+    this.ring = new THREE.Mesh(new THREE.RingGeometry(11, 12.6, 64), new THREE.MeshBasicMaterial({color: 0x3d8ef0, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide}));
     this.ring.rotation.x = -Math.PI / 2;
     this.ring.position.y = 0.08;
     this.ring.userData.part = 'root';
@@ -228,6 +229,11 @@ export class Viewport {
         m.opacity = muted ? 0.75 : 1;
       }
     }
+  }
+
+  /** Shows or hides the floor grid. */
+  setGrid(visible) {
+    for (const g of this.grids) g.visible = visible;
   }
 
   setHeldVisible(visible) {

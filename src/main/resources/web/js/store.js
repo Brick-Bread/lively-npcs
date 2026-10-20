@@ -2,10 +2,23 @@
 // the playhead. Components listen for events and redraw; every change goes through here.
 
 import * as A from './anim.js';
+import {channelsOf} from './axes.js';
 
 const listeners = new Map();
 
-/** Listens for an event: 'server', 'lists', 'select', 'anim', 'npc', 'tick', 'play', 'part', 'live', 'view'. */
+const VIEW_KEY = 'livelynpcs.editor.view';
+const VIEW_DEFAULTS = {grid: true, onion: false, onionMode: 'keys', graph: false, snapTicks: 1, snapAngle: 5, zoom: 0};
+
+function loadView() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(VIEW_KEY) || '{}');
+    return {...VIEW_DEFAULTS, ...(saved && typeof saved === 'object' ? saved : {})};
+  } catch {
+    return {...VIEW_DEFAULTS};
+  }
+}
+
+/** Listens for an event: 'server', 'lists', 'select', 'anim', 'npc', 'tick', 'play', 'part', 'live', 'view', 'keys', 'viewset'. */
 export function on(event, fn) {
   if (!listeners.has(event)) listeners.set(event, new Set());
   listeners.get(event).add(fn);
@@ -46,8 +59,14 @@ export const S = {
 
   tick: 0,
   playing: false,
-  /** The tick of the selected keyframe, or null. */
+  /** The tick of the keyframe the panels edit (the last one clicked), or null. */
   selectedAt: null,
+  /** Every selected keyframe's tick (moved, deleted and eased together); holds selectedAt. */
+  keySel: new Set(),
+  /** Parts opened into their values in the timeline. */
+  expanded: new Set(),
+  /** The value the graph editor draws (a channel key), or null for the selected part's first. */
+  channel: null,
   /** The selected part ('root', 'head', 'body', 'right_arm', ...) or null for all. */
   part: null,
   /** A pose changed between keyframes while auto key is off: shown, not yet stored. */
@@ -56,7 +75,20 @@ export const S = {
   layers: true,
   live: false,
   clipboard: null,
+  /** View settings, kept in this browser: grid, onion skin, graph editor, snapping. */
+  view: loadView(),
 };
+
+/** Changes view settings ({grid: false}, ...), keeps them in this browser and redraws. */
+export function setView(changes) {
+  Object.assign(S.view, changes);
+  try {
+    localStorage.setItem(VIEW_KEY, JSON.stringify(S.view));
+  } catch {
+    // no storage: the settings last as long as the page
+  }
+  emit('viewset', changes);
+}
 
 // ---- loading and merging what the server sends ----
 
@@ -294,10 +326,10 @@ export function selectAnim(id) {
   pause();
   S.animId = id;
   S.pending = null;
-  S.selectedAt = null;
+  focusKey(null);
   const e = animEntry();
   S.tick = 0;
-  if (e) S.selectedAt = 0;
+  if (e) focusKey(0);
   emit('select');
   emit('tick');
 }
@@ -318,7 +350,62 @@ export function setModelNpc(id) {
 
 export function selectPart(part) {
   S.part = part;
+  if (part) S.expanded.add(part);
+  if (S.channel && !(part && channelsOf(part).includes(S.channel))) S.channel = null;
   emit('part');
+}
+
+/** Picks the value the graph editor draws (and its part). */
+export function selectChannel(part, key) {
+  S.part = part;
+  if (part) S.expanded.add(part);
+  S.channel = key;
+  emit('part');
+}
+
+/** Opens or closes a part's values in the timeline. */
+export function toggleExpanded(part, open = !S.expanded.has(part)) {
+  if (open) S.expanded.add(part);
+  else S.expanded.delete(part);
+  emit('part');
+}
+
+// ---- keyframe selection ----
+
+/** Makes one keyframe (or none) the selection and the one the panels edit. */
+export function focusKey(at) {
+  S.selectedAt = at === undefined ? null : at;
+  S.keySel = S.selectedAt === null ? new Set() : new Set([S.selectedAt]);
+}
+
+/** Selects a keyframe: alone, or added to (add) / toggled in (toggle) the selection. */
+export function selectKey(at, {add = false, toggle = false} = {}) {
+  if (toggle && S.keySel.has(at) && S.keySel.size > 1) {
+    S.keySel.delete(at);
+    if (S.selectedAt === at) S.selectedAt = [...S.keySel].pop();
+  } else if (add || toggle) {
+    S.keySel.add(at);
+    S.selectedAt = at;
+  } else {
+    focusKey(at);
+  }
+  emit('keys');
+}
+
+/** Selects these keyframes (box select, select all); add keeps the ones selected already. */
+export function setKeySelection(ticks, add = false) {
+  const e = animEntry();
+  const there = new Set(e ? e.draft.keyframes.map(k => k.at) : []);
+  const next = add ? new Set(S.keySel) : new Set();
+  for (const t of ticks) if (there.has(t)) next.add(t);
+  S.keySel = next;
+  S.selectedAt = next.size ? (next.has(S.selectedAt) ? S.selectedAt : [...next].sort((a, b) => a - b)[0]) : null;
+  emit('keys');
+}
+
+export function selectAllKeys() {
+  const e = animEntry();
+  if (e) setKeySelection(e.draft.keyframes.map(k => k.at));
 }
 
 // ---- history (undo / redo) ----
@@ -336,7 +423,7 @@ function restore(kind, entry, text) {
 /** Records the draft before a change; changes with the same gesture close together are one step. */
 function remember(kind, entry, gesture) {
   const now = performance.now();
-  if (gesture && entry.gesture === gesture && now - entry.gestureAt < COALESCE_MS) {
+  if (gesture && entry.gesture === gesture && (gesture.startsWith('drag:') || now - entry.gestureAt < COALESCE_MS)) {
     entry.gestureAt = now;
     return;
   }
@@ -389,7 +476,8 @@ export function redo() {
 function afterChange(kind, entry, history = false) {
   if (kind === 'anim') {
     A.normalize(entry.draft);
-    if (S.selectedAt !== null && A.keyAt(entry.draft, S.selectedAt) < 0) S.selectedAt = null;
+    for (const t of [...S.keySel]) if (A.keyAt(entry.draft, t) < 0) S.keySel.delete(t);
+    if (S.selectedAt !== null && A.keyAt(entry.draft, S.selectedAt) < 0) S.selectedAt = S.keySel.size ? [...S.keySel][0] : null;
     S.pending = null;
   }
   const wasDirty = entry.dirty;
@@ -462,7 +550,7 @@ export function setValues(values, gesture) {
         else delete k.values[key];
       }
     }, gesture);
-    S.selectedAt = S.tick;
+    if (S.selectedAt !== S.tick) focusKey(S.tick);
   } else if (S.autoKey) {
     const pose = A.compact({...A.sample(e.draft, S.tick, S.channelKeys), ...values});
     const at = S.tick;
@@ -470,7 +558,7 @@ export function setValues(values, gesture) {
       d.keyframes.push({at, ease: 'linear', values: pose});
       if (at > d.length) d.length = at;
     }, gesture);
-    S.selectedAt = at;
+    focusKey(at);
     emit('lists');
   } else {
     S.pending = A.compact({...currentValues(), ...values});
@@ -503,7 +591,7 @@ export function addKeyframe() {
       changeAnim(d => { d.keyframes[i].values = {...pose}; });
       S.pending = null;
     }
-    S.selectedAt = at;
+    focusKey(at);
     S.tick = at;
     emit('tick');
     return 'exists';
@@ -514,22 +602,56 @@ export function addKeyframe() {
     if (at > d.length) d.length = at;
   });
   S.pending = null;
-  S.selectedAt = at;
+  focusKey(at);
   S.tick = at;
   emit('tick');
   return 'added';
 }
 
-/** Removes the selected keyframe (never the one at 0). */
+/** Removes the selected keyframes (never the one at 0). */
 export function deleteKeyframe() {
   const e = animEntry();
-  if (!e || S.selectedAt === null) return 'none';
-  if (S.selectedAt === 0) return 'first';
-  const at = S.selectedAt;
-  changeAnim(d => { d.keyframes = d.keyframes.filter(k => k.at !== at); });
-  S.selectedAt = null;
+  const ticks = new Set(S.keySel);
+  if (S.selectedAt !== null) ticks.add(S.selectedAt);
+  if (!e || !ticks.size) return 'none';
+  ticks.delete(0);
+  if (!ticks.size) return 'first';
+  changeAnim(d => { d.keyframes = d.keyframes.filter(k => !ticks.has(k.at)); });
+  focusKey(null);
   emit('tick');
+  emit('keys');
   return 'deleted';
+}
+
+/**
+ * Moves keyframes together by delta ticks (the one at 0 stays): base is the keyframes as they were
+ * when the drag began, moving the ticks to move. A move that would put one on another keyframe or
+ * before tick 1 is refused. Returns whether it moved.
+ */
+export function moveKeyframes(base, moving, delta, gesture) {
+  const e = animEntry();
+  if (!e) return false;
+  const move = new Set([...moving].filter(t => t !== 0));
+  const stay = new Set(base.map(k => k.at).filter(t => !move.has(t)));
+  for (const t of move) if (t + delta < 1 || stay.has(t + delta)) return false;
+  changeAnim(d => {
+    d.keyframes = base.map(k => ({at: move.has(k.at) ? k.at + delta : k.at, ease: k.ease, values: {...k.values}}));
+    const last = Math.max(...d.keyframes.map(k => k.at));
+    if (last > d.length) d.length = last;
+  }, gesture);
+  return true;
+}
+
+/** Sets one value of the keyframe at a tick (the graph editor). */
+export function setKeyValue(at, key, value, gesture) {
+  const e = animEntry();
+  if (!e) return;
+  changeAnim(d => {
+    const k = d.keyframes.find(x => x.at === at);
+    if (!k) return;
+    if (value) k.values[key] = value;
+    else delete k.values[key];
+  }, gesture);
 }
 
 /** Moves a keyframe to another tick (not the first, not onto another). Returns the tick it is at. */
@@ -544,18 +666,38 @@ export function moveKeyframe(from, to, gesture) {
     if (k) k.at = to;
     if (to > d.length) d.length = to;
   }, gesture);
-  if (S.selectedAt === from) S.selectedAt = to;
+  if (S.selectedAt === from) focusKey(to);
   return to;
 }
 
-export function setEase(ease) {
+/** Sets how the selected keyframes (or the one at the playhead) are reached. */
+export function setEase(ease, ticks = null) {
   const e = animEntry();
-  if (!e || S.selectedAt === null) return;
-  const at = S.selectedAt;
+  if (!e) return;
+  const set = new Set(ticks || (S.keySel.size ? S.keySel : S.selectedAt !== null ? [S.selectedAt] : []));
+  if (!set.size) {
+    const i = keyUnderPlayhead();
+    if (i >= 0) set.add(e.draft.keyframes[i].at);
+  }
+  set.delete(0);
+  if (!set.size) return;
   changeAnim(d => {
-    const k = d.keyframes.find(x => x.at === at);
-    if (k) k.ease = ease;
+    for (const k of d.keyframes) if (set.has(k.at)) k.ease = ease;
   });
+}
+
+/** Drops the unsaved changes of the animation or NPC being edited (one never saved goes away). */
+export function revert(kind) {
+  const entry = kind === 'npc' ? npcEntry() : animEntry();
+  if (!entry || !entry.dirty) return false;
+  if (entry.isNew || !entry.base) {
+    removeEntry(kind, entry.id);
+    return true;
+  }
+  remember(kind, entry, null);
+  entry.draft = kind === 'npc' ? cleanNpc(entry.base) : A.clone(entry.base);
+  afterChange(kind, entry, true);
+  return true;
 }
 
 // ---- playhead and playing ----
@@ -565,9 +707,9 @@ export function setTick(t, keepPending = false) {
   const max = e ? e.draft.length : 0;
   S.tick = Math.max(0, Math.min(max, t));
   if (!keepPending) S.pending = null;
-  if (!S.playing && e) {
+  if (!S.playing && e && S.keySel.size <= 1) {
     const i = A.keyAt(e.draft, S.tick);
-    if (i >= 0) S.selectedAt = S.tick;
+    if (i >= 0) focusKey(S.tick);
   }
   emit('tick');
 }
