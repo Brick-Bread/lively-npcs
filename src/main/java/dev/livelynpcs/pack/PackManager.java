@@ -47,6 +47,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -544,7 +545,11 @@ public final class PackManager implements PackService, Listener {
         built = pack;
         boolean changed = before == null || !before.sha1().equals(pack.sha1());
         served.put(pack.sha1(), pack.zip());
-        served.keySet().retainAll(before == null ? Set.of(pack.sha1()) : Set.of(pack.sha1(), before.sha1()));
+        // The new pack and the one before it stay downloadable (a rebuild can give the same pack again).
+        Set<String> keep = new HashSet<>();
+        keep.add(pack.sha1());
+        if (before != null) keep.add(before.sha1());
+        served.keySet().retainAll(keep);
         if (!failed.isEmpty()) {
             plugin.getLogger().warning("NPC pack: " + buildProblem + (request.retries() < RETRIES ? "; trying again in 2 minutes" : ""));
             if (request.retries() < RETRIES) {
