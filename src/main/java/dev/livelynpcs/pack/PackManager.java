@@ -92,6 +92,8 @@ public final class PackManager implements PackService, Listener {
     /** Builds remembered (their SHA-1 and skins), for own/url mode's pack.sha1. */
     private static final int HISTORY = 50;
     private static final int RETRIES = 5;
+    /** How often a session our pack is offered again after someone else took it away. */
+    private static final int MAX_REOFFERS = 3;
     private static final Pattern PACK_PATH = Pattern.compile("/pack/([0-9a-f]{40})\\.zip");
 
     /** Our pack as offered now: its id (from link and SHA-1), link, SHA-1, the skins in it, and whether we know them. */
@@ -109,6 +111,8 @@ public final class PackManager implements PackService, Listener {
     private final List<Consumer<Player>> listeners = new CopyOnWriteArrayList<>();
     /** Main thread: the skins each online player was last said to have models of (listeners fire on a change). */
     private final Map<UUID, Set<String>> told = new HashMap<>();
+    /** Main thread: how often each online player was offered our pack again after someone else took it away. */
+    private final Map<UUID, Integer> reoffers = new HashMap<>();
     /** builtin: zips the web server hands out, by SHA-1 (the current one and the one before). */
     private final Map<String, byte[]> served = new ConcurrentHashMap<>();
     /** Every pack built here, SHA-1 to its skins, oldest first. Guarded by itself. */
@@ -344,6 +348,7 @@ public final class PackManager implements PackService, Listener {
         UUID id = event.getPlayer().getUniqueId();
         tracker.forget(id);
         told.remove(id);
+        reoffers.remove(id);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -369,32 +374,36 @@ public final class PackManager implements PackService, Listener {
         public void onPacketSend(PacketSendEvent event) {
             if (event.isCancelled()) return;
             PacketTypeCommon type = event.getPacketType();
-            if (type == PacketType.Play.Server.RESOURCE_PACK_SEND) {
-                WrapperPlayServerResourcePackSend packet = new WrapperPlayServerResourcePackSend(event);
-                pushed(event.getUser(), packet.getPackId(), packet.getUrl());
-            } else if (type == PacketType.Configuration.Server.RESOURCE_PACK_SEND) {
-                WrapperConfigServerResourcePackSend packet = new WrapperConfigServerResourcePackSend(event);
-                pushed(event.getUser(), packet.getPackId(), packet.getUrl());
-            } else if (type == PacketType.Play.Server.RESOURCE_PACK_REMOVE) {
-                popped(event.getUser(), new WrapperPlayServerResourcePackRemove(event).getPackId());
-            } else if (type == PacketType.Configuration.Server.RESOURCE_PACK_REMOVE) {
-                popped(event.getUser(), new WrapperConfigServerResourcePackRemove(event).getPackId());
+            try {
+                if (type == PacketType.Play.Server.RESOURCE_PACK_SEND) {
+                    WrapperPlayServerResourcePackSend packet = new WrapperPlayServerResourcePackSend(event);
+                    pushed(event.getUser(), packet.getPackId(), packet.getUrl());
+                } else if (type == PacketType.Configuration.Server.RESOURCE_PACK_SEND) {
+                    WrapperConfigServerResourcePackSend packet = new WrapperConfigServerResourcePackSend(event);
+                    pushed(event.getUser(), packet.getPackId(), packet.getUrl());
+                } else if (type == PacketType.Play.Server.RESOURCE_PACK_REMOVE) {
+                    popped(event.getUser(), new WrapperPlayServerResourcePackRemove(event).getPackId());
+                } else if (type == PacketType.Configuration.Server.RESOURCE_PACK_REMOVE) {
+                    popped(event.getUser(), new WrapperConfigServerResourcePackRemove(event).getPackId());
+                }
+            } catch (RuntimeException e) {
+                // Only watching: a packet we cannot read is someone else's business, never a reason to fail it.
+                plugin.getLogger().fine("Could not read a resource pack packet: " + e);
             }
         }
 
         @Override
         public void onPacketReceive(PacketReceiveEvent event) {
             if (event.getPacketType() != PacketType.Configuration.Client.RESOURCE_PACK_STATUS) return;
-            WrapperConfigClientResourcePackStatus packet = new WrapperConfigClientResourcePackStatus(event);
-            UUID player = event.getUser() == null ? null : event.getUser().getUUID();
-            if (player == null || packet.getResult() == null) return;
-            Status status;
             try {
-                status = Status.valueOf(packet.getResult().name());
-            } catch (IllegalArgumentException e) {
-                return;
+                WrapperConfigClientResourcePackStatus packet = new WrapperConfigClientResourcePackStatus(event);
+                UUID player = event.getUser() == null ? null : event.getUser().getUUID();
+                if (player == null || packet.getResult() == null) return;
+                Status status = Status.valueOf(packet.getResult().name());
+                if (tracker.answer(player, packet.getPackId(), status) == PackTracker.Result.CHANGED) later(player, false);
+            } catch (RuntimeException e) {
+                plugin.getLogger().fine("Could not read a resource pack answer: " + e);
             }
-            if (tracker.answer(player, packet.getPackId(), status) == PackTracker.Result.CHANGED) later(player, false);
         }
 
         @Override
@@ -406,6 +415,7 @@ public final class PackManager implements PackService, Listener {
                 if (Bukkit.getPlayer(player) == null) {
                     tracker.forget(player);
                     told.remove(player);
+                    reoffers.remove(player);
                 }
             });
         }
@@ -424,12 +434,25 @@ public final class PackManager implements PackService, Listener {
             later(player, ours);
         }
 
-        /** On the main thread: tell listeners about the player, and offer our pack again if someone took it away. */
+        /**
+         * On the main thread: tell listeners about the player, and offer our pack again if someone else took
+         * it away (a plugin clearing every pack to send its own), a few times a session at most so two
+         * plugins can never keep taking turns.
+         */
         private void later(UUID player, boolean offerAgain) {
             runLater(() -> {
                 Player online = Bukkit.getPlayer(player);
                 if (online == null) return;
-                if (offerAgain) ensure(online);
+                Own now = current;
+                if (offerAgain && now != null && tracker.plan(player, now.id()) == PackTracker.Action.SEND) {
+                    int times = reoffers.merge(player, 1, Integer::sum);
+                    if (times <= MAX_REOFFERS) {
+                        ensure(online);
+                    } else if (times == MAX_REOFFERS + 1) {
+                        plugin.getLogger().warning("NPC pack: another plugin keeps taking it from " + online.getName()
+                                + "; not offered again until they rejoin");
+                    }
+                }
                 tell(online);
             });
         }
