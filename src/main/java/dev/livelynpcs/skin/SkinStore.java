@@ -73,13 +73,13 @@ public final class SkinStore implements SkinService {
     public CompletableFuture<Skin> fromUrl(String url, boolean slim) {
         String link = url == null ? "" : url.trim();
         String key = plugin.settings().mineskinKey;
-        if (key.isEmpty()) return CompletableFuture.failedFuture(new SkinException(MineSkinApi.NO_KEY));
+        if (key.isEmpty()) return failed(new SkinException(MineSkinApi.NO_KEY));
         try {
             URI uri = new URI(link);
             String scheme = uri.getScheme() == null ? "" : uri.getScheme().toLowerCase(Locale.ROOT);
             if (uri.getHost() == null || !(scheme.equals("http") || scheme.equals("https"))) throw new IllegalArgumentException();
         } catch (Exception e) {
-            return CompletableFuture.failedFuture(new SkinException("'" + link + "' is not a web link to an image (http:// or https://)."));
+            return failed(new SkinException("'" + link + "' is not a web link to an image (http:// or https://)."));
         }
         return signed(() -> {
             MineSkinApi.Signed s = mineSkin.fromUrl(key, link, slim);
@@ -90,21 +90,28 @@ public final class SkinStore implements SkinService {
     @Override
     public CompletableFuture<Skin> fromUpload(byte[] png, boolean slim) {
         String key = plugin.settings().mineskinKey;
-        if (key.isEmpty()) return CompletableFuture.failedFuture(new SkinException(MineSkinApi.NO_KEY));
+        if (key.isEmpty()) return failed(new SkinException(MineSkinApi.NO_KEY));
         try {
             SkinImage.Pixels image = SkinImage.read(png == null ? new byte[0] : png);
             if (image.width() != 64 || (image.height() != 64 && image.height() != 32)) {
-                return CompletableFuture.failedFuture(new SkinException("That image is " + image.width() + "x" + image.height()
+                return failed(new SkinException("That image is " + image.width() + "x" + image.height()
                         + "; a skin is a 64x64 (or old 64x32) PNG."));
             }
         } catch (IOException e) {
-            return CompletableFuture.failedFuture(new SkinException("That file is not a PNG image; a skin is a 64x64 PNG."));
+            return failed(new SkinException("That file is not a PNG image; a skin is a 64x64 PNG."));
         }
         byte[] copy = png.clone();
         return signed(() -> {
             MineSkinApi.Signed s = mineSkin.fromUpload(key, copy, slim);
             return new String[]{s.value(), s.signature(), "upload"};
         });
+    }
+
+    /** A future failing with this reason on the main thread, as every from* future completes there. */
+    private CompletableFuture<Skin> failed(SkinException reason) {
+        CompletableFuture<Skin> result = new CompletableFuture<>();
+        onMain(() -> result.completeExceptionally(reason), result);
+        return result;
     }
 
     /** Runs a web lookup off the main thread ({value, signature, source}), then stores the skin on the main thread. */
