@@ -48,8 +48,8 @@ export const SHOTS = {
   'onion-skin': `
     const {St, S, viewport} = window.__editor;
     St.setMode('animations'); St.selectAnim('stretch');
-    St.selectPart(null); St.setView({graph: false, onion: true, onionMode: 'keys', zoom: 0});
-    St.setTick(10); viewport.view('side', false);`,
+    St.selectPart('right_arm'); St.setView({graph: false, onion: true, onionMode: 'keys', zoom: 0});
+    St.setTick(6); viewport.view('three-quarter', false);`,
   'npc-mode': `
     const {St, viewport} = window.__editor;
     St.setMode('npcs'); St.selectNpc('mobshop'); viewport.view('three-quarter', false);`,

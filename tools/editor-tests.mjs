@@ -133,10 +133,29 @@ async function testSnap() {
   console.log(`${failed === before ? 'ok  ' : 'BAD '} snap.js: keyframe times, angles, positions and the ruler`);
 }
 
+// ---------------------------------------------------------------- onion.js
+
+async function testOnion() {
+  const On = await load('onion.js');
+  const before = failed;
+  const keys = [0, 10, 20, 40].map(at => ({at, ease: 'linear', values: {}}));
+  const once = {length: 40, loop: false, keyframes: keys};
+  const loop = {length: 48, loop: true, keyframes: keys};
+  const ticks = (anim, t, mode) => On.onionTicks(anim, t, mode).map(g => `${g.side[0]}${g.tick}${g.near ? '' : '~'}`).join(' ');
+  const cases = [
+    [ticks(once, 15, 'keys'), 'b10 a20'], [ticks(once, 10, 'keys'), 'b0 a20'], [ticks(once, 0, 'keys'), 'a10'],
+    [ticks(once, 40, 'keys'), 'b20'], [ticks(loop, 0, 'keys'), 'b40 a10'], [ticks(loop, 44, 'keys'), 'b40 a0'],
+    [ticks(once, 12, 'ticks:5'), 'b7 b2~ a17 a22~'], [ticks(once, 2, 'ticks:5'), 'a7 a12~'], [ticks(once, 38, 'ticks:4'), 'b34 b30~'],
+    [ticks(loop, 2, 'ticks:5'), 'b45 b40~ a7 a12~'], [ticks(null, 3, 'keys'), ''],
+  ];
+  cases.forEach(([got, want], i) => check(got === want, `onion: case ${i + 1} gives '${got}', want '${want}'`));
+  console.log(`${failed === before ? 'ok  ' : 'BAD '} onion.js: which poses the onion skin shows`);
+}
+
 // ---------------------------------------------------------------- run
 
 export async function run({quiet = false} = {}) {
-  const tests = [testAxes, testSnap];
+  const tests = [testAxes, testSnap, testOnion];
   for (const extra of ['graph', 'import']) {
     const file = extra === 'graph' ? 'graph.js' : 'bbimport.js';
     if (fs.existsSync(path.join(WEB, file))) tests.push(extra === 'graph' ? testGraph : testImport);

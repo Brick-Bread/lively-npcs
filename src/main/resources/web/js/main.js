@@ -17,6 +17,7 @@ import {render as renderMini} from './minimessage.js';
 import {PART_NAMES} from './labels.js';
 import {h, fill, icon, button, toggle, toast, dialog, isTyping} from './ui.js';
 import {mountGizmo} from './gizmo.js';
+import {mountOnion} from './onion.js';
 
 const gate = document.getElementById('gate');
 const gateBody = document.getElementById('gate-body');
@@ -228,6 +229,7 @@ function mount() {
     partName: part => PART_NAMES[part] || part,
   });
   mountGizmo(viewport);
+  mountOnion(viewport, {S, St});
   window.__editor = {S, viewport, St};
   mountTimeline(document.getElementById('timeline'));
   mountStageBar(viewport);

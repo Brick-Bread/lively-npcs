@@ -267,6 +267,46 @@ export class Viewport {
     if (this.selected) this.updateOutline();
   }
 
+  /**
+   * Ghost poses (the onion skin): [{values, tint, opacity}], each drawn as the model's base boxes in one
+   * see-through colour with the same live layers; [] hides them.
+   */
+  setGhosts(list, live = {}) {
+    if (!this.ghosts) this.ghosts = [];
+    while (this.ghosts.length < list.length) {
+      const group = new THREE.Group();
+      // Pushed back a little in depth, so where a ghost and the model coincide the model wins.
+      const material = new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false,
+        polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 2});
+      const parts = {};
+      for (const name of BODY) {
+        const mesh = new THREE.Mesh(new THREE.BufferGeometry(), material);
+        group.add(mesh);
+        parts[name] = mesh;
+      }
+      this.scene.add(group);
+      this.ghosts.push({group, material, parts});
+    }
+    this.ghosts.forEach((g, i) => {
+      const want = list[i];
+      g.group.visible = !!want;
+      if (!want) return;
+      g.material.color.setHex(want.tint);
+      g.material.opacity = want.opacity;
+      const posed = Rig.pose(want.values, live);
+      const at = Rig.placed(posed);
+      for (const name of BODY) {
+        const mesh = g.parts[name];
+        const base = this.parts[name].children.find(c => c.userData.layer === 'base');
+        if (base && mesh.geometry !== base.geometry) mesh.geometry = base.geometry;
+        const p = at[name];
+        mesh.position.set(p.origin[0], p.origin[1], p.origin[2]);
+        mesh.quaternion.set(p.rotation[0], p.rotation[1], p.rotation[2], p.rotation[3]);
+        mesh.scale.set(1, name === 'body' ? posed.k : 1, 1);
+      }
+    });
+  }
+
   /** Highlights a part ('head', ..., 'root' for the whole body) or nothing. */
   highlight(part) {
     this.selected = part;
