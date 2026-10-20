@@ -54,7 +54,7 @@ web:
   enabled: true
   # A spare port on this server, open to players' browsers.
   port: 8193
-  # Address to listen on. 0.0.0.0 is every network interface.
+  # Address to listen on. 0.0.0.0 is every network interface, IPv4 and IPv6.
   bind: 0.0.0.0
   # How browsers reach this server, for the links /npc editor gives (and the builtin pack link),
   # e.g. play.example.com:8193. Empty = this server's IP and web.port.

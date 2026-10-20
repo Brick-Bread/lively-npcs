@@ -16,11 +16,24 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Enumeration;
+import java.util.HexFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Stream;
+import java.util.zip.GZIPOutputStream;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +67,16 @@ public final class WebServer {
             "json", "application/json; charset=utf-8", "png", "image/png", "svg", "image/svg+xml",
             "woff2", "font/woff2", "ico", "image/x-icon", "txt", "text/plain; charset=utf-8");
 
+    /** Text files worth compressing: the editor's scripts are most of what a first visit downloads. */
+    private static final Set<String> COMPRESS = Set.of("html", "js", "mjs", "css", "json", "svg", "txt");
+
+    /** One of the editor's files, read from the jar once: as it is, gzipped (or null), and its ETag. */
+    private record Static(byte[] raw, byte[] gzip, String etag, String type) { }
+
     private final LivelyNpcs plugin;
+    private final Map<String, Static> files = new ConcurrentHashMap<>();
+    /** Link header for the page: every script, so the browser fetches them together, not one import at a time. */
+    private volatile String preloads;
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
     private final SecureRandom random = new SecureRandom();
     private HttpServer server;
@@ -69,9 +91,12 @@ public final class WebServer {
     public void start() throws IOException {
         Settings s = plugin.settings();
         port = s.webPort;
-        server = HttpServer.create(new InetSocketAddress(s.webBind.isEmpty() ? "0.0.0.0" : s.webBind, port), 0);
+        // Every interface, IPv4 and IPv6 alike: a browser that tries IPv6 first (as "localhost" does
+        // on Windows) would otherwise wait for the refusal on each new connection before falling back.
+        boolean everywhere = s.webBind.isEmpty() || s.webBind.equals("0.0.0.0") || s.webBind.equals("::");
+        server = HttpServer.create(everywhere ? new InetSocketAddress(port) : new InetSocketAddress(s.webBind, port), 0);
         AtomicInteger n = new AtomicInteger();
-        threads = Executors.newFixedThreadPool(4, r -> {
+        threads = Executors.newFixedThreadPool(8, r -> {
             Thread t = new Thread(r, "LivelyNPCs-web-" + n.incrementAndGet());
             t.setDaemon(true);
             return t;
@@ -129,7 +154,8 @@ public final class WebServer {
         String address = plugin.settings().webPublicAddress;
         if (address.isEmpty()) {
             String ip = Bukkit.getIp();
-            address = (ip == null || ip.isBlank() ? "localhost" : ip) + ":" + port;
+            // 127.0.0.1 rather than "localhost": the name may be tried over IPv6 first, which is slower.
+            address = (ip == null || ip.isBlank() ? "127.0.0.1" : ip) + ":" + port;
         }
         if (!address.startsWith("http://") && !address.startsWith("https://")) address = "http://" + address;
         return address.endsWith("/") ? address.substring(0, address.length() - 1) : address;
@@ -225,23 +251,94 @@ public final class WebServer {
                 bytes(exchange, 404, "text/plain; charset=utf-8", "Not found".getBytes(StandardCharsets.UTF_8));
                 return;
             }
-            byte[] data;
-            try (InputStream in = plugin.getResource("web/" + file)) {
-                if (in == null) {
-                    bytes(exchange, 404, "text/plain; charset=utf-8", "Not found".getBytes(StandardCharsets.UTF_8));
-                    return;
-                }
-                data = in.readAllBytes();
+            Static f = files.computeIfAbsent(file, this::load);
+            if (f.raw() == null) {
+                bytes(exchange, 404, "text/plain; charset=utf-8", "Not found".getBytes(StandardCharsets.UTF_8));
+                return;
             }
-            String ext = file.contains(".") ? file.substring(file.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT) : "";
-            exchange.getResponseHeaders().set("X-Content-Type-Options", "nosniff");
-            exchange.getResponseHeaders().set("Cache-Control", file.startsWith("vendor/") ? "max-age=86400" : "no-cache");
-            if (ext.equals("html")) {
-                exchange.getResponseHeaders().set("Content-Security-Policy",
+            var headers = exchange.getResponseHeaders();
+            headers.set("X-Content-Type-Options", "nosniff");
+            // Scripts and styles are checked again on each visit but only downloaded when they changed
+            // (ETag); the vendored libraries are kept for a day.
+            headers.set("Cache-Control", file.startsWith("vendor/") ? "max-age=86400" : "no-cache");
+            headers.set("ETag", f.etag());
+            if (file.equals("index.html")) {
+                headers.set("Content-Security-Policy",
                         "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; connect-src 'self'");
-                exchange.getResponseHeaders().set("Referrer-Policy", "no-referrer");
+                headers.set("Referrer-Policy", "no-referrer");
+                String links = preloads();
+                if (!links.isEmpty()) headers.set("Link", links);
             }
-            bytes(exchange, 200, TYPES.getOrDefault(ext, "application/octet-stream"), data);
+            if (f.etag().equals(exchange.getRequestHeaders().getFirst("If-None-Match"))) {
+                exchange.sendResponseHeaders(304, -1);
+                return;
+            }
+            String accepts = exchange.getRequestHeaders().getFirst("Accept-Encoding");
+            if (f.gzip() != null && accepts != null && accepts.contains("gzip")) {
+                headers.set("Content-Encoding", "gzip");
+                headers.set("Vary", "Accept-Encoding");
+                bytes(exchange, 200, f.type(), f.gzip());
+            } else {
+                bytes(exchange, 200, f.type(), f.raw());
+            }
         }
+    }
+
+    /** Reads one of the editor's files from the jar (raw null when there is none), compressed if it is text. */
+    private Static load(String file) {
+        try (InputStream in = plugin.getResource("web/" + file)) {
+            if (in == null) return new Static(null, null, "", "");
+            byte[] raw = in.readAllBytes();
+            String ext = file.contains(".") ? file.substring(file.lastIndexOf('.') + 1).toLowerCase(Locale.ROOT) : "";
+            byte[] gzip = null;
+            if (COMPRESS.contains(ext) && raw.length > 512) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream(raw.length / 3);
+                try (GZIPOutputStream z = new GZIPOutputStream(out)) {
+                    z.write(raw);
+                }
+                gzip = out.toByteArray();
+            }
+            String etag = "\"" + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(raw), 0, 8) + "\"";
+            return new Static(raw, gzip, etag, TYPES.getOrDefault(ext, "application/octet-stream"));
+        } catch (IOException | NoSuchAlgorithmException e) {
+            plugin.getLogger().warning("Could not read the editor's " + file + ": " + e.getMessage());
+            return new Static(null, null, "", "");
+        }
+    }
+
+    /** "</editor/js/a.js>; rel=modulepreload, ..." for every script under web/ in the plugin's jar. */
+    private String preloads() {
+        String links = preloads;
+        if (links != null) return links;
+        List<String> scripts = new ArrayList<>();
+        try {
+            Path jar = Path.of(LivelyNpcs.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            if (Files.isDirectory(jar)) {
+                Path web = jar.resolve("web");
+                if (Files.isDirectory(web)) {
+                    try (Stream<Path> walk = Files.walk(web)) {
+                        walk.filter(p -> p.toString().endsWith(".js"))
+                                .forEach(p -> scripts.add(web.relativize(p).toString().replace('\\', '/')));
+                    }
+                }
+            } else {
+                try (JarFile zip = new JarFile(jar.toFile())) {
+                    for (Enumeration<JarEntry> e = zip.entries(); e.hasMoreElements(); ) {
+                        String name = e.nextElement().getName();
+                        if (name.startsWith("web/") && name.endsWith(".js")) scripts.add(name.substring(4));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            plugin.getLogger().fine("No script preloads: " + e);
+        }
+        scripts.sort(null);
+        StringBuilder out = new StringBuilder();
+        for (String script : scripts) {
+            if (!out.isEmpty()) out.append(", ");
+            out.append("</editor/").append(script).append(">; rel=modulepreload");
+        }
+        preloads = out.toString();
+        return preloads;
     }
 }
