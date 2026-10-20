@@ -70,6 +70,57 @@ class ArmClippingTest {
         assertTrue(failures.isEmpty(), "arms clip:\n" + String.join("\n", failures.subList(0, Math.min(40, failures.size()))));
     }
 
+    /**
+     * The presets that put a hand up to the face really do: while the pose is held, the right hand (the
+     * last 3 px of the arm) comes within NEAR px of the head, so the test above proves "near the face
+     * without going into it", not "kept well away". Classic and slim, breathing out and in.
+     */
+    @Test
+    void handsUpToTheFaceComeCloseWithoutGoingIn() {
+        AnimationStore store = new AnimationStore(java.nio.file.Path.of("no-server-folder"),
+                name -> ArmClippingTest.class.getClassLoader().getResourceAsStream(name), Logger.getAnonymousLogger());
+        store.reload();
+        // Preset and a tick while the hand is held at the face.
+        for (Object[] held : new Object[][] {{"salute", 16}}) {
+            String id = (String) held[0];
+            int tick = (Integer) held[1];
+            float[] values = new float[Channel.COUNT];
+            store.preset(id).sample(tick, values);
+            for (boolean slim : new boolean[] {false, true}) {
+                for (float breath : new float[] {0, 1}) {
+                    RigPose pose = new RigPose().rest();
+                    System.arraycopy(values, 0, pose.channels, 0, values.length);
+                    pose.slim = slim;
+                    pose.breath = breath;
+                    pose.solve();
+                    double gap = gap(pose, Part.RIGHT_ARM);
+                    assertTrue(gap <= NEAR, id + " hand " + gap + " px from the head (" + (slim ? "slim" : "classic") + ", breath " + breath + ")");
+                    assertTrue(depths(pose).head() <= HEAD_LIMIT, id + " hand in the head");
+                }
+            }
+        }
+    }
+
+    /** A hand counts as up to the face within this many pixels of the head. */
+    static final double NEAR = 1.5;
+
+    /** The shortest distance from the hand (the last 3 px of the arm) to the head's box: 0 touching or inside. */
+    static double gap(RigPose p, Part arm) {
+        double[] head = frame(p, Part.HEAD), f = frame(p, arm);
+        double half = p.slim ? 1.5 : 2, best = Double.MAX_VALUE;
+        for (double x = -half; x <= half + 1e-9; x += STEP) {
+            for (double y = -12; y <= -9 + 1e-9; y += STEP) {
+                for (double z = -2; z <= 2 + 1e-9; z += STEP) {
+                    double[] h = toLocal(head, toBody(f, x, y, z));
+                    double dx = Math.max(Math.max(-4 - h[0], 0), h[0] - 4), dy = Math.max(Math.max(-h[1], 0), h[1] - 8),
+                            dz = Math.max(Math.max(-4 - h[2], 0), h[2] - 4);
+                    best = Math.min(best, Math.sqrt(dx * dx + dy * dy + dz * dz));
+                }
+            }
+        }
+        return best;
+    }
+
     /** How deep the arms go into the head and torso in this (solved) pose. */
     static Depths depths(RigPose p) {
         double[] head = frame(p, Part.HEAD), body = frame(p, Part.BODY);
