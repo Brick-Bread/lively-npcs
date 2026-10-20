@@ -1,0 +1,52 @@
+# Think: hmm... the right hand comes up under the chin, the head tilted, nodding slowly as it thinks.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/think.yml and change it there. Ticks: 20 a second.
+name: Think
+length: 60
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 10
+    ease: ease-in-out
+    head-pitch: 2
+    head-roll: -5
+    right-arm-forward: 95
+    right-arm-out: 8
+    right-arm-across: 32
+  - at: 20
+    ease: ease-in-out
+    head-pitch: 8
+    head-roll: -5
+    right-arm-forward: 95
+    right-arm-out: 8
+    right-arm-across: 32
+  - at: 30
+    ease: ease-in-out
+    head-pitch: 1
+    head-roll: -5
+    right-arm-forward: 95
+    right-arm-out: 8
+    right-arm-across: 32
+  - at: 40
+    ease: ease-in-out
+    head-pitch: 7
+    head-roll: -5
+    right-arm-forward: 95
+    right-arm-out: 8
+    right-arm-across: 32
+  - at: 48
+    ease: ease-in-out
+    head-pitch: 2
+    head-roll: -5
+    right-arm-forward: 95
+    right-arm-out: 8
+    right-arm-across: 32
+  - at: 55
+    ease: ease-in-out
+    head-roll: -1
+    right-arm-forward: 25
+    right-arm-out: 2
+    right-arm-across: 8
+  - at: 60
+    ease: ease-in-out

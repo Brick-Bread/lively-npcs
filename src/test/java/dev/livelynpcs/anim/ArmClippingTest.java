@@ -81,7 +81,7 @@ class ArmClippingTest {
                 name -> ArmClippingTest.class.getClassLoader().getResourceAsStream(name), Logger.getAnonymousLogger());
         store.reload();
         // Preset and a tick while the hand is held at the face.
-        for (Object[] held : new Object[][] {{"salute", 16}}) {
+        for (Object[] held : new Object[][] {{"salute", 16}, {"think", 20}, {"think", 30}}) {
             String id = (String) held[0];
             int tick = (Integer) held[1];
             float[] values = new float[Channel.COUNT];
