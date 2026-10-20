@@ -1,0 +1,18 @@
+# Nod: two small nods.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/nod.yml and change it there. Ticks: 20 a second.
+name: Nod
+length: 20
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    head-pitch: 12
+  - at: 8
+    head-pitch: 2
+  - at: 12
+    head-pitch: 12
+  - at: 16
+    head-pitch: 2
+  - at: 20

@@ -1,0 +1,42 @@
+# Greet: a wave with a little hop at the start, played when a player walks up.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/greet.yml and change it there. Ticks: 20 a second.
+name: Greet
+length: 48
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    ease: ease-out
+    root-y: 3.5
+    right-arm-forward: 90
+  - at: 8
+    right-arm-forward: 160
+    right-arm-out: -8
+  - at: 12
+    right-arm-forward: 166
+    right-arm-out: -26
+  - at: 16
+    right-arm-forward: 160
+    right-arm-out: -6
+  - at: 20
+    right-arm-forward: 166
+    right-arm-out: -26
+  - at: 24
+    right-arm-forward: 160
+    right-arm-out: -6
+  - at: 28
+    right-arm-forward: 166
+    right-arm-out: -26
+  - at: 32
+    right-arm-forward: 160
+    right-arm-out: -6
+  - at: 36
+    right-arm-forward: 150
+    right-arm-out: -10
+  - at: 40
+    right-arm-forward: 70
+    right-arm-out: -4
+  - at: 44
+    ease: ease-in-out

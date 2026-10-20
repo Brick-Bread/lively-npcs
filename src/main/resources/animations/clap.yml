@@ -1,0 +1,57 @@
+# Clap: three claps in front of the chest.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/clap.yml and change it there. Ticks: 20 a second.
+name: Clap
+length: 36
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    head-pitch: 6
+    right-arm-forward: 60
+    right-arm-across: 12
+    left-arm-forward: 60
+    left-arm-across: 12
+  - at: 8
+    head-pitch: 6
+    right-arm-forward: 65
+    right-arm-across: 25
+    left-arm-forward: 65
+    left-arm-across: 25
+  - at: 12
+    head-pitch: 6
+    right-arm-forward: 62
+    right-arm-across: 12
+    left-arm-forward: 62
+    left-arm-across: 12
+  - at: 16
+    head-pitch: 6
+    right-arm-forward: 65
+    right-arm-across: 25
+    left-arm-forward: 65
+    left-arm-across: 25
+  - at: 20
+    head-pitch: 6
+    right-arm-forward: 62
+    right-arm-across: 12
+    left-arm-forward: 62
+    left-arm-across: 12
+  - at: 24
+    head-pitch: 6
+    right-arm-forward: 65
+    right-arm-across: 25
+    left-arm-forward: 65
+    left-arm-across: 25
+  - at: 28
+    head-pitch: 3
+    right-arm-forward: 50
+    right-arm-across: 10
+    left-arm-forward: 50
+    left-arm-across: 10
+  - at: 32
+    right-arm-forward: 20
+    right-arm-across: 3
+    left-arm-forward: 20
+    left-arm-across: 3
+  - at: 36

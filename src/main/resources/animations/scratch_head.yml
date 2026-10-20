@@ -1,0 +1,54 @@
+# Scratch head: the right hand goes up to the back of the head and scratches.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/scratch_head.yml and change it there. Ticks: 20 a second.
+name: Scratch head
+length: 40
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    head-pitch: 4
+    head-roll: 3
+    right-arm-forward: 120
+    right-arm-out: -4
+  - at: 8
+    head-pitch: 8
+    head-roll: 5
+    right-arm-forward: 192
+    right-arm-out: -4
+  - at: 12
+    head-pitch: 8
+    head-roll: 5
+    right-arm-forward: 197
+    right-arm-out: -5
+    right-arm-across: -3
+  - at: 16
+    head-pitch: 8
+    head-roll: 5
+    right-arm-forward: 188
+    right-arm-out: -4
+  - at: 20
+    head-pitch: 8
+    head-roll: 5
+    right-arm-forward: 197
+    right-arm-out: -5
+    right-arm-across: -3
+  - at: 24
+    head-pitch: 8
+    head-roll: 5
+    right-arm-forward: 188
+    right-arm-out: -4
+  - at: 28
+    head-pitch: 8
+    head-roll: 5
+    right-arm-forward: 195
+    right-arm-out: -4
+  - at: 32
+    head-pitch: 3
+    right-arm-forward: 120
+    right-arm-out: -2
+    right-arm-across: 3
+  - at: 36
+    right-arm-forward: 30
+  - at: 40

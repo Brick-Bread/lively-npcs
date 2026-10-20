@@ -9,7 +9,6 @@ commands:
   npc:
     description: 'Lively NPCs: /npc help'
     aliases: [lnpc, livelynpcs]
-    permission: livelynpcs.admin
 permissions:
   livelynpcs.admin:
     description: 'Every /npc command: create, change and remove NPCs, play animations, reload.'

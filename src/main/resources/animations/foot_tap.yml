@@ -1,0 +1,25 @@
+# Foot tap: the right foot taps, the head bobbing along.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/foot_tap.yml and change it there. Ticks: 20 a second.
+name: Foot tap
+length: 32
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 4
+    head-pitch: 3
+    right-leg-forward: 14
+  - at: 8
+    head-pitch: 3
+  - at: 12
+    head-pitch: 3
+    right-leg-forward: 14
+  - at: 16
+    head-pitch: 3
+  - at: 20
+    head-pitch: 3
+    right-leg-forward: 14
+  - at: 24
+    head-pitch: 3
+  - at: 32

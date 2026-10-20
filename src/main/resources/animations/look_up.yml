@@ -1,0 +1,21 @@
+# Look up: up at the sky for a moment. Only for players it is not looking at.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/look_up.yml and change it there. Ticks: 20 a second.
+name: Look up
+length: 44
+loop: false
+glance: true
+keyframes:
+  - at: 0
+  - at: 8
+    head-yaw: 8
+    head-pitch: -30
+  - at: 16
+    head-yaw: -6
+    head-pitch: -34
+  - at: 28
+    head-yaw: 4
+    head-pitch: -34
+  - at: 36
+    head-pitch: -10
+  - at: 44
