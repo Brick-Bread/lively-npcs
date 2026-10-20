@@ -1,0 +1,68 @@
+# Lively NPCs settings. Every key has a default: a bad value is logged with its path and the default
+# is used instead. /npc reload applies everything here except web.port and web.bind, which need a
+# restart (or a hot swap of the plugin).
+
+npcs:
+  # Blocks. NPCs turn their head (and then their body) to look at players this close.
+  look-radius: 8
+  # Blocks. Further away an NPC stands still for that player and costs no packets.
+  animate-radius: 24
+  # Blocks. Walking this close makes an NPC greet you (a few sparkles and its greet animation).
+  greet-radius: 5
+  # Blocks. Players between beckon-from and beckon-to, looking towards an NPC, may be beckoned over.
+  # 0 for either turns beckoning off.
+  beckon-from: 6
+  beckon-to: 16
+  # Seconds. At most one beckon per player this often, from whichever NPC they face most.
+  beckon-every: 8
+  # Seconds. Each NPC plays one of its idle animations about this often (0 = never).
+  idle-seconds: 12
+  # Seconds. One breath of an NPC standing still.
+  breath-seconds: 3
+  # Size of the models. 0.9375 is a player's: 1.875 blocks tall.
+  scale: 0.9375
+  # Ticks between two keyframe packets while an NPC moves: 2 is smooth, 4 sends half as many.
+  key-ticks: 2
+  # Happy-villager sparkles when an NPC greets someone.
+  sparkles: true
+
+pack:
+  # How players get the NPC models (a resource pack):
+  #   own:    Lively NPCs sends its own pack, beside any other pack the server sends.
+  #   merged: another plugin (or the server) sends a pack that already has the models. Lively NPCs
+  #           only writes them to plugins/LivelyNPCs/export/ for you to merge into that pack, and
+  #           watches whether players load the server's pack.
+  mode: own
+  # own mode: where players download the pack from.
+  #   builtin: Lively NPCs' own web server (web: below must be enabled and its port reachable).
+  #            Players coming through Minehut or MineKeep cannot download from it: use url there.
+  #   url:     you upload plugins/LivelyNPCs/export/lively-npcs-pack.zip somewhere players can reach
+  #            (GitHub, mc-packs.net) and put its link and SHA-1 below. /npc pack prints the SHA-1.
+  host: builtin
+  url: ''
+  sha1: ''
+  # Shown under the game's own question when the pack is offered (MiniMessage; empty = none).
+  prompt: '<gray>Lively NPCs: NPCs that wave, talk and move.'
+  # false: players may say no and see plain player NPCs instead. true: saying no disconnects them.
+  required: false
+  # merged mode: only a server pack whose link contains this counts as having the models
+  # (empty = any server pack the player loads).
+  merged-url-contains: ''
+
+web:
+  # The web server: the animation editor, and the pack in own/builtin mode.
+  enabled: true
+  # A spare port on this server, open to players' browsers.
+  port: 8193
+  # Address to listen on. 0.0.0.0 is every network interface.
+  bind: 0.0.0.0
+  # How browsers reach this server, for the links /npc editor gives (and the builtin pack link),
+  # e.g. play.example.com:8193. Empty = this server's IP and web.port.
+  public-address: ''
+  # Minutes an /npc editor link stays valid.
+  editor-minutes: 120
+
+skins:
+  # A MineSkin API key (free at https://account.mineskin.org/keys). Needed to give an NPC a skin from
+  # an image link or an uploaded file; skins from a player's name work without one.
+  mineskin-key: ''

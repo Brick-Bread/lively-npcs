@@ -1,0 +1,21 @@
+name: LivelyNPCs
+version: '${version}'
+main: dev.livelynpcs.LivelyNpcs
+api-version: '26.3'
+description: 'NPCs that look at you, wave, talk and move, with a web animation editor.'
+author: Brick_Bread
+depend: [packetevents]
+commands:
+  npc:
+    description: 'Lively NPCs: /npc help'
+    aliases: [lnpc, livelynpcs]
+    permission: livelynpcs.admin
+permissions:
+  livelynpcs.admin:
+    description: 'Every /npc command: create, change and remove NPCs, play animations, reload.'
+    default: op
+    children:
+      livelynpcs.editor: true
+  livelynpcs.editor:
+    description: 'Open the web editor (/npc editor).'
+    default: op
