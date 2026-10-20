@@ -439,13 +439,20 @@ public final class NpcManager implements NpcService {
         }
     }
 
-    /** put's checks: the first problem, as a message for people. */
+    /** The settings as people know them, for put's messages. */
+    private static final Map<String, String> LABELS = Map.of("skin", "Skin", "entity", "Entity", "variant", "Villager type",
+            "icon", "Icon", "held", "Held item", "click", "Click action", "idle", "Idle animations", "greet", "Greeting",
+            "clicked", "Clicked animation", "beckon", "Beckon animation");
+
+    /** put's checks: the first problem, as a message for people ("Icon: 'diamnd' is not an item."). */
     private void validate(NpcDef npc) {
         if (Bukkit.getWorld(npc.world()) == null) throw new IllegalArgumentException("There is no world called '" + npc.world() + "' on this server.");
         List<String> problems = problems(npc, true);
         if (!problems.isEmpty()) {
             String p = problems.getFirst();
-            throw new IllegalArgumentException(p.substring(p.indexOf(": ") + 2));
+            int colon = p.indexOf(": ");
+            String key = p.substring(0, colon), why = p.substring(colon + 2);
+            throw new IllegalArgumentException(LABELS.getOrDefault(key, key) + ": " + why + (why.endsWith(".") ? "" : "."));
         }
     }
 
