@@ -5,6 +5,24 @@ linked pages again on the day you publish. Nothing here is legal advice.
 
 ## Blockers and risks (read these first)
 
+**0. Every site: the jar carries EntityLib, which is GPL-3.0, so it cannot simply be closed
+source.** Lively NPCs bundles the library EntityLib inside its jar (`build.gradle.kts`: shaded and
+moved to `dev.livelynpcs.libs.entitylib`). EntityLib 3.3.7 is published under the GNU GPL 3.0 (its
+own build file says `GPL-3.0`; its licence has been GPL-3.0 since its first commit in 2023:
+<https://github.com/Tofaa2/EntityLib>). The GPL lets anyone pass on a program that contains GPL code
+only under the GPL, with its source code available. A closed jar with "no redistribution" terms and
+EntityLib inside goes against that. The sites care: BuiltByBit rule 5.6 forbids content "which you do
+not have the right or authorization to redistribute", Modrinth section 4 says you must have "the
+necessary licenses", and SpigotMC removes resources on copyright complaints. Before 1.0.0,
+**pick one** (the lead can do the code part; have a lawyer confirm whichever you pick):
+- **Ask EntityLib's author (Tofaa) for written permission** to ship EntityLib inside a closed-source
+  free plugin.
+- **Stop bundling EntityLib:** replace it with Lively NPCs' own packet code (it only wraps
+  PacketEvents), or make it a separate plugin that server owners install, like PacketEvents. A
+  separate plugin is how most closed plugins live beside GPL code (PacketEvents is GPL-3.0 too, and so
+  is the Bukkit API that Paper's API grew from), but whether that is enough is argued about.
+- **Make Lively NPCs open source under the GPL-3.0.** That changes your "closed source" decision.
+
 **1. Modrinth: its AI rule blocks Lively NPCs as it is made today.** Modrinth's Content Rules
 (section 6, page last modified 2026-08-13) say "Projects cannot be entirely or primarily comprised of
 content created or derived from generative AI output" and, in 6.2, "Projects may not be published
