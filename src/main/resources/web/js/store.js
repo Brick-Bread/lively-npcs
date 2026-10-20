@@ -195,7 +195,7 @@ export function saved(kind, value, keepDraft = false) {
   entry.remote = null;
   entry.remoteValue = null;
   refreshDirty(entry, kind);
-  emit(kind, {id: v.id});
+  emit(kind, {id: v.id, external: true});
   emit('lists');
 }
 
@@ -213,7 +213,7 @@ export function rebaseNpc(value, fields) {
   entry.remote = null;
   entry.remoteValue = null;
   refreshDirty(entry, 'npc');
-  emit('npc', {id: v.id});
+  emit('npc', {id: v.id, external: true});
   emit('lists');
 }
 
@@ -255,7 +255,7 @@ export function takeRemote(kind, id) {
   entry.remote = null;
   entry.remoteValue = null;
   refreshDirty(entry, kind);
-  emit(kind, {id});
+  emit(kind, {id, external: true});
   emit('lists');
 }
 
@@ -422,7 +422,7 @@ export function changeAnim(fn, gesture) {
 export function currentValues() {
   const e = animEntry();
   if (!e) return {};
-  if (S.pending) return {...A.sample(e.draft, 0, []), ...fullPose(S.pending)};
+  if (S.pending) return fullPose(S.pending);
   return A.sample(e.draft, S.tick, S.channelKeys);
 }
 

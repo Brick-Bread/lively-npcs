@@ -71,7 +71,12 @@ export function itemPicker(value, onChange, {noneLabel = 'None', title = 'Pick a
     function mark() {
       [...list.querySelectorAll('.combo-opt')].forEach((o, i) => o.classList.toggle('hi', i === hi));
       const el2 = list.querySelectorAll('.combo-opt')[hi];
-      if (el2) el2.scrollIntoView({block: 'nearest'});
+      if (el2) {
+        // Scroll only the list (scrollIntoView would move the page too).
+        const top = el2.offsetTop - list.offsetTop, bottom = top + el2.offsetHeight;
+        if (top < list.scrollTop) list.scrollTop = top - 4;
+        else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight + 4;
+      }
     }
 
     function pick(id) {

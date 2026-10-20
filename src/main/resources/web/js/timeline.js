@@ -55,12 +55,15 @@ export function mountTimeline(root) {
     render();
   }});
 
+  // Two groups: playing and keyframes on the left; the animation's settings and Save on the right
+  // (on a narrow screen the right group moves under the left one, still on the right).
   const bar = h('div', {class: 'tl-bar'},
-    startBtn, prevBtn, playBtn, nextBtn, readout, h('div', {class: 'sep'}),
-    addBtn, delBtn, h('label', {class: 'tl-field', title: 'How it moves into the selected keyframe'}, 'Ease', easeSel), h('div', {class: 'sep'}),
-    copyBtn, pasteBtn, mirrorBtn, h('div', {class: 'sep'}), undoBtn, redoBtn,
-    h('div', {class: 'spacer'}),
-    h('label', {class: 'tl-field'}, 'Length', lengthIn, lengthSec), loop.el, glance.el, autoKey.el, warn, saveState, saveBtn);
+    h('div', {class: 'tl-group'},
+      startBtn, prevBtn, playBtn, nextBtn, readout, h('div', {class: 'sep'}),
+      addBtn, delBtn, h('label', {class: 'tl-field', title: 'How it moves into the selected keyframe'}, 'Ease', easeSel), h('div', {class: 'sep'}),
+      copyBtn, pasteBtn, mirrorBtn, h('div', {class: 'sep'}), undoBtn, redoBtn),
+    h('div', {class: 'tl-group tl-group-right'},
+      h('label', {class: 'tl-field'}, 'Length', lengthIn, lengthSec), loop.el, glance.el, autoKey.el, warn, h('div', {class: 'sep'}), saveState, saveBtn));
 
   // ---- the tracks ----
   const labels = h('div', {class: 'tl-labels'});

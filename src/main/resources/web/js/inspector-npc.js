@@ -12,9 +12,9 @@ import {faceThumb, decode} from './skins.js';
 import {looksSlim} from './model.js';
 
 const CLICK_TYPES = [
-  ['player', 'Run as the player', 'Command, without /, e.g. shop mobs'],
-  ['console', 'Run from the console', 'Command, without /, e.g. give {player} diamond 1'],
-  ['message', 'Send a message', 'MiniMessage, e.g. <green>Hello {player}!'],
+  ['player', 'Player command', 'Command run as the player, without /: shop mobs'],
+  ['console', 'Console command', 'Command run by the server, without /: give {player} diamond 1'],
+  ['message', 'Chat message', 'MiniMessage sent to the player: <green>Hello {player}!'],
 ];
 
 function parseClick(line) {
@@ -32,6 +32,8 @@ export function mountNpcInspector(root) {
   let builtFor = null;
   const collapsed = new Set();
   let skinTab = 'player';
+  let addingSkin = false;
+  let skinCount = S.skins.length;
 
   function section(id, title, iconName, ...body) {
     const sec = h('div', {class: ['section', collapsed.has(id) && 'collapsed']});
@@ -121,6 +123,7 @@ export function mountNpcInspector(root) {
       tick();
       const timer = setInterval(tick, 1000);
       fill(status, bar, note);
+      addingSkin = true;
       try {
         const skin = await Act.addSkin(request, share => {
           if (share < 1) {
@@ -143,6 +146,8 @@ export function mountNpcInspector(root) {
       } finally {
         clearInterval(timer);
         busy = false;
+        addingSkin = false;
+        skinCount = S.skins.length;
       }
     }
 
@@ -257,7 +262,7 @@ export function mountNpcInspector(root) {
       const d = St.npcEntry().draft;
       fill(box, ...d.click.map((line, i) => {
         const c = parseClick(line);
-        const sel = h('select', {class: 'select', style: {width: '128px', flex: 'none'}, attrs: {'aria-label': 'What it does'}},
+        const sel = h('select', {class: 'select', style: {width: '142px', flex: 'none'}, attrs: {'aria-label': 'What it does'}},
           ...CLICK_TYPES.map(([k, label]) => h('option', {value: k, text: label, selected: c.type === k})),
           c.type === 'raw' ? h('option', {value: 'raw', text: 'As written', selected: true}) : null);
         const input = h('input', {class: 'input mono-input', value: c.text, placeholder: (CLICK_TYPES.find(t => t[0] === c.type) || [0, 0, ''])[2],
@@ -374,6 +379,8 @@ export function mountNpcInspector(root) {
 
   function build() {
     const e = St.npcEntry();
+    // A different NPC starts at the top of the panel.
+    if ((e ? e.id : null) !== builtFor && root.parentElement) root.parentElement.scrollTop = 0;
     builtFor = e ? e.id : null;
     if (!e) {
       fill(root, h('div', {class: 'insp-empty'}, icon('user', 40), h('div', {text: S.npcs.size ? 'Pick an NPC on the left.' : 'No NPCs yet: press + on the left to make one where you stand in game.'})));
@@ -419,7 +426,7 @@ export function mountNpcInspector(root) {
   on('npc', ev => {
     if (S.mode !== 'npcs') return;
     const e = St.npcEntry();
-    if (!e || builtFor !== e.id || (ev && (ev.remote || ev.history))) build();
+    if (!e || builtFor !== e.id || (ev && (ev.remote || ev.history || ev.external))) build();
     else updateDirty();
   });
   on('lists', () => {
@@ -428,10 +435,9 @@ export function mountNpcInspector(root) {
     if (!e || builtFor !== (e && e.id)) build();
     else updateDirty();
   });
-  let skinCount = S.skins.length;
   on('server', () => {
     // A skin added elsewhere: redraw, unless something here is being typed in.
-    if (S.mode !== 'npcs' || S.skins.length === skinCount) return;
+    if (S.mode !== 'npcs' || addingSkin || S.skins.length === skinCount) return;
     skinCount = S.skins.length;
     if (!root.contains(document.activeElement)) build();
   });

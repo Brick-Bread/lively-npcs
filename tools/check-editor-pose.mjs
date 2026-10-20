@@ -260,6 +260,41 @@ function checkSkinMapping() {
   console.log(`${failures === before ? 'ok  ' : 'BAD '} model.js skin mapping: ${faces} base faces drawn pixel by pixel, classic and slim, with their outer layers`);
 }
 
+// ---------------------------------------------------------------- the gizmo's rings
+
+/** Each joint ring of the rotate gizmo turns its part exactly as a change of its channel does. */
+function checkGizmoRings() {
+  const before = failures;
+  let rings = 0;
+  const cases = [
+    {channels: {}, live: {}},
+    {channels: {'torso-yaw': 15, 'torso-pitch': 20, 'torso-roll': -8, 'head-yaw': 30, 'head-pitch': -12, 'right-arm-forward': 120,
+      'right-arm-out': 20, 'right-arm-across': 15, 'left-arm-forward': -30, 'left-arm-out': 60, 'left-leg-out': 10, 'right-leg-forward': 25,
+      'root-yaw': 35, 'root-x': 3, 'root-z': -2, shoulders: 1}, live: {breath: 0.6, shift: 1.2, slim: true}},
+  ];
+  const moved = {root: 'body', body: 'body', head: 'head', right_arm: 'right_arm', left_arm: 'left_arm', right_leg: 'right_leg', left_leg: 'left_leg'};
+  for (const {channels, live} of cases) {
+    const before1 = Rig.pose(channels, live);
+    const at1 = Rig.placed(before1);
+    for (const [joint, {pivot, rings: list}] of Object.entries(before1.joints)) {
+      for (const ring of list) {
+        rings++;
+        const dv = 7;
+        const after = Rig.placed(Rig.pose({...channels, [ring.key]: (channels[ring.key] || 0) + dv}, live));
+        const turn = Rig.about(ring.axis, ring.sign * dv);
+        const part = moved[joint];
+        const wantRot = Rig.mul(turn, at1[part].rotation);
+        const rel = at1[part].origin.map((c, i) => c - pivot[i]);
+        const wantOrigin = Rig.add(pivot, Rig.rotate(turn, rel));
+        if (!closeQuat(after[part].rotation, wantRot) || !closeVec(after[part].origin, wantOrigin)) {
+          fail(`rig.js joints.${joint} ring ${ring.key}: turning the ring does not match changing the channel`);
+        }
+      }
+    }
+  }
+  console.log(`${failures === before ? 'ok  ' : 'BAD '} rig.js gizmo rings: ${rings} rings turn their part exactly as their channel does`);
+}
+
 // ---------------------------------------------------------------- run
 
 const named = process.argv.slice(2).map(f => path.resolve(f));
@@ -269,6 +304,7 @@ if (!named.length && !fs.existsSync(RUNTIME)) {
 }
 for (const f of files) checkFile(f);
 checkSkinMapping();
+checkGizmoRings();
 if (failures > 40) console.log(`  … and ${failures - 40} more`);
 console.log(failures ? `${failures} problem${failures === 1 ? '' : 's'}` : 'The editor draws poses and skins as the game does.');
 process.exit(failures ? 1 : 0);

@@ -59,8 +59,9 @@ function blobTexture() {
 }
 
 const ACCENT = new THREE.Color('#8b7bff');
-const SELECT_GLOW = new THREE.Color('#2c2466');
-const HOVER_GLOW = new THREE.Color('#17152e');
+const SELECT_GLOW = new THREE.Color('#231d55');
+const ROOT_GLOW = new THREE.Color('#110e2a');
+const HOVER_GLOW = new THREE.Color('#15132b');
 const NO_GLOW = new THREE.Color(0, 0, 0);
 
 export class Viewport {
@@ -74,6 +75,8 @@ export class Viewport {
     this.slim = null;
     this.selected = null;
     this.hovered = null;
+    /** Whether parts can be hovered and picked (only while posing). */
+    this.picking = true;
     this.parts = {};
     this.overlays = [];
 
@@ -267,7 +270,7 @@ export class Viewport {
 
   applyGlow() {
     for (const name of BODY) {
-      const glow = (this.selected === name || this.selected === 'root') ? SELECT_GLOW : this.hovered === name ? HOVER_GLOW : NO_GLOW;
+      const glow = this.selected === name ? SELECT_GLOW : this.hovered === name ? HOVER_GLOW : this.selected === 'root' ? ROOT_GLOW : NO_GLOW;
       this.parts[name].userData.base.emissive.copy(glow);
       this.parts[name].userData.outer.emissive.copy(glow);
     }
@@ -297,8 +300,8 @@ export class Viewport {
 
   /** Camera presets: 'front', 'side', 'back', 'three-quarter'. */
   view(name, animate = true) {
-    const target = new THREE.Vector3(0, 17, 0);
-    const d = 86;
+    const target = new THREE.Vector3(0, 16.5, 0);
+    const d = 96;
     const dirs = {
       'front': [0, 0.12, 1],
       'side': [-1, 0.12, 0],
@@ -401,7 +404,7 @@ export class Viewport {
       pending = true;
       requestAnimationFrame(() => {
         pending = false;
-        if (this.gizmo && (this.gizmo.dragging || this.gizmo.hovering)) {
+        if (!this.picking || (this.gizmo && (this.gizmo.dragging || this.gizmo.hovering))) {
           this.setHover(null, e);
           return;
         }

@@ -339,7 +339,9 @@ input[type="range"].slider:focus-visible { outline: none; }
 input[type="range"].slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent); }
 
 /* ---------- timeline ---------- */
-.tl-bar { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; row-gap: 6px; }
+.tl-bar { display: flex; align-items: center; gap: 6px 18px; padding: 7px 10px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tl-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; row-gap: 6px; }
+.tl-group-right { margin-left: auto; gap: 10px; }
 .tl-readout { font: 12px/1 var(--mono); color: var(--text-2); font-variant-numeric: tabular-nums; min-width: 128px; padding: 0 6px; white-space: nowrap; }
 .tl-readout b { color: var(--text); font-weight: 600; }
 .tl-field { display: inline-flex; align-items: center; gap: 6px; color: var(--text-2); font-size: 12px; white-space: nowrap; }
@@ -472,9 +474,14 @@ input[type="range"].slider:focus-visible::-webkit-slider-thumb { box-shadow: 0 0
 @media (max-width: 1180px) {
   :root { --sidebar-w: 236px; --inspector-w: 300px; }
 }
+.narrow-only { display: none !important; }
 @media (max-width: 920px) {
-  .app { grid-template-columns: 210px minmax(0, 1fr); grid-template-areas: "top top" "side stage" "tl tl"; grid-template-rows: 50px minmax(0, 1fr) auto; }
+  .app { grid-template-columns: 210px minmax(0, 1fr); grid-template-areas: "top top" "side stage" "tl tl"; grid-template-rows: 50px minmax(240px, 1fr) auto; }
   .inspector { position: fixed; right: 0; top: 50px; bottom: 0; width: min(340px, 90vw); z-index: 20; box-shadow: var(--shadow); transform: translateX(100%); transition: transform 0.2s; }
   .app.show-inspector .inspector { transform: none; }
-  .brand-sub { display: none; }
+  .brand-sub, .topbar-mid, .timer { display: none; }
+  .narrow-only { display: inline-flex !important; }
+  .timeline { max-height: 46vh; overflow-y: auto; }
+  .stage-toolbar-left, .stage-toolbar-right { max-width: calc(100% - 20px); }
+  .stage-toolbar-right { top: auto; bottom: 48px; }
 }

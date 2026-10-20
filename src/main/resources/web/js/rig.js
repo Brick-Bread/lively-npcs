@@ -120,7 +120,41 @@ export function pose(values = {}, live = {}) {
     rotation: mul(Rt, left.Ra, about(ACROSS, 90)),
   };
 
-  return {psi, Rb, o, k, parts};
+  // The joints, for the editor's rotate gizmo: where each part turns, and for each channel turning
+  // it, the axis it turns about now (rig frame, after the body yaw) and the sign: a channel change of
+  // dv turns the part by sign·dv degrees about that axis. Same maths as above, step by step.
+  const ID = [0, 0, 0, 1];
+  const toRig = p => add(o, rotate(Rb, p));
+  const axis = (q, a) => rotate(mul(Rb, q), a);
+  const ty = v('torso-yaw'), tp = v('torso-pitch');
+  const joints = {
+    root: {pivot: [0, 0, 0], rings: [{key: 'root-yaw', sign: -1, axis: UP}]},
+    body: {pivot: toRig(H), rings: [
+      {key: 'torso-yaw', sign: -1, axis: axis(ID, UP)},
+      {key: 'torso-pitch', sign: 1, axis: axis(about(UP, -ty), ACROSS)},
+      {key: 'torso-roll', sign: 1, axis: axis(mul(about(UP, -ty), about(ACROSS, tp)), FRONT)},
+    ]},
+    head: {pivot: toRig(N), rings: [
+      {key: 'head-yaw', sign: -1, axis: axis(Rt, UP)},
+      {key: 'head-pitch', sign: 1, axis: axis(mul(Rt, about(UP, -hy)), ACROSS)},
+      {key: 'head-roll', sign: 1, axis: axis(mul(Rt, about(UP, -hy), about(ACROSS, hp)), FRONT)},
+    ]},
+  };
+  for (const [s, side] of [[-1, 'right'], [1, 'left']]) {
+    const outQ = about(FRONT, s * (v(side + '-arm-out') + 2.5 * b));
+    const acrossQ = about(UP, -s * v(side + '-arm-across'));
+    joints[side + '_arm'] = {pivot: toRig(add(H, rotate(Rt, [5 * s, 10 + rho + shoulders - e, 0]))), rings: [
+      {key: side + '-arm-out', sign: s, axis: axis(Rt, FRONT)},
+      {key: side + '-arm-across', sign: -s, axis: axis(mul(Rt, outQ), UP)},
+      {key: side + '-arm-forward', sign: -1, axis: axis(mul(Rt, outQ, acrossQ), ACROSS)},
+    ]};
+    joints[side + '_leg'] = {pivot: toRig(parts[side + '_leg'].origin), rings: [
+      {key: side + '-leg-out', sign: s, axis: axis(ID, FRONT)},
+      {key: side + '-leg-forward', sign: -1, axis: axis(about(FRONT, tau + s * v(side + '-leg-out')), ACROSS)},
+    ]};
+  }
+
+  return {psi, Rb, o, k, parts, joints};
 }
 
 /**

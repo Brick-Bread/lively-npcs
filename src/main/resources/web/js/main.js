@@ -153,7 +153,7 @@ function mount() {
   mountNpcInspector(npcBox);
 
   const viewport = new Viewport(document.getElementById('viewport'), {
-    onPick: part => St.selectPart(part),
+    onPick: part => { if (S.mode === 'animations') St.selectPart(part); },
     partName: part => PART_NAMES[part] || part,
   });
   mountGizmo(viewport);
@@ -165,6 +165,7 @@ function mount() {
 
   const layout = () => {
     app.classList.toggle('mode-npcs', S.mode === 'npcs');
+    viewport.picking = S.mode === 'animations';
     animBox.hidden = S.mode !== 'animations';
     npcBox.hidden = S.mode !== 'npcs';
   };
@@ -197,7 +198,10 @@ function mount() {
   on('select', showSkin);
   on('npc', showSkin);
   on('server', showSkin);
-  on('part', () => viewport.highlight(S.part));
+  // Parts are picked and lit only while posing an animation.
+  const light = () => viewport.highlight(S.mode === 'animations' ? S.part : null);
+  on('part', light);
+  on('select', light);
 
   // The frame loop: playing, the live layers, drawing.
   let last = performance.now();
@@ -239,7 +243,9 @@ function mountTopbar() {
   const who = h('div', {class: 'who'});
   const timer = h('div', {class: 'timer', title: 'How long this editor link still works'});
   const help = button(null, 'keyboard', {class: 'btn-ghost', title: 'Keyboard shortcuts (?)', onClick: () => shortcuts()});
-  fill(right, timer, who, help);
+  // On a narrow window the inspector slides in over the view.
+  const panel = button('Settings', 'dots', {class: 'btn-sm narrow-only', title: 'Show or hide the settings panel', onClick: () => app.classList.toggle('show-inspector')});
+  fill(right, timer, who, panel, help);
 
   const drawWho = () => {
     const p = S.player;
@@ -298,13 +304,20 @@ function mountStageBars(viewport) {
   const liveGroup = h('div', {class: 'glass toolbar-group'}, liveToggle.el, liveStatus, h('div', {class: 'sep'}), playAll);
   fill(right, liveGroup);
 
+  let options = '';
   const draw = () => {
     const anim = S.mode === 'animations';
     modelGroup.hidden = !anim;
     liveGroup.hidden = !anim;
     const people = [...S.npcs.values()].filter(e => e.draft.entity === 'player');
-    fill(modelSel, ...(people.length ? people : [...S.npcs.values()]).map(e => h('option', {value: e.id, text: e.id, selected: e.id === S.modelNpcId})),
-      !S.npcs.size ? h('option', {value: '', text: 'No NPCs yet'}) : null);
+    const list = people.length ? people : [...S.npcs.values()];
+    // Only rebuild the list when it changed (rebuilding closes it while someone has it open).
+    const sig = list.map(e => e.id).join(',') + '|' + S.modelNpcId;
+    if (sig !== options) {
+      options = sig;
+      fill(modelSel, ...list.map(e => h('option', {value: e.id, text: e.id, selected: e.id === S.modelNpcId})),
+        !S.npcs.size ? h('option', {value: '', text: 'No NPCs yet'}) : null);
+    }
     modelSel.disabled = !S.npcs.size;
     const e = St.animEntry();
     playAll.disabled = !e || !S.modelNpcId || e.isNew;
