@@ -80,7 +80,8 @@ shift `λ` (pixels, hips towards its left), and the slim flag of the skin.
    - neck `N = H + Rt·(0, 12 + ρ, 0)`.
    - **body**: origin `N`, rotation `Rt`, height stretch `k = 1 + ρ/12` (scale y only).
    - **head**: origin `N`, rotation `Rt · about(UP, -hy) · about(ACROSS, hp) · about(FRONT, HEAD_ROLL)`
-     with `hy = clamp(gy + HEAD_YAW, -80, 80)`, `hp = clamp(gp + HEAD_PITCH - 1.5·b, -60, 60)`.
+     with `hy = clamp(gy + wrap(HEAD_YAW), -80, 80)` (wrap: into -180..180, so whole turns are no turn;
+     nothing changes within ±180), `hp = clamp(gp + HEAD_PITCH - 1.5·b, -60, 60)`.
    - **arms** (side `s` = -1 right, +1 left; `e` = 0.5 slim, 0 classic): shoulder pivot
      `P = H + Rt·(5s, 10 + ρ + SHOULDERS - e, 0)` (a player's: 22 px up, 21.5 slim);
      `Ra = about(FRONT, s·(OUT + 2.5·b)) · about(UP, -s·ACROSS) · about(ACROSS, -FORWARD)`;
@@ -157,7 +158,10 @@ raa = right-arm-across, laf/lao/laa the left arm, hy/hp/hr head yaw/pitch/roll, 
 
 Playing: one animation at a time per NPC per viewer; a viewer's own (greet, clicked, beckon,
 command for them, preview) wins over the NPC's idle one, which everyone sees at the same moment. A
-glance animation is skipped for viewers the NPC is looking at. Keyframe packets go every
+glance animation is skipped for viewers the NPC is looking at. Starting, switching or stopping one
+blends over 10 ticks. Whole turns: ROOT_YAW, TORSO_YAW and HEAD_YAW values a whole turn apart (360,
+720...) are the same pose, so they blend the short way round, and a one-shot that ends a whole turn
+round (spin_hop: root-yaw 360) ends at rest and never spins back (RigPose.wholeTurns/atRest). Keyframe packets go every
 `npcs.key-ticks` ticks for moving parts (each glides one tick longer than the gap), at rest only
 every quarter breath, and nothing beyond `animate-radius`. While beckoning, the NPC looks at that
 player whatever look-radius says.

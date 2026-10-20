@@ -68,7 +68,7 @@ class AnimationStoreTest {
                 Map.entry("foot_tap", 32), Map.entry("look_up", 44), Map.entry("hop", 10), Map.entry("bow", 34),
                 Map.entry("cheer", 40), Map.entry("point", 40), Map.entry("check_item", 50), Map.entry("dance", 40),
                 Map.entry("wave_both", 44), Map.entry("salute", 40), Map.entry("yawn", 60), Map.entry("laugh", 38),
-                Map.entry("think", 60));
+                Map.entry("think", 60), Map.entry("spin_hop", 22));
         List<String> glances = List.of("look_around", "head_shake", "look_up", "check_item");
         List<String> loops = List.of("dance");
         for (String id : AnimationStore.PRESETS) {
@@ -82,12 +82,15 @@ class AnimationStoreTest {
                 assertEquals(a.length(), a.keyframes().getLast().at(), id + " last keyframe at its length");
                 assertArrayEquals(a.keyframes().getFirst().values(), a.keyframes().getLast().values(), id + " loops seamlessly");
             } else {
-                assertTrue(a.endsAtRest(), id + " ends at rest");
+                // A whole turn round counts as rest: spin_hop ends at root-yaw 360, facing the way it started.
+                assertTrue(AnimationStore.endsAtRest(a), id + " ends at rest");
             }
             assertEquals(lengths.get(id), a.length(), id + " length");
             assertEquals(glances.contains(id), a.glance(), id + " glance");
             assertEquals(0, at(a, 0, Channel.RIGHT_ARM_FORWARD), id + " starts at rest");
         }
+        assertEquals(360, store.get("spin_hop").keyframes().getLast().value(Channel.ROOT_YAW), "spin_hop ends one whole turn round");
+        assertFalse(store.get("spin_hop").endsAtRest(), "not every channel 0, but at rest all the same");
         for (String id : AnimationStore.DEFAULT_IDLE) assertNotNull(store.get(id), "idle " + id);
         assertEquals(AnimationStore.PRESETS.size(), store.all().size());
     }

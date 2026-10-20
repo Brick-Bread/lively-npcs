@@ -1,0 +1,47 @@
+# Spin hop: a happy hop with a full spin to its right, arms out, landing facing the way it started.
+# It ends a whole turn round (root-yaw 360), which is its own pose again: it does not spin back.
+# A built-in preset: edit it in the web editor (/npc editor), or copy this file to
+# plugins/LivelyNPCs/animations/spin_hop.yml and change it there. Ticks: 20 a second.
+name: Spin hop
+length: 22
+loop: false
+glance: false
+keyframes:
+  - at: 0
+  - at: 3
+    root-y: 3.2
+    root-yaw: 26.7
+    head-pitch: -5
+    right-arm-out: 20
+    left-arm-out: 20
+  - at: 6
+    root-y: 4.8
+    root-yaw: 93.3
+    head-pitch: -7
+    right-arm-out: 35
+    left-arm-out: 35
+  - at: 9
+    root-y: 4.8
+    root-yaw: 180
+    head-pitch: -7
+    right-arm-out: 38
+    left-arm-out: 38
+  - at: 12
+    root-y: 3.2
+    root-yaw: 266.7
+    head-pitch: -6
+    right-arm-out: 32
+    left-arm-out: 32
+  - at: 15
+    root-yaw: 333.3
+    head-pitch: -3
+    right-arm-out: 20
+    left-arm-out: 20
+  - at: 18
+    root-yaw: 360
+    head-pitch: -1
+    right-arm-out: 8
+    left-arm-out: 8
+  - at: 22
+    ease: ease-in-out
+    root-yaw: 360
