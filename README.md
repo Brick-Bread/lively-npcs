@@ -80,8 +80,9 @@ alone needs `livelynpcs.editor`). Tab completion everywhere.
   icon, click actions and which animations they play.
 
 The built-in animations (greet, wave, talk, beckon, stretch, look_around, nod, head_shake, shrug,
-scratch_head, clap, foot_tap, look_up, hop) open in the editor like any other; an edited one can be
-put back with "restore preset". The editor runs on Lively NPCs' own web server (`web:` in config.yml),
+scratch_head, clap, foot_tap, look_up, hop, bow, cheer, point, check_item, dance, wave_both, salute,
+yawn, laugh, think, spin_hop) open in the editor like any other; an edited one can be put back with
+"restore preset". The editor runs on Lively NPCs' own web server (`web:` in config.yml),
 which needs a port open to your browser.
 
 ## When NPCs move

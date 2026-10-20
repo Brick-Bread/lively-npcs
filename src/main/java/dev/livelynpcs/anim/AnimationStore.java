@@ -39,9 +39,12 @@ public final class AnimationStore implements AnimationService {
             "head_shake", "shrug", "scratch_head", "clap", "foot_tap", "look_up", "hop",
             "bow", "cheer", "point", "check_item", "dance", "wave_both", "salute", "yawn", "laugh", "think",
             "spin_hop");
-    /** What an NPC plays now and then when npcs.yml says idle: [] (it never plays one twice in a row). */
+    /**
+     * What an NPC plays now and then when npcs.yml says idle: [] (it never plays one twice in a row): the
+     * calm ones. Bow, cheer, dance, salute, wave_both and spin_hop are for greet, clicked or /npc play.
+     */
     public static final List<String> DEFAULT_IDLE = List.of("stretch", "look_around", "wave", "nod", "head_shake", "shrug",
-            "scratch_head", "clap", "foot_tap", "look_up");
+            "scratch_head", "clap", "foot_tap", "look_up", "check_item", "yawn", "think", "laugh", "point");
     /** Means "no animation" in commands and npcs.yml, so no animation may be called it. */
     public static final String NONE = "none";
 

@@ -91,6 +91,9 @@ class AnimationStoreTest {
         }
         assertEquals(360, store.get("spin_hop").keyframes().getLast().value(Channel.ROOT_YAW), "spin_hop ends one whole turn round");
         assertFalse(store.get("spin_hop").endsAtRest(), "not every channel 0, but at rest all the same");
+        // The default idle mix: the calm presets (the lively ones are for greet, clicked or a command).
+        assertEquals(List.of("stretch", "look_around", "wave", "nod", "head_shake", "shrug", "scratch_head", "clap", "foot_tap",
+                "look_up", "check_item", "yawn", "think", "laugh", "point"), AnimationStore.DEFAULT_IDLE);
         for (String id : AnimationStore.DEFAULT_IDLE) assertNotNull(store.get(id), "idle " + id);
         assertEquals(AnimationStore.PRESETS.size(), store.all().size());
     }
