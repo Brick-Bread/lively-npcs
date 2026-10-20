@@ -60,6 +60,8 @@ final class Fakes {
         final List<String> items = List.of("cow_spawn_egg", "diamond", "gold_ingot", "wheat");
         final Set<String> mobs = Set.of("villager", "copper_golem", "cow");
         final List<String> warnings = new ArrayList<>();
+        final List<String> stops = new ArrayList<>();
+        boolean canStop = true;
         int syncCalls;
         boolean busy;
 
@@ -98,6 +100,13 @@ final class Fakes {
         public boolean worldExists(String name) {
             onMain("worldExists()");
             return worlds.contains(name);
+        }
+
+        @Override
+        public boolean stopPlaying(dev.livelynpcs.npc.NpcService npcs, String npcId, Player player) {
+            onMain("stopPlaying()");
+            stops.add(npcId + " " + (player == null ? "everyone" : player.getName()));
+            return canStop;
         }
 
         @Override public List<String> items() { return items; }

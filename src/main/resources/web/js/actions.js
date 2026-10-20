@@ -20,6 +20,7 @@ function failed(e, what) {
 function idProblem(id, taken, kind) {
   if (!id) return 'Give it an id.';
   if (!ID.test(id)) return 'Use only a-z, 0-9, _ and - (at most 40).';
+  if (kind === 'an animation' && id === 'none') return '"none" means no animation: pick another name.';
   if (taken.has(id)) return `There is already ${kind} called ${id}.`;
   return '';
 }
@@ -160,6 +161,7 @@ export async function newAnim() {
       if (!v.trim()) return 'Give it a name.';
       const id = slug(v);
       if (!id) return 'Use some letters or numbers.';
+      if (id === 'none') return '"none" means no animation: pick another name.';
       return S.anims.has(id) ? `There is already an animation with the id ${id}.` : '';
     },
   });
@@ -227,6 +229,9 @@ export async function deleteAnim(id) {
   }
 }
 
+/** A looping animation playing for everyone (it goes round until stopped): {npc, name}, or null. */
+export const forEveryone = {playing: null};
+
 /** Plays the saved animation on the model NPC for everyone near it. */
 export async function playForEveryone() {
   const e = St.animEntry();
@@ -235,13 +240,31 @@ export async function playForEveryone() {
     toast('Save it first: players can only see saved animations.', 'warn');
     return;
   }
+  const npc = S.modelNpcId;
   try {
-    await api('POST', 'play', {npc: S.modelNpcId, animation: e.id, everyone: true});
-    toast(e.dirty ? `Playing the saved ${e.draft.name} on ${S.modelNpcId} for everyone (your unsaved changes are not in it).`
-      : `Playing ${e.draft.name} on ${S.modelNpcId} for everyone.`, 'ok');
+    await api('POST', 'play', {npc, animation: e.id, everyone: true});
+    const loops = e.base ? e.base.loop : e.draft.loop;
+    forEveryone.playing = loops ? {npc, name: e.draft.name} : null;
+    emit('live');
+    toast((e.dirty ? `Playing the saved ${e.draft.name} on ${npc} for everyone (your unsaved changes are not in it).`
+      : `Playing ${e.draft.name} on ${npc} for everyone.`) + (loops ? ' It loops until you stop it.' : ''), 'ok');
   } catch (err) {
     failed(err, 'Could not play it');
   }
+}
+
+/** Stops the looping animation playing for everyone (as /npc play <id> none all). */
+export async function stopForEveryone() {
+  const playing = forEveryone.playing;
+  if (!playing) return;
+  try {
+    await api('POST', 'play', {npc: playing.npc, animation: 'none', everyone: true});
+    toast(`${playing.npc} stopped ${playing.name}.`, 'ok', 2200);
+  } catch (err) {
+    failed(err, 'Could not stop it');
+  }
+  forEveryone.playing = null;
+  emit('live');
 }
 
 // ---- skins ----
@@ -272,8 +295,10 @@ const sendPreview = debounce(async () => {
   const e = St.animEntry();
   if (!S.live || !e || !S.modelNpcId) return;
   try {
-    await api('POST', 'preview', {npc: S.modelNpcId, animation: {id: e.id, ...A.toMap(e.draft, S.channelKeys)}});
-    setLiveStatus('on', `Playing on ${S.modelNpcId} for you`);
+    const res = await api('POST', 'preview', {npc: S.modelNpcId, animation: {id: e.id, ...A.toMap(e.draft, S.channelKeys)}});
+    // Not able to watch it right now (not in game, another world, no NPC models): say so, and try again later.
+    if (res && res.playing === false) setLiveStatus('warn', res.message || 'You cannot watch the preview right now.');
+    else setLiveStatus('on', `Playing on ${S.modelNpcId} for you`);
   } catch (err) {
     if (err instanceof ApiError && err.status === 409) setLiveStatus('warn', err.message);
     else if (!(err instanceof ApiError && err.status === 401)) setLiveStatus('warn', err.message);
@@ -308,6 +333,10 @@ export function previewChanged() {
 
 St.on('anim', () => previewChanged());
 St.on('select', () => previewChanged());
+// While it cannot be watched, try again with every refresh (every 5 seconds).
+St.on('server', () => {
+  if (S.live && live.status === 'warn') sendPreview();
+});
 window.addEventListener('pagehide', () => {
   if (S.live) stopPreviewOnExit();
 });

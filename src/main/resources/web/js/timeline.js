@@ -40,7 +40,8 @@ export function mountTimeline(root) {
     on: {change: () => setLength(lengthIn.value), keydown: e => { if (e.key === 'Enter') lengthIn.blur(); }}});
   const lengthSec = h('span', {class: 'muted small'});
   const loop = toggle('Loop', false, v => St.changeAnim(d => { d.loop = v; }), 'Plays round and round (a preview, or by command until stopped)');
-  const glance = toggle('Glance', false, v => St.changeAnim(d => { d.glance = v; }), 'Only for players the NPC is not looking at (it turns its head away)');
+  const glance = toggle('Glance', false, v => St.changeAnim(d => { d.glance = v; }),
+    'Only for players the NPC is not looking at (it turns its head away). Your live preview still shows it.');
   const autoKey = toggle('Auto key', S.autoKey, v => { S.autoKey = v; S.pending = null; St.emit('anim', {}); }, 'On: posing between keyframes adds a keyframe there. Off: press K to keep the pose.');
   const warn = h('button', {type: 'button', class: 'badge badge-warn warn-badge', title: '', on: {click: () => fixRest()}}, icon('warn', 12), 'Does not end at rest');
   const saveState = h('span', {class: 'save-state'});

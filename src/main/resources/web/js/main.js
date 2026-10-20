@@ -300,7 +300,8 @@ function mountStageBars(viewport) {
 
   const liveToggle = toggle('Live preview in game', S.live, v => Act.setLive(v), 'Plays your draft on the NPC for you in game as you edit');
   const liveStatus = h('span', {class: 'live-status'});
-  const playAll = button('Play for everyone', 'broadcast', {class: 'btn-sm', title: 'Plays the saved animation on this NPC for everyone near it', onClick: () => Act.playForEveryone()});
+  const playAll = button('Play for everyone', 'broadcast', {class: 'btn-sm', title: 'Plays the saved animation on this NPC for everyone near it',
+    onClick: () => (Act.forEveryone.playing ? Act.stopForEveryone() : Act.playForEveryone())});
   const liveGroup = h('div', {class: 'glass toolbar-group'}, liveToggle.el, liveStatus, h('div', {class: 'sep'}), playAll);
   fill(right, liveGroup);
 
@@ -320,8 +321,18 @@ function mountStageBars(viewport) {
     }
     modelSel.disabled = !S.npcs.size;
     const e = St.animEntry();
-    playAll.disabled = !e || !S.modelNpcId || e.isNew;
-    playAll.title = !e ? '' : e.isNew ? 'Save it first: players only see saved animations' : e.dirty ? 'Plays the saved version (your unsaved changes are not in it) for everyone near the NPC' : 'Plays it on this NPC for everyone near it';
+    const looping = Act.forEveryone.playing;
+    if (looping) {
+      playAll.replaceChildren(icon('x', 15), h('span', {text: 'Stop for everyone'}));
+      playAll.disabled = false;
+      playAll.title = `${looping.name} goes round and round on ${looping.npc} for everyone: stop it`;
+      playAll.classList.add('on');
+    } else {
+      playAll.replaceChildren(icon('broadcast', 15), h('span', {text: 'Play for everyone'}));
+      playAll.classList.remove('on');
+      playAll.disabled = !e || !S.modelNpcId || e.isNew;
+      playAll.title = !e ? '' : e.isNew ? 'Save it first: players only see saved animations' : e.dirty ? 'Plays the saved version (your unsaved changes are not in it) for everyone near the NPC' : 'Plays it on this NPC for everyone near it';
+    }
     liveToggle.input.checked = S.live;
     liveToggle.input.disabled = !S.modelNpcId;
     const st = Act.live;

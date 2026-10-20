@@ -524,6 +524,12 @@ class EditorApiTest {
         }
 
         @Test
+        void noneIsNotAName() throws IOException {
+            assertError(call("PUT", "/api/animations/none", HOP), 400, "means no animation");
+            assertNull(animations.files.get("none"));
+        }
+
+        @Test
         void aFailedSaveIs500() throws IOException {
             animations.failSave = new IOException("read-only folder");
             assertError(call("PUT", "/api/animations/big-hop", HOP), 500, "read-only folder");
@@ -573,7 +579,9 @@ class EditorApiTest {
         void playsTheDraftForTheEditor() throws IOException {
             FakeExchange ex = call("POST", "/api/preview", DRAFT);
             assertEquals(200, ex.status(), ex::text);
-            assertEquals("draft-wave", ex.object().get("playing").getAsString());
+            assertEquals(List.of("playing", "animation", "npc", "loop"), keys(ex.object()));
+            assertTrue(ex.object().get("playing").getAsBoolean());
+            assertEquals("draft-wave", ex.object().get("animation").getAsString());
             assertTrue(ex.object().get("loop").getAsBoolean());
             assertNotNull(npcs.previewed);
             assertEquals("draft-wave", npcs.previewed.id());
@@ -591,16 +599,27 @@ class EditorApiTest {
         }
 
         @Test
+        void notSeeingTheModelIsAStateNotAnError() throws IOException {
+            npcs.previewResult = false;
+            FakeExchange ex = call("POST", "/api/preview", DRAFT);
+            assertEquals(200, ex.status(), ex::text);
+            assertFalse(ex.object().get("playing").getAsBoolean());
+            assertTrue(ex.object().get("message").getAsString().contains("cannot see mobshop moving"), ex::text);
+            assertTrue(ex.object().get("message").getAsString().contains("world"), ex::text);
+            host.online = null;
+            FakeExchange offline = call("POST", "/api/preview", DRAFT);
+            assertEquals(200, offline.status());
+            assertFalse(offline.object().get("playing").getAsBoolean());
+            assertTrue(offline.object().get("message").getAsString().contains("not in game"));
+        }
+
+        @Test
         void refusals() throws IOException {
             assertError(call("POST", "/api/preview", "{\"npc\":\"ghost\",\"animation\":{\"keyframes\":[]}}"), 404, "ghost");
             assertError(call("POST", "/api/preview", "{\"npc\":\"farmer\",\"animation\":{\"keyframes\":[]}}"), 409, "villager");
             assertError(call("POST", "/api/preview", "{\"npc\":\"mobshop\"}"), 400, "draft");
             assertError(call("POST", "/api/preview", "{\"animation\":{\"keyframes\":[]}}"), 400, "'npc' is missing");
             assertError(call("POST", "/api/preview", "{\"npc\":\"mobshop\",\"animation\":{\"keyframes\":[{\"at\":1.5}]}}"), 400, "whole number");
-            npcs.previewResult = false;
-            assertError(call("POST", "/api/preview", DRAFT), 409, "could not play");
-            host.online = null;
-            assertError(call("POST", "/api/preview", DRAFT), 409, "not in game");
         }
 
         @Test
@@ -634,6 +653,22 @@ class EditorApiTest {
             host.online = null;
             assertError(call("POST", "/api/play", "{\"npc\":\"mobshop\",\"animation\":\"wave\",\"everyone\":false}"), 409, "not in game");
             assertEquals(200, call("POST", "/api/play", "{\"npc\":\"mobshop\",\"animation\":\"wave\",\"everyone\":true}").status());
+        }
+
+        @Test
+        void noneStopsIt() throws IOException {
+            FakeExchange ex = call("POST", "/api/play", "{\"npc\":\"mobshop\",\"animation\":\"none\",\"everyone\":true}");
+            assertEquals(200, ex.status(), ex::text);
+            assertTrue(ex.object().get("stopped").getAsBoolean());
+            assertEquals(List.of("mobshop everyone"), host.stops);
+            assertEquals(200, call("POST", "/api/play", "{\"npc\":\"mobshop\",\"animation\":\"none\"}").status());
+            assertEquals(List.of("mobshop everyone", "mobshop Brick_Bread"), host.stops);
+            assertTrue(npcs.log.isEmpty(), "stopping plays nothing");
+            assertError(call("POST", "/api/play", "{\"npc\":\"ghost\",\"animation\":\"none\",\"everyone\":true}"), 404, "ghost");
+            host.canStop = false;
+            assertError(call("POST", "/api/play", "{\"npc\":\"mobshop\",\"animation\":\"none\",\"everyone\":true}"), 409, "could not stop");
+            host.online = null;
+            assertError(call("POST", "/api/play", "{\"npc\":\"mobshop\",\"animation\":\"none\"}"), 409, "not in game");
         }
 
         @Test

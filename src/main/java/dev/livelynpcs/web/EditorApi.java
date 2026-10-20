@@ -50,8 +50,9 @@ import java.util.concurrent.TimeoutException;
  * PUT    /api/animations/{id}           save an animation (Animation.toMap() JSON)
  * DELETE /api/animations/{id}           delete it (a preset goes back to how it ships)
  * POST   /api/preview                   {npc, animation: {id, ...}}: play a draft for the editor's player
+ *                                       ({playing: false, message} when they cannot watch it right now)
  * POST   /api/preview/stop
- * POST   /api/play                      {npc, animation, everyone}
+ * POST   /api/play                      {npc, animation, everyone}; animation "none" stops it
  * POST   /api/skins                     {type: player|url|upload, value, slim}: waits up to 60 s
  * GET    /api/skins/{key}.png           the skin image, for the 3D view
  * </pre>
@@ -262,6 +263,9 @@ public final class EditorApi {
         if (!Animation.ID.matcher(id).matches()) throw ApiException.bad("'" + id + "' is not an animation id: use 1 to 40 of a-z, 0-9, _ and -.");
     }
 
+    /** Means "no animation" in npcs.yml and commands (and stops playing), so nothing may be called it. */
+    static final String NONE = "none";
+
     // ---- state ----
 
     private Reply state(WebServer.Session session) throws Exception {
@@ -416,6 +420,7 @@ public final class EditorApi {
 
     private Reply putAnimation(HttpExchange exchange, String id) throws Exception {
         animationId(id);
+        if (id.equals(NONE)) throw ApiException.bad("'none' means no animation, so an animation cannot be called that: pick another name.");
         Animation a = EditorJson.readAnimation(id, read(exchange), true);
         Map<String, Object> stored = host.sync(() -> {
             animations.save(a);
@@ -451,19 +456,25 @@ public final class EditorApi {
         String draftId = draftJson.get("id") instanceof JsonPrimitive p && p.isString() && Animation.ID.matcher(p.getAsString()).matches()
                 ? p.getAsString() : "preview";
         Animation draft = EditorJson.readAnimation(draftId, draftJson, false);
-        host.sync(() -> {
+        // Not being able to watch it right now is a state the page shows, not an error.
+        String unseen = host.sync(() -> {
             NpcDef n = npcs.get(npc);
             if (n == null) throw ApiException.notFound("There is no NPC called " + npc + ".");
             if (!n.person()) throw ApiException.conflict(mob(n));
             Player p = host.player(session.player());
-            if (p == null) throw ApiException.conflict("You are not in game: join the server to see the live preview.");
-            if (!npcs.preview(npc, draft, p)) throw ApiException.conflict("Could not play the preview on " + npc + ".");
+            if (p == null) return "You are not in game: join the server to watch the preview.";
+            if (!npcs.preview(npc, draft, p)) {
+                return "You cannot see " + npc + " moving right now: go to its world (" + n.world()
+                        + ") with the NPC models loaded (the server's resource pack).";
+            }
             return null;
         });
         Map<String, Object> m = new LinkedHashMap<>();
-        m.put("playing", draft.id());
+        m.put("playing", unseen == null);
+        m.put("animation", draft.id());
         m.put("npc", npc);
         m.put("loop", draft.loop());
+        if (unseen != null) m.put("message", unseen);
         return Reply.json(200, m);
     }
 
@@ -481,6 +492,7 @@ public final class EditorApi {
         String npc = string(body, "npc", true);
         String animation = string(body, "animation", true);
         boolean everyone = flag(body, "everyone");
+        if (animation.equals(NONE)) return stopPlaying(npc, everyone, session);
         host.sync(() -> {
             NpcDef n = npcs.get(npc);
             if (n == null) throw ApiException.notFound("There is no NPC called " + npc + ".");
@@ -496,6 +508,26 @@ public final class EditorApi {
         });
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("playing", animation);
+        m.put("npc", npc);
+        m.put("everyone", everyone);
+        return Reply.json(200, m);
+    }
+
+    /** Animation "none" stops what play started (a looping one goes round until then), as /npc play <id> none. */
+    private Reply stopPlaying(String npc, boolean everyone, WebServer.Session session) throws Exception {
+        host.sync(() -> {
+            NpcDef n = npcs.get(npc);
+            if (n == null) throw ApiException.notFound("There is no NPC called " + npc + ".");
+            Player p = null;
+            if (!everyone) {
+                p = host.player(session.player());
+                if (p == null) throw ApiException.conflict("You are not in game: nothing is playing for you.");
+            }
+            if (!host.stopPlaying(npcs, npc, p)) throw ApiException.conflict("Could not stop what " + npc + " is playing.");
+            return null;
+        });
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("stopped", true);
         m.put("npc", npc);
         m.put("everyone", everyone);
         return Reply.json(200, m);

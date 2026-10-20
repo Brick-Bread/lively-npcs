@@ -94,7 +94,7 @@ function inputs(pose, file) {
       shift: num(get('shift', 'lambda', 'λ', 'weightShift', 'weight_shift', 'lean')),
       slim: !!get('slim'),
     },
-    scale: num(pick(pose, 'scale')) || num(pick(file, 'scale')) || 0.9375,
+    scale: num(pick(pose, 'scale', 'input.scale', 'live.scale')) || num(pick(file, 'scale')) || 0.9375,
   };
 }
 
@@ -136,7 +136,25 @@ function checkFile(file) {
     const posed = Rig.pose(channels, live);
     const shown = Rig.display(posed, scale);
     const rigFrame = Rig.placed(posed);
-    const expected = pick(pose, 'parts', 'expected', 'result', 'output') || {};
+    let expected = pick(pose, 'parts', 'expected', 'expect', 'result', 'output') || {};
+    // The whole body: its turn Rb, the root offset o and the body's stretch k (the runtime's "expect").
+    const whole = expected;
+    if (expected.parts && typeof expected.parts === 'object' && !Array.isArray(expected.parts)) expected = expected.parts;
+    const turn = quat(pick(whole, 'bodyTurn', 'Rb'));
+    if (turn) {
+      fields++;
+      if (!closeQuat(posed.Rb, turn)) fail(`${rel} / ${name} body turn: rig.js ${fmt(posed.Rb)}, fixture ${fmt(turn)}`);
+    }
+    const root = vec(pick(whole, 'root', 'o'));
+    if (root) {
+      fields++;
+      if (!closeVec(posed.o, root)) fail(`${rel} / ${name} root: rig.js ${fmt(posed.o)}, fixture ${fmt(root)}`);
+    }
+    const stretch = pick(whole, 'stretch', 'k');
+    if (typeof stretch === 'number') {
+      fields++;
+      if (Math.abs(posed.k - stretch) > TOLERANCE) fail(`${rel} / ${name} stretch: rig.js ${posed.k}, fixture ${stretch}`);
+    }
     for (const [key, want] of Object.entries(expected)) {
       const part = partName(key);
       if (!part) {

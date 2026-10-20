@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 // A local preview of the Lively NPCs web editor, with no Minecraft server: serves
 // src/main/resources/web/ at http://localhost:8790/editor/ (same headers as the plugin's WebServer)
-// and answers /api/* from made-up but realistic data kept in memory: four NPCs, every preset
-// animation from DESIGN.md, the channels and easings, an item list and generated skins.
+// and answers /api/* from made-up but realistic data kept in memory: four NPCs, the preset
+// animations from src/main/resources/animations/, the channels and easings, an item list and
+// generated skins.
 //
 //   node tools/editor-preview.mjs            then open the link it prints
 //   node tools/editor-preview.mjs --port 9000 --offline   (the editor's player "not in game")
+//   node tools/editor-preview.mjs --no-models             (in game, but cannot see the moving models)
 //
 // Any token logs in (the link it prints has one); the token "expired-token-0000" answers 401, to see
 // the expired screen. Nothing is saved: restarting brings the sample data back. Needs only node.
@@ -23,6 +25,8 @@ const WEB = path.resolve(HERE, '..', 'src', 'main', 'resources', 'web');
 const args = process.argv.slice(2);
 const PORT = Number(args[args.indexOf('--port') + 1]) || 8790;
 let online = !args.includes('--offline');
+// --no-models: the editor's player is in game but cannot see the NPCs' moving models (no pack).
+const noModels = args.includes('--no-models');
 // --shots <folder>: the page may POST /__shot?name=x with a PNG data URL (a 3D view capture for checks).
 const SHOTS = args.includes('--shots') ? path.resolve(args[args.indexOf('--shots') + 1]) : null;
 
@@ -169,61 +173,57 @@ const CHANNELS = [
 ].map(([key, pixels, min, max]) => ({key, pixels, min, max}));
 const EASINGS = ['linear', 'ease-in', 'ease-out', 'ease-in-out', 'step'];
 
-// Short names as DESIGN.md writes the presets.
-const SHORT = {ry: 'root-y', raf: 'right-arm-forward', rao: 'right-arm-out', raa: 'right-arm-across', laf: 'left-arm-forward',
-  lao: 'left-arm-out', laa: 'left-arm-across', hy: 'head-yaw', hp: 'head-pitch', hr: 'head-roll', shoulders: 'shoulders', rlf: 'right-leg-forward'};
+// The presets exactly as the plugin ships them: src/main/resources/animations/<id>.yml.
+const ANIMATIONS = path.resolve(HERE, '..', 'src', 'main', 'resources', 'animations');
 
-function kf(at, values = {}, ease) {
-  const k = {at};
-  if (ease) k.ease = ease;
-  for (const [s, v] of Object.entries(values)) if (v) k[SHORT[s] || s] = v;
-  return k;
+/** Reads the small YAML shape of an animation file (top-level keys, then a keyframes list of maps). */
+function readAnimationFile(text) {
+  const out = {keyframes: []};
+  let inKeys = false, current = null;
+  const scalar = v => {
+    const t = v.trim().replace(/^(['"])(.*)\1$/, '$2');
+    if (t === 'true' || t === 'false') return t === 'true';
+    return t !== '' && !Number.isNaN(Number(t)) ? Number(t) : t;
+  };
+  for (const raw of text.split(/\r?\n/)) {
+    if (!raw.trim() || raw.trim().startsWith('#')) continue;
+    if (/^keyframes:\s*$/.test(raw)) {
+      inKeys = true;
+      continue;
+    }
+    const item = raw.match(/^\s*-\s+([\w-]+):\s*(.*)$/);
+    const pair = raw.match(/^(\s*)([\w-]+):\s*(.*)$/);
+    if (inKeys && item) {
+      current = {[item[1]]: scalar(item[2])};
+      out.keyframes.push(current);
+    } else if (inKeys && pair && pair[1].length && current) {
+      current[pair[2]] = scalar(pair[3]);
+    } else if (pair && !pair[1].length) {
+      inKeys = false;
+      out[pair[2]] = scalar(pair[3]);
+    }
+  }
+  return {name: out.name, length: out.length, loop: !!out.loop, glance: !!out.glance, keyframes: out.keyframes};
 }
 
-const both = (f, o, extra = {}) => ({raf: f, laf: f, rao: o, lao: o, ...extra});
-
-function greetKeys(hop) {
-  const keys = [kf(0), kf(4, {ry: hop ? 3.5 : 0, raf: 90}, 'ease-out'), kf(8, {raf: 160, rao: -8})];
-  for (let t = 12, up = true; t <= 32; t += 4, up = !up) keys.push(kf(t, up ? {raf: 166, rao: -26} : {raf: 160, rao: -6}));
-  keys.push(kf(36, {raf: 150, rao: -10}), kf(40, {raf: 70, rao: -4}), kf(44, {}, 'ease-in-out'));
-  return keys;
+const PRESETS = {};
+for (const file of fs.existsSync(ANIMATIONS) ? fs.readdirSync(ANIMATIONS).filter(f => f.endsWith('.yml')).sort() : []) {
+  PRESETS[file.slice(0, -4)] = readAnimationFile(fs.readFileSync(path.join(ANIMATIONS, file), 'utf8'));
 }
+if (!Object.keys(PRESETS).length) console.warn('No preset files found in ' + ANIMATIONS);
 
-const PRESETS = {
-  greet: {name: 'Greet', length: 48, keyframes: greetKeys(true)},
-  wave: {name: 'Wave', length: 48, keyframes: greetKeys(false)},
-  talk: {name: 'Talk', length: 40, keyframes: [kf(0), kf(4, {ry: 3, raf: 25, rao: 4, raa: 4, hp: 7}), kf(8, {raf: 40, rao: 2, raa: 6, hp: 1}),
-    kf(12, {raf: 22, rao: 6, raa: 2, hp: 9}), kf(16, {raf: 38, rao: 2, raa: 6, hp: 2}), kf(20, {raf: 24, rao: 7, raa: 2, hp: 8}),
-    kf(24, {raf: 40, rao: 3, raa: 6, hp: 1}), kf(28, {raf: 26, rao: 4, hp: 7}), kf(32, {raf: 34, rao: 3, hp: 2}), kf(36, {raf: 14, rao: 1}), kf(40)]},
-  beckon: {name: 'Beckon', length: 36, keyframes: [kf(0), kf(4, {raf: 80, raa: 4}), kf(8, {raf: 145, raa: 4, hp: -4, hr: 4}), kf(12, {raf: 85, raa: 4, hr: 4}),
-    kf(16, {raf: 145, raa: 4, hp: -4, hr: 4}), kf(20, {raf: 85, raa: 4, hr: 4}), kf(24, {raf: 145, raa: 4, hp: -4, hr: 4}), kf(28, {raf: 90, raa: 3}),
-    kf(32, {raf: 40}), kf(36, {}, 'ease-in-out')]},
-  stretch: {name: 'Stretch', length: 40, keyframes: [kf(0), kf(4, both(60, 0)), kf(8, both(130, -6, {hp: -8})), kf(12, both(170, -10, {hp: -14, shoulders: 0.8})),
-    kf(16, both(176, -12, {hp: -16, shoulders: 1})), kf(20, both(176, -12, {hp: -16, shoulders: 1})), kf(24, both(168, -10, {hp: -14, shoulders: 0.6})),
-    kf(28, both(120, -6, {hp: -8})), kf(32, both(50, 0, {hp: -3})), kf(36, both(12, 0)), kf(40)]},
-  look_around: {name: 'Look around', length: 60, glance: true, keyframes: [kf(0), kf(12, {hy: -45, hp: 5}), kf(24, {hy: -45, hp: 5}), kf(40, {hy: 45}), kf(52, {hy: 45}), kf(60)]},
-  nod: {name: 'Nod', length: 20, keyframes: [kf(0), kf(4, {hp: 12}), kf(8, {hp: 2}), kf(12, {hp: 12}), kf(16, {hp: 2}), kf(20)]},
-  head_shake: {name: 'Head shake', length: 24, glance: true, keyframes: [kf(0), kf(4, {hy: -18}), kf(8, {hy: 18}), kf(12, {hy: -18}), kf(16, {hy: 18}), kf(20, {hy: -6}), kf(24)]},
-  shrug: {name: 'Shrug', length: 24, keyframes: [kf(0), ...[4, 8, 12].map(t => kf(t, both(12, 11, {shoulders: 1, hr: 5, hp: -4}))), kf(18, both(6, 5, {shoulders: 0.4, hr: 2})), kf(24)]},
-  scratch_head: {name: 'Scratch head', length: 40, keyframes: [kf(0), kf(4, {raf: 120, rao: 4, raa: 8, hp: 4, hr: 3}), kf(8, {raf: 198, rao: 8, raa: 10, hp: 8, hr: 5}),
-    kf(12, {raf: 204, rao: 10, raa: 10, hp: 8, hr: 5}), kf(16, {raf: 196, rao: 7, raa: 10, hp: 8, hr: 5}), kf(20, {raf: 204, rao: 10, raa: 10, hp: 8, hr: 5}),
-    kf(24, {raf: 196, rao: 7, raa: 10, hp: 8, hr: 5}), kf(28, {raf: 200, rao: 8, raa: 10, hp: 8, hr: 5}), kf(32, {raf: 120, rao: 4, raa: 6, hp: 3}), kf(36, {raf: 30}), kf(40)]},
-  clap: {name: 'Clap', length: 36, keyframes: [kf(0), kf(4, {raf: 60, laf: 60, raa: 12, laa: 12, hp: 6}),
-    ...[8, 16, 24].map(t => kf(t, {raf: 65, laf: 65, raa: 25, laa: 25, hp: 6})), ...[12, 20].map(t => kf(t, {raf: 62, laf: 62, raa: 12, laa: 12, hp: 6})),
-    kf(28, {raf: 50, laf: 50, raa: 10, laa: 10, hp: 3}), kf(32, {raf: 20, laf: 20, raa: 3, laa: 3}), kf(36)].sort((a, b) => a.at - b.at)},
-  foot_tap: {name: 'Foot tap', length: 32, keyframes: [kf(0), ...[4, 12, 20].map(t => kf(t, {rlf: 14, hp: 3})), ...[8, 16, 24].map(t => kf(t, {hp: 3})), kf(32)].sort((a, b) => a.at - b.at)},
-  look_up: {name: 'Look up', length: 44, glance: true, keyframes: [kf(0), kf(8, {hp: -30, hy: 8}), kf(16, {hp: -34, hy: -6}), kf(28, {hp: -34, hy: 4}), kf(36, {hp: -10}), kf(44)]},
-  hop: {name: 'Hop', length: 10, keyframes: [kf(0), kf(4, {ry: 4}, 'ease-out'), kf(10, {}, 'ease-in')]},
-};
-
-const presetMap = id => ({name: PRESETS[id].name, length: PRESETS[id].length, loop: false, glance: !!PRESETS[id].glance, keyframes: PRESETS[id].keyframes});
-/** The server's own animations (files): an edited wave and one of its own. */
+const presetMap = id => structuredClone(PRESETS[id]);
+/** The server's own animations (files): an edited wave (when the preset is there) and one of its own. */
 const files = new Map([
-  ['wave', {...presetMap('wave'), name: 'Wave (big)', keyframes: presetMap('wave').keyframes.map(k => (k['right-arm-out'] ? {...k, 'right-arm-out': k['right-arm-out'] - 6} : k))}],
-  ['happy-dance', {name: 'Happy dance', length: 32, loop: true, glance: false, keyframes: [kf(0),
-    kf(8, {ry: 2, raf: 150, laf: 150, rao: 20, lao: 20, hr: 8, 'torso-roll': 6}, 'ease-in-out'), kf(16, {}, 'ease-in-out'),
-    kf(24, {ry: 2, raf: 150, laf: 150, rao: 20, lao: 20, hr: -8, 'torso-roll': -6}, 'ease-in-out')]}],
+  ['happy-dance', {name: 'Happy dance', length: 32, loop: true, glance: false, keyframes: [{at: 0},
+    {at: 8, ease: 'ease-in-out', 'root-y': 2, 'right-arm-forward': 150, 'left-arm-forward': 150, 'right-arm-out': 20, 'left-arm-out': 20, 'head-roll': 8, 'torso-roll': 6},
+    {at: 16, ease: 'ease-in-out'},
+    {at: 24, ease: 'ease-in-out', 'root-y': 2, 'right-arm-forward': 150, 'left-arm-forward': 150, 'right-arm-out': 20, 'left-arm-out': 20, 'head-roll': -8, 'torso-roll': -6}]}],
 ]);
+if (PRESETS.wave) {
+  const wave = presetMap('wave');
+  files.set('wave', {...wave, name: 'Wave (big)', keyframes: wave.keyframes.map(k => (k['right-arm-out'] ? {...k, 'right-arm-out': k['right-arm-out'] - 6} : k))});
+}
 
 function animation(id) {
   const file = files.get(id), preset = PRESETS[id] ? presetMap(id) : null;
@@ -339,6 +339,7 @@ async function api(method, parts, body) {
   if (what === 'animations' && id) {
     if (!ID.test(id)) throw new Fail(400, `'${id}' is not an animation id (a-z, 0-9, _ and -)`);
     if (method === 'PUT') {
+      if (id === 'none') throw new Fail(400, "'none' means no animation, so an animation cannot be called that: pick another name.");
       if (!Array.isArray(body.keyframes)) throw new Fail(400, `${id}: no keyframes list`);
       const ats = body.keyframes.map(k => k.at);
       if (new Set(ats).size !== ats.length) throw new Fail(400, 'two keyframes at the same tick');
@@ -354,13 +355,21 @@ async function api(method, parts, body) {
   }
   if (what === 'preview' && method === 'POST') {
     if (id === 'stop') return [200, {stopped: true}];
-    needOnline();
     if (!npcs.has(body.npc)) throw new Fail(404, `There is no NPC called ${body.npc}.`);
     if (npcs.get(body.npc).entity !== 'player') throw new Fail(409, `${body.npc} is a ${npcs.get(body.npc).entity}: only person NPCs play animations.`);
-    return [200, {playing: body.animation.id, npc: body.npc, loop: !!body.animation.loop}];
+    const answer = {playing: true, animation: body.animation.id, npc: body.npc, loop: !!body.animation.loop};
+    if (!online) return [200, {...answer, playing: false, message: 'You are not in game: join the server to watch the preview.'}];
+    if (noModels) {
+      return [200, {...answer, playing: false, message: `You cannot see ${body.npc} moving right now: go to its world (world) with the NPC models loaded (the server's resource pack).`}];
+    }
+    return [200, answer];
   }
   if (what === 'play' && method === 'POST') {
     if (!npcs.has(body.npc)) throw new Fail(404, `There is no NPC called ${body.npc}.`);
+    if (body.animation === 'none') {
+      if (!body.everyone) needOnline();
+      return [200, {stopped: true, npc: body.npc, everyone: !!body.everyone}];
+    }
     if (!animation(body.animation)) throw new Fail(404, `There is no animation called ${body.animation}.`);
     if (!body.everyone) needOnline();
     return [200, {playing: body.animation, npc: body.npc, everyone: !!body.everyone}];

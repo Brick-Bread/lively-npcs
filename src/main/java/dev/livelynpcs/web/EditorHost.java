@@ -2,6 +2,8 @@ package dev.livelynpcs.web;
 
 import com.sun.net.httpserver.HttpExchange;
 import dev.livelynpcs.LivelyNpcs;
+import dev.livelynpcs.npc.NpcManager;
+import dev.livelynpcs.npc.NpcService;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Bukkit;
@@ -45,6 +47,12 @@ interface EditorHost {
 
     /** Whether a world with this name is loaded. Main thread. */
     boolean worldExists(String name);
+
+    /**
+     * Stops what play started on this NPC (as /npc play &lt;id&gt; none does): for this player, or for
+     * everyone when player is null. False when the NPC runtime cannot. Main thread.
+     */
+    boolean stopPlaying(NpcService npcs, String npcId, Player player);
 
     /** Every item id ("wheat"; another namespace's items with it, "mod:thing"), sorted, without air. */
     List<String> items();
@@ -119,6 +127,11 @@ interface EditorHost {
         @Override
         public boolean worldExists(String name) {
             return Bukkit.getWorld(name) != null;
+        }
+
+        @Override
+        public boolean stopPlaying(NpcService npcs, String npcId, Player player) {
+            return npcs instanceof NpcManager m && m.stopPlaying(npcId, player);
         }
 
         @Override
