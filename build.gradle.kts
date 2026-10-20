@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "dev.livelynpcs"
-version = "0.1.0"
+version = "0.1.1"
 base.archivesName.set("LivelyNPCs")
 
 java {
