@@ -84,10 +84,26 @@ export function sample(anim, tick, channels = DEFAULT_CHANNELS) {
   return out;
 }
 
-/** Animation.endsAtRest: every channel 0 at the last keyframe. */
+/** The channels that turn the NPC, its torso or its head about the vertical: a whole turn (360) is no turn. */
+export const WHOLE_TURNS = ['root-yaw', 'torso-yaw', 'head-yaw'];
+
+/** An angle brought into -180..180 (Look.wrap), so a turn takes the short way round. */
+export function wrapTurn(degrees) {
+  let d = degrees % 360;
+  if (d > 180) d -= 360;
+  else if (d < -180) d += 360;
+  return d;
+}
+
+/** Whether a channel value is its rest pose: 0, or a whole number of turns for a turning channel (RigPose.atRest). */
+export function atRest(key, v) {
+  return (WHOLE_TURNS.includes(key) ? wrapTurn(v) : v) === 0;
+}
+
+/** Whether it ends at rest (every channel at rest at the last keyframe; root-yaw 360 counts, as in AnimationStore). */
 export function endsAtRest(anim, channels = DEFAULT_CHANNELS) {
   const last = anim.keyframes[anim.keyframes.length - 1];
-  return channels.every(c => value(last, c) === 0);
+  return channels.every(c => atRest(c, value(last, c)));
 }
 
 /** A draft from the server's JSON ({id, builtin, edited, ...Animation.toMap()}). */

@@ -332,7 +332,7 @@ export function mountNpcInspector(root) {
     drawIdle();
     return section('anims', 'Animations', 'film',
       h('div', {class: 'field'}, h('label', {text: 'Now and then (idle)'}), seg, picks,
-        h('div', {class: 'hint', text: 'The default mix: stretch, look around, wave, nod, head shake, shrug, scratch head, clap, foot tap, look up.'})),
+        h('div', {class: 'hint', text: 'The default mix: stretch, look around, wave, nod, head shake, shrug, scratch head, clap, foot tap, look up, check item, yawn, think, laugh, point.'})),
       pickRow('When a player walks up (greet)', 'greet', 'None'),
       pickRow('When clicked', 'clicked', 'None'),
       pickRow('Beckoning players over', 'beckon', 'Never beckons'));
@@ -380,7 +380,7 @@ export function mountNpcInspector(root) {
   function build() {
     const e = St.npcEntry();
     // A different NPC starts at the top of the panel.
-    if ((e ? e.id : null) !== builtFor && root.parentElement) root.parentElement.scrollTop = 0;
+    if ((e ? e.id : null) !== builtFor) root.scrollTop = 0;
     builtFor = e ? e.id : null;
     if (!e) {
       fill(root, h('div', {class: 'insp-empty'}, icon('user', 40), h('div', {text: S.npcs.size ? 'Pick an NPC on the left.' : 'No NPCs yet: press + on the left to make one where you stand in game.'})));
