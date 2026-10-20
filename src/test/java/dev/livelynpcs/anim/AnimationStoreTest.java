@@ -64,7 +64,7 @@ class AnimationStoreTest {
         Map<String, Integer> lengths = Map.ofEntries(Map.entry("greet", 48), Map.entry("wave", 48), Map.entry("talk", 40),
                 Map.entry("beckon", 36), Map.entry("stretch", 40), Map.entry("look_around", 60), Map.entry("nod", 20),
                 Map.entry("head_shake", 24), Map.entry("shrug", 24), Map.entry("scratch_head", 40), Map.entry("clap", 36),
-                Map.entry("foot_tap", 32), Map.entry("look_up", 44), Map.entry("hop", 10), Map.entry("bow", 34), Map.entry("cheer", 40));
+                Map.entry("foot_tap", 32), Map.entry("look_up", 44), Map.entry("hop", 10), Map.entry("bow", 34), Map.entry("cheer", 40), Map.entry("point", 40));
         List<String> glances = List.of("look_around", "head_shake", "look_up");
         for (String id : AnimationStore.PRESETS) {
             Animation a = store.get(id);

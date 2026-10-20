@@ -35,7 +35,7 @@ public final class AnimationStore implements AnimationService {
 
     /** The presets the jar ships, by id. */
     public static final List<String> PRESETS = List.of("greet", "wave", "talk", "beckon", "stretch", "look_around", "nod",
-            "head_shake", "shrug", "scratch_head", "clap", "foot_tap", "look_up", "hop", "bow", "cheer");
+            "head_shake", "shrug", "scratch_head", "clap", "foot_tap", "look_up", "hop", "bow", "cheer", "point");
     /** What an NPC plays now and then when npcs.yml says idle: [] (it never plays one twice in a row). */
     public static final List<String> DEFAULT_IDLE = List.of("stretch", "look_around", "wave", "nod", "head_shake", "shrug",
             "scratch_head", "clap", "foot_tap", "look_up");
