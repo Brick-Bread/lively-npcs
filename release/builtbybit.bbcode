@@ -1,0 +1,182 @@
+[COLOR=#808080]BuiltByBit page for Lively NPCs. Read SITE-RULES.md first: BuiltByBit's AI rule blocks this project today. Form fields (delete this block before posting):
+Title (40 characters at most): Lively NPCs
+Tag line: NPCs that look at you, wave, beckon and talk, with a web animation editor
+Category: Minecraft > Plugins > Hub (or Decoration). Price: free. Cover: art/cover-builtbybit.png (2:1). Icon: art/icon-512.png
+Open source: No. DRM-free: Yes. AI disclosure: answer honestly (files: yes, significant; marketing: yes, the art is drawn by Claude).
+EULA: the Standard EULA if the form allows it (the Free EULA allows redistribution).
+Dependencies tab: PacketEvents 2.14+ (https://github.com/retrooper/packetevents/releases); Mojang's skin service (skins from a player name); MineSkin, https://mineskin.org (skins from images, needs a free key).
+No links to other plugin sites on this page (BuiltByBit rule 1.19). Upload the jar itself (rule 5.2). Fill every {{...}} first.[/COLOR]
+
+[CENTER][IMG]{{BANNER_URL}}[/IMG][/CENTER]
+
+[CENTER][HEADING=1]NPCs that feel alive[/HEADING]
+They turn to look at you, breathe and shift their weight, wave when you walk up, beckon you over from across the square, talk when you click them, hold an item, and play any animation you make in the built-in [B]web animation editor[/B].
+Every NPC is drawn with packets, for each player: nothing is added to your world, and your world never ticks or saves them.
+
+[B][COLOR=#6fd3a8]Paper 26.3 only[/COLOR][/B]. Needs [URL=https://github.com/retrooper/packetevents/releases]PacketEvents[/URL] 2.14 or newer.[/CENTER]
+
+[HEADING=2]Features[/HEADING]
+[LIST]
+[*][B]Looks at you:[/B] turns its head, then its body, towards players nearby.
+[*][B]Alive at rest:[/B] breathes, shifts its weight, and now and then plays an idle animation (everyone sees the same one at the same moment, and never the same one twice in a row).
+[*][B]Greets you:[/B] walk up and it gives a few sparkles and a wave with a little hop.
+[*][B]Beckons you over:[/B] look towards it from 6 to 16 blocks away and it may wave you closer.
+[*][B]Talks when clicked:[/B] a talking animation, then its click actions: run a command as the player or as the console, or send a message. [ICODE]{player}[/ICODE] is whoever clicked.
+[*][B]Holds an item[/B] in its left hand, exactly where a player holds one.
+[*][B]An icon[/B] (any item) turning above its name plate.
+[*][B]Name plates[/B] of one or more lines, with MiniMessage colours and gradients.
+[*][B]14 built-in animations:[/B] greet, wave, talk, beckon, stretch, look around, nod, head shake, shrug, scratch head, clap, foot tap, look up and hop. Every one opens in the editor, and an edited one can be put back as it shipped.
+[*][B]Your own animations,[/B] made in the web editor and played on a trigger or by command.
+[*][B]Mob NPCs:[/B] villagers (with their biome and job), golems or any other mob. They look at people and nod.
+[*][B]Skins[/B] from a player's name, an image link or an uploaded file.
+[*][B]Commands for everything,[/B] with tab completion, plus [ICODE]/npc play[/ICODE] for Skript or other plugins.
+[/LIST]
+
+[HEADING=2]How it works[/HEADING]
+Each player sees whichever look their game can show:
+[LIST]
+[*][B]A moving model,[/B] for players whose game has loaded the NPC models. The model is built from the NPC's own skin, part by part (head, body, arms, legs), so it can wave, bend, hop and turn smoothly. The models are a small resource pack that Lively NPCs builds itself from the skins your NPCs wear.
+[*][B]A player NPC in the same skin,[/B] for everyone else: players who said no to the pack, or who haven't got it yet. It still turns its head to look at them, swings its arm now and then, and answers clicks.
+[/LIST]
+A player switches from one look to the other on the spot when their pack loads. A new skin rebuilds the models by itself: with the built-in host they are sent again at once; with a link or a merged pack, [ICODE]/npc pack[/ICODE] tells you what to upload or merge again.
+
+[HEADING=2]The web editor[/HEADING]
+[CENTER][IMG]{{SCREENSHOT_EDITOR_URL}}[/IMG][/CENTER]
+[ICODE]/npc editor[/ICODE] gives you a private link (valid for 2 hours by default). In your browser you can:
+[LIST]
+[*][B]Pose a 3D model[/B] of the NPC in its own skin: drag the rings on each joint, or use the sliders.
+[*][B]Make animations[/B] on a keyframe timeline: easing, looping, whole-body moves (hop, step, spin, bend), undo and redo, copy and paste a pose, mirror a pose left to right.
+[*][B]Preview live:[/B] while you edit, the real NPC in game plays your draft for you, so you can watch it in the world. "Play for everyone" shows the saved animation to everyone near the NPC.
+[*][B]Change the NPCs:[/B] name plate, skin (player name, link or upload), held item, icon, click actions, and which animations it plays when idle, greeting, clicked and beckoning. Make new NPCs where you stand, copy one, or delete one.
+[/LIST]
+Changes made with commands in game show up in the editor, and the other way round.
+
+[HEADING=2]Getting the models to your players[/HEADING]
+Choose how in [ICODE]config.yml[/ICODE] under [ICODE]pack:[/ICODE].
+[LIST]
+[*][B][ICODE]mode: own[/ICODE][/B] (default): Lively NPCs sends its own pack, beside any pack your server already sends.
+[LIST]
+[*][B][ICODE]host: builtin[/ICODE][/B]: served from Lively NPCs' own web server. Its port must be open to players.
+[*][B][ICODE]host: url[/ICODE][/B]: you upload [ICODE]plugins/LivelyNPCs/export/lively-npcs-pack.zip[/ICODE] to GitHub or mc-packs.net and set [ICODE]pack.url[/ICODE] and [ICODE]pack.sha1[/ICODE]. [ICODE]/npc pack[/ICODE] shows the SHA-1 and tells you when to upload again.
+[/LIST]
+[*][B][ICODE]mode: merged[/ICODE][/B]: your server already sends a pack (your own, or another plugin's). Lively NPCs writes its models to [ICODE]plugins/LivelyNPCs/export/[/ICODE]: merge them into your pack, send it, then run [ICODE]/npc pack merged[/ICODE]. You can also make these files from the command line, without a server.
+[/LIST]
+Players who say no to the pack still see every NPC, as player NPCs. Set [ICODE]pack.required: true[/ICODE] only if you want players who say no to be disconnected.
+
+[HEADING=2]Requirements[/HEADING]
+[LIST]
+[*]Paper [B]26.3[/B], on Java 25 or newer
+[*][URL=https://github.com/retrooper/packetevents/releases]PacketEvents[/URL] [B]2.14[/B] or newer
+[*]For the web editor (and the built-in pack host): a spare port that browsers can reach
+[*]For skins from images or uploads: a free [URL=https://account.mineskin.org/keys]MineSkin key[/URL]
+[/LIST]
+
+[HEADING=2]Quick start[/HEADING]
+[LIST=1]
+[*]Put [ICODE]LivelyNPCs-1.0.0.jar[/ICODE] and PacketEvents in [ICODE]plugins/[/ICODE], then start the server.
+[*]Choose how players get the models in [ICODE]plugins/LivelyNPCs/config.yml[/ICODE] ([ICODE]pack:[/ICODE]), then [ICODE]/npc reload[/ICODE].
+[*]Stand where the NPC should be: [ICODE]/npc create guide[/ICODE]
+[*]Give it a skin: [ICODE]/npc skin guide Notch[/ICODE]
+[*]Give it a name plate: [ICODE]/npc plate guide <gold><bold>Guide | <gray>Click me![/ICODE]
+[*][ICODE]/npc editor[/ICODE] for the web editor.
+[/LIST]
+
+[HEADING=2]Commands[/HEADING]
+All under [ICODE]/npc[/ICODE] (also [ICODE]/lnpc[/ICODE] and [ICODE]/livelynpcs[/ICODE]), with tab completion.
+[LIST]
+[*][ICODE]/npc create <id>[/ICODE]: A new NPC where you stand
+[*][ICODE]/npc remove <id>[/ICODE]: Removes it
+[*][ICODE]/npc list[/ICODE]: Every NPC; click one to go there
+[*][ICODE]/npc tp <id> / movehere <id>[/ICODE]: Go to it / move it to you
+[*][ICODE]/npc turn <id> <yaw|me>[/ICODE]: Which way it faces
+[*][ICODE]/npc skin <id> <player name>[/ICODE]: Wear that player's skin
+[*][ICODE]/npc skin <id> url <link> [slim][/ICODE]: A skin from an image link (needs a MineSkin key)
+[*][ICODE]/npc item <id> <item|none>[/ICODE]: What it holds in its left hand
+[*][ICODE]/npc icon <id> <item|none>[/ICODE]: An item turning above its name plate
+[*][ICODE]/npc plate <id> <line> | <line> ...[/ICODE]: Its name plate (MiniMessage; none for none)
+[*][ICODE]/npc click <id> add <player|console|message> <text>[/ICODE]: What a click does; also clear and list
+[*][ICODE]/npc anim <id> idle <animations...|default|none>[/ICODE]: Its idle animations
+[*][ICODE]/npc anim <id> <greet|clicked|beckon> <animation|none>[/ICODE]: What it plays when you walk up, click it, or to beckon
+[*][ICODE]/npc look <id> <true|false>[/ICODE]: Whether it turns to look at players
+[*][ICODE]/npc entity <id> <player|mob> [variant][/ICODE]: A person, or a mob (villager plains/farmer)
+[*][ICODE]/npc play <id> <animation|none> [player|all][/ICODE]: Play an animation now (none stops a looping one)
+[*][ICODE]/npc editor[/ICODE]: A private link to the web editor
+[*][ICODE]/npc pack / pack merged[/ICODE]: The models' pack: what it holds and who has it / confirm a merge
+[*][ICODE]/npc reload[/ICODE]: Re-reads config.yml, npcs.yml, skins and animations
+[/LIST]
+
+[HEADING=2]Permissions[/HEADING]
+[LIST]
+[*][ICODE]livelynpcs.admin[/ICODE] (default: op): every [ICODE]/npc[/ICODE] command, and the editor
+[*][ICODE]livelynpcs.editor[/ICODE] (default: op): [ICODE]/npc editor[/ICODE] only
+[/LIST]
+
+[HEADING=2]Config highlights[/HEADING]
+Every setting is explained in [ICODE]config.yml[/ICODE]. A bad value is reported in the console with its path, and the default is used instead. [ICODE]/npc reload[/ICODE] applies everything except [ICODE]web.port[/ICODE] and [ICODE]web.bind[/ICODE], which need a restart.
+[SPOILER=Config highlights]
+[LIST]
+[*][ICODE]npcs.look-radius[/ICODE] (default [ICODE]8[/ICODE]): Blocks: NPCs look at players this close
+[*][ICODE]npcs.animate-radius[/ICODE] (default [ICODE]24[/ICODE]): Blocks: further away an NPC stands still for that player and costs no packets
+[*][ICODE]npcs.greet-radius[/ICODE] (default [ICODE]5[/ICODE]): Blocks: walking this close makes an NPC greet you
+[*][ICODE]npcs.beckon-from / beckon-to[/ICODE] (default [ICODE]6 / 16[/ICODE]): Blocks: who may be beckoned over (0 turns beckoning off)
+[*][ICODE]npcs.beckon-every[/ICODE] (default [ICODE]8[/ICODE]): Seconds: at most one beckon per player this often
+[*][ICODE]npcs.idle-seconds[/ICODE] (default [ICODE]12[/ICODE]): Seconds: about how often each NPC plays an idle animation (0 = never)
+[*][ICODE]npcs.key-ticks[/ICODE] (default [ICODE]2[/ICODE]): Ticks between movement packets: 2 is smooth, 4 sends half as many
+[*][ICODE]npcs.sparkles[/ICODE] (default [ICODE]true[/ICODE]): Sparkles when an NPC greets someone
+[*][ICODE]pack.mode / pack.host[/ICODE] (default [ICODE]own / builtin[/ICODE]): How players get the models
+[*][ICODE]pack.required[/ICODE] (default [ICODE]false[/ICODE]): true disconnects players who say no to the pack
+[*][ICODE]web.enabled / web.port[/ICODE] (default [ICODE]true / 8193[/ICODE]): Lively NPCs' web server: the editor, and the built-in pack host
+[*][ICODE]web.public-address[/ICODE] (default empty): How browsers reach your server, e.g. play.example.com:8193
+[*][ICODE]web.editor-minutes[/ICODE] (default [ICODE]120[/ICODE]): How long an editor link works
+[*][ICODE]skins.mineskin-key[/ICODE] (default empty): Your MineSkin key, for skins from images
+[/LIST]
+[/SPOILER]
+
+[HEADING=2]What goes over the network[/HEADING]
+[LIST]
+[*][B]Mojang[/B] (api.mojang.com, sessionserver.mojang.com): only when you give an NPC the skin of a player name.
+[*][B]textures.minecraft.net:[/B] to download the skin images the models are built from.
+[*][B]MineSkin[/B] (api.mineskin.org): only when you give an NPC a skin from an image link (the link is sent) or an uploaded file (the image is sent), with your own key.
+[*][B]Lively NPCs' own web server[/B] on your server (port 8193 by default): the editor, and the pack in host: builtin mode. Turn it off with [ICODE]web.enabled: false[/ICODE].
+[*]No statistics are collected and there is no update check.
+[/LIST]
+
+[HEADING=2]FAQ[/HEADING]
+[SPOILER=My players join through Minehut or MineKeep. Will they get the pack?]
+Players coming through Minehut or MineKeep can only download packs from GitHub or mc-packs.net. Use [ICODE]pack.host: url[/ICODE] with the pack uploaded to one of those, or [ICODE]pack.mode: merged[/ICODE] if your server's pack already comes from there.
+[/SPOILER]
+[SPOILER=Do I need to open a port?]
+Only for the web editor and the built-in pack host. Ask your host for a spare port, set [ICODE]web.port[/ICODE] to it and [ICODE]web.public-address[/ICODE] to the address players use. Without a port you can still do everything with commands: set [ICODE]web.enabled: false[/ICODE] and use [ICODE]pack.host: url[/ICODE] or [ICODE]pack.mode: merged[/ICODE]. Editor links are private and expire; don't share them.
+[/SPOILER]
+[SPOILER=Do I need a MineSkin key?]
+Only for skins from an image link or an uploaded file. Skins from a player's name come from Mojang and need no key. Keys are free at [URL=https://account.mineskin.org/keys]account.mineskin.org/keys[/URL]: put yours in [ICODE]skins.mineskin-key[/ICODE], then [ICODE]/npc reload[/ICODE].
+[/SPOILER]
+[SPOILER=Will it lag my server?]
+NPCs are packets only: there are no entities in your world, so there is nothing for the server to tick, save or collide with. Lively NPCs does its own work in one short step every couple of ticks, and only for players near an NPC: beyond [ICODE]animate-radius[/ICODE] an NPC costs that player no packets at all. While a model moves it sends a small update every [ICODE]key-ticks[/ICODE] ticks (raise it to send fewer); at rest, only a few per breath.
+[/SPOILER]
+[SPOILER=What do players without the pack see?]
+A normal player NPC in the same skin. It looks at them, swings its arm now and then, and answers clicks. They see the moving model as soon as their pack loads.
+[/SPOILER]
+[SPOILER=I already send a resource pack. Will Lively NPCs replace it?]
+No. In own mode its pack goes beside yours. In merged mode it sends nothing: you put its models into your pack.
+[/SPOILER]
+[SPOILER=Can I start animations from Skript or another plugin?]
+Yes: [ICODE]/npc play <id> <animation> [player|all][/ICODE] from the console or any plugin that runs commands.
+[/SPOILER]
+[SPOILER=Does it run on Spigot, Folia or other versions?]
+Not for now: Paper 26.3 only.
+[/SPOILER]
+
+[HEADING=2]Made with AI[/HEADING]
+Lively NPCs is designed, tested and looked after by brick (Brick_Bread). Its code is written with Claude, an AI model.
+
+[HEADING=2]Terms[/HEADING]
+Lively NPCs is free to use on as many servers as you like. It is not open source: please don't re-upload it, sell it, share modified copies or claim it as yours. Full terms: {{TERMS_URL}}
+
+[HEADING=2]Support[/HEADING]
+[LIST]
+[*]Discord: {{DISCORD_INVITE}}
+[*]Bugs and ideas: {{SUPPORT_URL}}
+[*]E-mail: {{CONTACT_EMAIL}}
+[/LIST]
+Please ask for help on Discord rather than in a review, so I can help you.
