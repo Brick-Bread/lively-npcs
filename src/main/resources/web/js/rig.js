@@ -52,6 +52,14 @@ export function add(a, b) {
   return [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 }
 
+/** An angle brought into -180..180 (Look.wrap). */
+function wrapTurn(degrees) {
+  let d = degrees % 360;
+  if (d > 180) d -= 360;
+  else if (d < -180) d += 360;
+  return d;
+}
+
 function clamp(v, lo, hi) {
   return Math.max(lo, Math.min(hi, v));
 }
@@ -90,7 +98,8 @@ export function pose(values = {}, live = {}) {
 
   const parts = {};
   parts.body = {origin: N, rotation: Rt};
-  const hy = clamp(gy + v('head-yaw'), -80, 80);
+  // Whole turns of the head's own yaw are no turn at all (wrapped first, so 360 is straight ahead).
+  const hy = clamp(gy + wrapTurn(v('head-yaw')), -80, 80);
   const hp = clamp(gp + v('head-pitch') - 1.5 * b, -60, 60);
   parts.head = {origin: N, rotation: mul(Rt, about(UP, -hy), about(ACROSS, hp), about(FRONT, v('head-roll')))};
 

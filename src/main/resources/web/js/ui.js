@@ -1,6 +1,8 @@
 // Small DOM helpers: element builder, icons, toasts and dialogs. Text always goes in as text (never
 // as HTML), so names and plate lines from npcs.yml cannot inject anything.
 
+import {MATERIAL_ICONS} from '../vendor/material-icons/material-icons.js';
+
 /**
  * h('div', {class: 'x', on: {click}, attrs: {title}}, child, 'text', [more]) builds an element.
  * Props: class, text, style (object), dataset, on (events), attrs (attributes), and any element
@@ -39,50 +41,25 @@ export function fill(el, ...children) {
   return el;
 }
 
-// Icons: 24x24, stroke-drawn, made for this editor.
-const ICONS = {
-  play: '<path d="M7 4.5v15l12.5-7.5z" fill="currentColor" stroke="none"/>',
-  pause: '<rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/>',
-  start: '<path d="M6 5v14"/><path d="M19 5v14l-10-7z" fill="currentColor"/>',
-  prev: '<path d="M15 6l-6 6 6 6"/>',
-  next: '<path d="M9 6l6 6-6 6"/>',
-  plus: '<path d="M12 5v14M5 12h14"/>',
+// Icons: Google's Material Icons (filled, vendor/material-icons, Apache-2.0) under the editor's own
+// names, plus a few shapes of our own (keyframe diamonds), stroke-drawn.
+const NAMES = {
+  play: 'play_arrow', pause: 'pause', stop: 'stop', start: 'skip_previous', end: 'skip_next', prev: 'chevron_left', next: 'chevron_right',
+  plus: 'add', trash: 'delete', copy: 'content_copy', paste: 'content_paste', mirror: 'flip', undo: 'undo', redo: 'redo',
+  save: 'save', search: 'search', user: 'person', userplus: 'person_add', film: 'movie', x: 'close', check: 'check', warn: 'warning',
+  info: 'info', upload: 'file_upload', download: 'file_download', link: 'link', chevron: 'expand_more', chevronup: 'expand_less',
+  caret: 'arrow_right', target: 'my_location', broadcast: 'wifi_tethering', eye: 'visibility', camera: 'videocam', wind: 'air',
+  restore: 'settings_backup_restore', revert: 'history', dots: 'more_horiz', grip: 'drag_indicator', up: 'keyboard_arrow_up',
+  down: 'keyboard_arrow_down', clock: 'schedule', keyboard: 'keyboard', sparkle: 'auto_awesome', hand: 'pan_tool', loop: 'loop',
+  repeat: 'repeat', move: 'open_with', reset: 'refresh', body: 'accessibility', folder: 'folder', folderopen: 'folder_open',
+  grid: 'grid_on', help: 'help_outline', edit: 'edit', layers: 'layers', graph: 'show_chart', ruler: 'straighten', tune: 'tune',
+  focus: 'filter_center_focus', zoomin: 'zoom_in', zoomout: 'zoom_out', expandall: 'unfold_more', collapseall: 'unfold_less',
+  addcircle: 'add_circle_outline', remove: 'remove',
+};
+const OWN = {
   keyplus: '<path d="M9 4.5l5 5-5 5-5-5z" fill="currentColor" stroke="none"/><path d="M17 13v7M13.5 16.5h7"/>',
   key: '<path d="M12 4l8 8-8 8-8-8z"/>',
-  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.5a1.5 1.5 0 0 0 1.5 1.5h7a1.5 1.5 0 0 0 1.5-1.5L18 7M9 7V4.5h6V7"/>',
-  copy: '<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>',
-  paste: '<rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 5V3.5h6V5M9 11h6M9 15h4"/>',
-  mirror: '<path d="M12 3v18" stroke-dasharray="2 2.5"/><path d="M9 7L4 12l5 5z" fill="currentColor"/><path d="M15 7l5 5-5 5z"/>',
-  undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
-  redo: '<path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
-  save: '<path d="M5 4h11l3 3v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/>',
-  search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
-  user: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>',
-  film: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M7.5 4.5v15M16.5 4.5v15M3.5 9.5h4M3.5 14.5h4M16.5 9.5h4M16.5 14.5h4"/>',
-  x: '<path d="M6 6l12 12M18 6L6 18"/>',
-  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
-  warn: '<path d="M12 4l9 16H3z"/><path d="M12 10v4.5M12 17.5v.5"/>',
-  info: '<circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.8v.4"/>',
-  upload: '<path d="M12 15V4M7.5 8.5L12 4l4.5 4.5"/><path d="M4.5 15v3.5a1.5 1.5 0 0 0 1.5 1.5h12a1.5 1.5 0 0 0 1.5-1.5V15"/>',
-  link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
-  chevron: '<path d="M6 9l6 6 6-6"/>',
-  target: '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2.5V5M12 19v2.5M2.5 12H5M19 12h2.5"/>',
-  broadcast: '<circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M8.2 15.8a5.4 5.4 0 0 1 0-7.6M15.8 8.2a5.4 5.4 0 0 1 0 7.6M5.4 18.6a9.3 9.3 0 0 1 0-13.2M18.6 5.4a9.3 9.3 0 0 1 0 13.2"/>',
-  eye: '<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
-  camera: '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2l1.5-2.5h6L16.5 7h2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.5"/>',
-  wind: '<path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h7"/>',
-  restore: '<path d="M4 12a8 8 0 1 0 2.4-5.7L4 8.5"/><path d="M4 4v4.5h4.5"/>',
-  dots: '<circle cx="5.5" cy="12" r="1.3" fill="currentColor"/><circle cx="12" cy="12" r="1.3" fill="currentColor"/><circle cx="18.5" cy="12" r="1.3" fill="currentColor"/>',
-  grip: '<circle cx="9" cy="7" r="1.1" fill="currentColor"/><circle cx="15" cy="7" r="1.1" fill="currentColor"/><circle cx="9" cy="12" r="1.1" fill="currentColor"/><circle cx="15" cy="12" r="1.1" fill="currentColor"/><circle cx="9" cy="17" r="1.1" fill="currentColor"/><circle cx="15" cy="17" r="1.1" fill="currentColor"/>',
-  up: '<path d="M6 15l6-6 6 6"/>',
-  down: '<path d="M6 9l6 6 6-6"/>',
-  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
-  keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M6 10h.01M9 10h.01M12 10h.01M15 10h.01M18 10h.01M7.5 14h9"/>',
-  sparkle: '<path d="M12 3.5l1.8 5.2 5.2 1.8-5.2 1.8L12 17.5l-1.8-5.2L5 10.5l5.2-1.8z"/><path d="M18.5 15.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
-  hand: '<path d="M8 13V6.5a1.5 1.5 0 0 1 3 0V12M11 11V4.5a1.5 1.5 0 0 1 3 0V12M14 11.5V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-.5a6 6 0 0 1-5-2.7L3.8 14a1.5 1.5 0 0 1 2.5-1.7L8 14.5"/>',
-  loop: '<path d="M17 2.5l3 3-3 3"/><path d="M4 11.5v-1a5 5 0 0 1 5-5h11M7 21.5l-3-3 3-3"/><path d="M20 12.5v1a5 5 0 0 1-5 5H4"/>',
-  move: '<path d="M12 3v18M3 12h18M12 3l-2.5 2.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5"/>',
-  reset: '<path d="M5 12a7 7 0 1 0 2-4.9"/><path d="M5 4.5v3.5h3.5"/>',
+  diamond: '<path d="M12 3.5l8.5 8.5-8.5 8.5L3.5 12z" fill="currentColor" stroke="none"/>',
   logo: '<rect x="8" y="2.5" width="8" height="8" rx="1.5"/><rect x="8" y="11.5" width="8" height="10" rx="1.5"/>',
 };
 
@@ -93,15 +70,23 @@ export function icon(name, size = 16, extraClass = '') {
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('width', size);
   svg.setAttribute('height', size);
+  svg.setAttribute('aria-hidden', 'true');
+  if (extraClass) svg.setAttribute('class', extraClass);
+  const material = MATERIAL_ICONS[NAMES[name] || name];
+  if (material) {
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', material);
+    path.setAttribute('fill', 'currentColor');
+    svg.append(path);
+    return svg;
+  }
   svg.setAttribute('fill', 'none');
   svg.setAttribute('stroke', 'currentColor');
   svg.setAttribute('stroke-width', '1.8');
   svg.setAttribute('stroke-linecap', 'round');
   svg.setAttribute('stroke-linejoin', 'round');
-  svg.setAttribute('aria-hidden', 'true');
-  if (extraClass) svg.setAttribute('class', extraClass);
   // The markup is this file's own constant, never user text.
-  svg.innerHTML = ICONS[name] || '';
+  svg.innerHTML = OWN[name] || '';
   return svg;
 }
 
@@ -155,7 +140,7 @@ export function toast(message, kind = 'info', ms = 4200) {
  * A dialog. actions: [{label, kind ('primary' | 'danger' | ''), value, disabled}]; resolves with the
  * chosen action's value (undefined when closed). body may be a Node or text. onOpen(el) after showing.
  */
-export function dialog({title, body, actions = [{label: 'OK', kind: 'primary', value: true}], onOpen, enterValue}) {
+export function dialog({title, body, actions = [{label: 'OK', kind: 'primary', value: true}], onOpen, enterValue, wide = false}) {
   return new Promise(resolve => {
     const root = document.getElementById('modal-root');
     const previous = document.activeElement;
@@ -175,7 +160,7 @@ export function dialog({title, body, actions = [{label: 'OK', kind: 'primary', v
       disabled: !!a.disabled,
       on: {click: () => finish(typeof a.value === 'function' ? a.value() : a.value)},
     }));
-    const modal = h('div', {class: 'modal', role: 'dialog', attrs: {'aria-modal': 'true', 'aria-label': title}},
+    const modal = h('div', {class: ['modal', wide && 'wide'], role: 'dialog', attrs: {'aria-modal': 'true', 'aria-label': title}},
       h('div', {class: 'modal-head', text: title}),
       h('div', {class: 'modal-body'}, typeof body === 'string' ? h('p', {text: body, style: {margin: 0}}) : body),
       h('div', {class: 'modal-foot'}, buttons));

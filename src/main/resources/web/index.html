@@ -22,23 +22,16 @@
   </div>
 
   <div id="app" class="app" hidden>
-    <header class="topbar">
-      <div class="brand"><span class="brand-mark" aria-hidden="true"></span><span>Lively NPCs</span><span class="brand-sub">editor</span></div>
-      <div class="topbar-mid" id="topbar-mid"></div>
-      <div class="topbar-right" id="topbar-right"></div>
-    </header>
-
-    <aside class="sidebar" id="sidebar" aria-label="NPCs and animations"></aside>
-
+    <header class="menubar" id="menubar"></header>
+    <aside class="side side-left" id="left" aria-label="Lists and outliner"></aside>
     <main class="stage" id="stage">
-      <div class="viewport" id="viewport" aria-label="3D model"></div>
-      <div class="stage-toolbar stage-toolbar-left" id="stage-left"></div>
-      <div class="stage-toolbar stage-toolbar-right" id="stage-right"></div>
-      <div class="stage-hint" id="stage-hint"></div>
+      <div class="stage-bar" id="stage-bar"></div>
+      <div class="viewport-wrap">
+        <div class="viewport" id="viewport" aria-label="3D model"></div>
+        <div class="stage-hint" id="stage-hint"></div>
+      </div>
     </main>
-
-    <aside class="inspector" id="inspector" aria-label="Inspector"></aside>
-
+    <aside class="side side-right" id="right" aria-label="Settings"></aside>
     <section class="timeline" id="timeline" aria-label="Timeline"></section>
   </div>
 

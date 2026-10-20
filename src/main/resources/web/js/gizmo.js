@@ -8,6 +8,8 @@ import {TransformControls} from '../vendor/three/TransformControls.js';
 import {S, on} from './store.js';
 import * as St from './store.js';
 import {channelLabel, channelAxis, AXIS_COLORS, PART_NAMES} from './labels.js';
+import {toShown, fromShown} from './axes.js';
+import {snapAngle, snapPixels} from './snap.js';
 
 const RADIUS = {root: 14, body: 10.5, head: 7.5, right_arm: 5.2, left_arm: 5.2, right_leg: 5.2, left_leg: 5.2};
 const Z = new THREE.Vector3(0, 0, 1);
@@ -59,7 +61,7 @@ export function mountGizmo(viewport) {
     // o = Rb · (-root-x, root-y, root-z): back into the body's frame.
     const inv = new THREE.Quaternion(...viewport.posed.Rb).invert();
     const local = mover.position.clone().applyQuaternion(inv);
-    const round = v => Math.round(v * 4) / 4;
+    const round = v => snapPixels(v);
     St.setValues({'root-x': clampTo('root-x', round(-local.x)), 'root-y': clampTo('root-y', round(local.y)), 'root-z': clampTo('root-z', round(local.z))}, moveGesture);
   });
 
@@ -158,7 +160,7 @@ export function mountGizmo(viewport) {
 
   function showTip(e, ring, v) {
     const rect = viewport.host.getBoundingClientRect();
-    tip.textContent = `${PART_NAMES[S.part] || ''}: ${channelLabel(ring.key).toLowerCase()} ${Math.round(v * 10) / 10}°`;
+    tip.textContent = `${PART_NAMES[S.part] || ''} · ${channelLabel(ring.key, S.part)} ${Math.round(toShown(ring.key, v) * 10) / 10}°`;
     tip.style.left = (e.clientX - rect.left) + 'px';
     tip.style.top = (e.clientY - rect.top) + 'px';
     tip.hidden = false;
@@ -225,7 +227,8 @@ export function mountGizmo(viewport) {
       }
       // A channel change of dv turns the part by sign·dv.
       let v = drag.start + drag.total / r.sign;
-      v = e.shiftKey ? Math.round(v / 5) * 5 : Math.round(v * 2) / 2;
+      // Snapped in Blockbench's numbers (the ones shown), unless Shift is held.
+      v = fromShown(r.key, snapAngle(toShown(r.key, v), S.view.snapAngle, e.shiftKey));
       v = clampTo(r.key, v);
       St.setValue(r.key, v, drag.gesture);
       showTip(e, r, v);

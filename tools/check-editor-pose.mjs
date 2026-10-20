@@ -9,6 +9,9 @@
 //    (a port of the pack builder's npc_models.py check), show exactly their part of the skin, for
 //    classic and slim arms, and the outer layer is mapped like the base.
 //
+// 3. The editor's own logic (tools/editor-tests.mjs): Blockbench's axes and signs, snapping, the graph
+//    editor's curves and the Blockbench importer.
+//
 //   node tools/check-editor-pose.mjs [fixture.json ...]
 //
 // Exit code 0 when everything matches, 1 otherwise. Needs only node.
@@ -324,5 +327,10 @@ for (const f of files) checkFile(f);
 checkSkinMapping();
 checkGizmoRings();
 if (failures > 40) console.log(`  … and ${failures - 40} more`);
-console.log(failures ? `${failures} problem${failures === 1 ? '' : 's'}` : 'The editor draws poses and skins as the game does.');
+// The editor's own logic: Blockbench's axes and signs, snapping, graph curves, the Blockbench importer.
+const {run: runEditorTests} = await import('./editor-tests.mjs');
+const logic = await runEditorTests({quiet: true});
+failures += logic.failed;
+console.log(failures ? `${failures} problem${failures === 1 ? '' : 's'}`
+  : `The editor draws poses and skins as the game does, and its ${logic.passed} logic checks pass.`);
 process.exit(failures ? 1 : 0);

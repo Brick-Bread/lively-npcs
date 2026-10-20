@@ -11,6 +11,8 @@
 //
 // Any token logs in (the link it prints has one); the token "expired-token-0000" answers 401, to see
 // the expired screen. Nothing is saved: restarting brings the sample data back. Needs only node.
+// Sample Blockbench files to try File > Import from Blockbench with are at /samples/ (it prints the links).
+// node tools/editor-shots.mjs uses this harness for screenshots and a few clicks-and-drags checks.
 
 import http from 'node:http';
 import fs from 'node:fs';
@@ -29,6 +31,8 @@ let online = !args.includes('--offline');
 const noModels = args.includes('--no-models');
 // --shots <folder>: the page may POST /__shot?name=x with a PNG data URL (a 3D view capture for checks).
 const SHOTS = args.includes('--shots') ? path.resolve(args[args.indexOf('--shots') + 1]) : null;
+// Hand-written Blockbench files (the importer's test samples), offered for download at /samples/<name>.
+const SAMPLES = path.resolve(HERE, '..', 'src', 'test', 'resources', 'blockbench');
 
 // ---------------------------------------------------------------- skins
 
@@ -430,6 +434,12 @@ const server = http.createServer(async (req, res) => {
       return json(res, 200, {saved: name});
     }
     if (p === '/editor') return send(res, 302, 'text/plain', '', {Location: '/editor/'});
+    if (p.startsWith('/samples/')) {
+      const name = p.slice('/samples/'.length);
+      const full = path.join(SAMPLES, name);
+      if (!/^[A-Za-z0-9_.-]+$/.test(name) || name.includes('..') || !fs.existsSync(full)) return send(res, 404, 'text/plain', 'Not found');
+      return send(res, 200, 'application/octet-stream', fs.readFileSync(full), {'Content-Disposition': `attachment; filename="${name}"`});
+    }
     if (p.startsWith('/editor/')) {
       let file = p.slice('/editor/'.length) || 'index.html';
       if (!/^[A-Za-z0-9_./-]+$/.test(file) || file.includes('..')) return send(res, 404, 'text/plain', 'Not found');
@@ -487,4 +497,6 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log(`Lively NPCs editor preview: http://localhost:${PORT}/editor/#preview-token-0123456789`);
   console.log(`(the expired screen: http://localhost:${PORT}/editor/#expired-token-0000; player ${online ? 'in game' : 'not in game'}; Ctrl+C stops)`);
+  const samples = fs.existsSync(SAMPLES) ? fs.readdirSync(SAMPLES).sort() : [];
+  if (samples.length) console.log('Blockbench files to import (download, then drop one on the editor): ' + samples.map(n => `http://localhost:${PORT}/samples/${n}`).join('  '));
 });

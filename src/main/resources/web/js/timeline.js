@@ -1,78 +1,71 @@
-// The timeline: transport, the ruler in ticks (with seconds), keyframe diamonds you can select,
-// drag and delete, a lane per body part showing when it moves, easing, length / loop / glance,
-// pose copy, paste and mirror, undo / redo, the "does not end at rest" warning, and Save.
+// The timeline, laid out like a model animator's: a toolbar (play, time, keyframes, snapping, onion
+// skin, graph editor, zoom), a ruler in seconds and ticks, a column of parts (in step with the Outliner)
+// that open into a row per value, keyframe diamonds you can click, drag and box-select, and the playhead.
+//
+// A keyframe here holds the whole pose (every value), so a diamond on any row stands for that keyframe:
+// selecting or moving it selects or moves the keyframe. On a part's or value's row a diamond is bright
+// where that part or value changes, and faint where it only holds.
 
 import {S, on} from './store.js';
 import * as St from './store.js';
 import * as A from './anim.js';
-import * as Act from './actions.js';
-import {GROUPS, EASING_NAMES} from './labels.js';
-import {h, fill, icon, button, toggle, toast, confirmDialog} from './ui.js';
+import {GROUPS, PART_NAMES, PART_COLORS, AXIS_COLORS} from './labels.js';
+import {rowsFor} from './axes.js';
+import {snapTick, rulerSteps, TICK_STEPS, ANGLE_STEPS} from './snap.js';
+import {h, fill, icon, button, toast} from './ui.js';
 
-const LANE_COLORS = {root: '#9aa4ff', head: '#5cc8ff', body: '#b48cff', right_arm: '#ff8a5c', left_arm: '#ffcf5c', right_leg: '#4fd1a5', left_leg: '#7ee06b'};
+const NAME_W = 200;
+const PAD = 12;
+const ROW_H = 22;
+const HEAD_H = 24;
 
-export function mountTimeline(root) {
-  let showLanes = true;
-  try {
-    showLanes = localStorage.getItem('livelynpcs.editor.lanes') !== 'off';
-  } catch {
-    // no storage
-  }
-  let px = 14;
-  let dragging = null;
-  let renderLater = false;
+export function mountTimeline(root, hooks = {}) {
+  let px = 10;
+  let drag = null;
+  let trackW = 600;
+  let rowsNow = [];
 
-  // ---- the bar ----
-  const playBtn = button(null, 'play', {class: 'btn-sm', title: 'Play / pause (Space)', onClick: () => St.togglePlay()});
-  const startBtn = button(null, 'start', {class: 'btn-sm btn-ghost', title: 'To the start (Home)', onClick: () => { St.pause(); St.setTick(0); }});
-  const prevBtn = button(null, 'prev', {class: 'btn-sm btn-ghost', title: 'One tick back (Left)', onClick: () => step(-1)});
-  const nextBtn = button(null, 'next', {class: 'btn-sm btn-ghost', title: 'One tick on (Right)', onClick: () => step(1)});
-  const readout = h('div', {class: 'tl-readout', attrs: {'aria-live': 'off'}});
-  const addBtn = button('Keyframe', 'keyplus', {class: 'btn-sm', title: 'Add a keyframe at the playhead from the pose you see (K)', onClick: () => addKey()});
-  const delBtn = button(null, 'trash', {class: 'btn-sm btn-ghost btn-danger', title: 'Delete the selected keyframe (Delete)', onClick: () => deleteKey()});
-  const easeSel = h('select', {class: 'select', title: 'How it moves into the selected keyframe', on: {change: () => St.setEase(easeSel.value)}});
-  const copyBtn = button(null, 'copy', {class: 'btn-sm btn-ghost', title: 'Copy the pose (Ctrl+C)', onClick: () => copyPose()});
-  const pasteBtn = button(null, 'paste', {class: 'btn-sm btn-ghost', title: 'Paste the pose here (Ctrl+V)', onClick: () => pastePose()});
-  const mirrorBtn = button(null, 'mirror', {class: 'btn-sm btn-ghost', title: 'Mirror the pose left and right (M)', onClick: () => mirrorPose()});
-  const undoBtn = button(null, 'undo', {class: 'btn-sm btn-ghost', title: 'Undo (Ctrl+Z)', onClick: () => St.undo()});
-  const redoBtn = button(null, 'redo', {class: 'btn-sm btn-ghost', title: 'Redo (Ctrl+Y)', onClick: () => St.redo()});
-  const lengthIn = h('input', {class: 'input', type: 'number', min: 1, max: 24000, step: 1, title: 'Length in ticks (20 a second)',
-    on: {change: () => setLength(lengthIn.value), keydown: e => { if (e.key === 'Enter') lengthIn.blur(); }}});
-  const lengthSec = h('span', {class: 'muted small'});
-  const loop = toggle('Loop', false, v => St.changeAnim(d => { d.loop = v; }), 'Plays round and round (a preview, or by command until stopped)');
-  const glance = toggle('Glance', false, v => St.changeAnim(d => { d.glance = v; }),
-    'Only for players the NPC is not looking at (it turns its head away). Your live preview still shows it.');
-  const autoKey = toggle('Auto key', S.autoKey, v => { S.autoKey = v; S.pending = null; St.emit('anim', {}); }, 'On: posing between keyframes adds a keyframe there. Off: press K to keep the pose.');
-  const warn = h('button', {type: 'button', class: 'badge badge-warn warn-badge', title: '', on: {click: () => fixRest()}}, icon('warn', 12), 'Does not end at rest');
-  const saveState = h('span', {class: 'save-state'});
-  const saveBtn = button('Save', 'save', {class: 'btn-sm btn-primary', title: 'Save (Ctrl+S)', onClick: () => Act.saveCurrent()});
-  const lanesBtn = button(null, 'dots', {class: 'btn-xs btn-ghost', title: 'Show or hide the part lanes', onClick: () => {
-    showLanes = !showLanes;
-    try {
-      localStorage.setItem('livelynpcs.editor.lanes', showLanes ? 'on' : 'off');
-    } catch {
-      // no storage
-    }
-    render();
+  // ---- the toolbar ----
+  const startBtn = button(null, 'start', {class: 'btn-xs btn-ghost', title: 'To the start (Home)', onClick: () => { St.pause(); St.setTick(0); }});
+  const prevBtn = button(null, 'prev', {class: 'btn-xs btn-ghost', title: 'One tick back (Left; Shift: 5)', onClick: () => step(-1)});
+  const playBtn = button(null, 'play', {class: 'btn-xs btn-ghost', title: 'Play / pause (Space)', onClick: () => St.togglePlay()});
+  const nextBtn = button(null, 'next', {class: 'btn-xs btn-ghost', title: 'One tick on (Right; Shift: 5)', onClick: () => step(1)});
+  const endBtn = button(null, 'end', {class: 'btn-xs btn-ghost', title: 'To the end (End)', onClick: () => {
+    const e = St.animEntry();
+    St.pause();
+    if (e) St.setTick(e.draft.length);
   }});
+  const loopBtn = button(null, 'repeat', {class: 'btn-xs btn-ghost', title: 'Loop: plays round and round (a preview, or by command until stopped)',
+    onClick: () => St.changeAnim(d => { d.loop = !d.loop; })});
+  const readout = h('div', {class: 'tl-readout', attrs: {'aria-live': 'off'}});
+  const addBtn = button(null, 'keyplus', {class: 'btn-xs btn-ghost', title: 'Add a keyframe at the playhead from the pose you see (K)', onClick: () => addKey()});
+  const delBtn = button(null, 'trash', {class: 'btn-xs btn-ghost', title: 'Delete the selected keyframes (Delete)', onClick: () => deleteKeys()});
+  const snapSel = h('select', {class: 'select', title: 'Snap keyframes and the playhead to this many ticks (hold Shift while dragging to move freely)',
+    on: {change: () => St.setView({snapTicks: Number(snapSel.value)})}},
+  TICK_STEPS.map(n => h('option', {value: n, text: n === 1 ? 'Snap: 1 tick' : `Snap: ${n} ticks`})));
+  const angleSel = h('select', {class: 'select', title: 'Snap angles when dragging rings, sliders, numbers or graph points (Shift: free)',
+    on: {change: () => St.setView({snapAngle: Number(angleSel.value)})}},
+  ANGLE_STEPS.map(n => h('option', {value: n, text: n ? `Angles: ${n}°` : 'Angles: free'})));
+  const onionBtn = button(null, 'layers', {class: 'btn-xs btn-ghost', title: 'Onion skin: faint poses before and after the playhead (O)', onClick: () => St.setView({onion: !S.view.onion})});
+  const onionSel = h('select', {class: 'select', title: 'Which ghost poses the onion skin shows',
+    on: {change: () => St.setView({onionMode: onionSel.value})}},
+  h('option', {value: 'keys', text: 'Keyframes before / after'}),
+  ...[2, 4, 5, 10].map(n => h('option', {value: 'ticks:' + n, text: `Every ${n} ticks`})));
+  const graphBtn = button('Graph', 'graph', {class: 'btn-xs btn-ghost', title: 'Graph editor: the selected value\'s curve (G)', onClick: () => St.setView({graph: !S.view.graph})});
+  const zoomOut = button(null, 'zoomout', {class: 'btn-xs btn-ghost', title: 'Zoom out (Ctrl + wheel)', onClick: () => zoomBy(1 / 1.4)});
+  const zoomIn = button(null, 'zoomin', {class: 'btn-xs btn-ghost', title: 'Zoom in (Ctrl + wheel)', onClick: () => zoomBy(1.4)});
+  const fitBtn = button(null, 'focus', {class: 'btn-xs btn-ghost', title: 'Fit the whole animation', onClick: () => St.setView({zoom: 0})});
+  const toolbar = h('div', {class: 'tl-toolbar'},
+    startBtn, prevBtn, playBtn, nextBtn, endBtn, loopBtn, readout, h('div', {class: 'sep'}),
+    addBtn, delBtn, h('div', {class: 'sep'}), snapSel, angleSel, h('div', {class: 'sep'}),
+    onionBtn, onionSel, graphBtn, h('div', {class: 'spacer'}), zoomOut, fitBtn, zoomIn);
 
-  // Two groups: playing and keyframes on the left; the animation's settings and Save on the right
-  // (on a narrow screen the right group moves under the left one, still on the right).
-  const bar = h('div', {class: 'tl-bar'},
-    h('div', {class: 'tl-group'},
-      startBtn, prevBtn, playBtn, nextBtn, readout, h('div', {class: 'sep'}),
-      addBtn, delBtn, h('label', {class: 'tl-field', title: 'How it moves into the selected keyframe'}, 'Ease', easeSel), h('div', {class: 'sep'}),
-      copyBtn, pasteBtn, mirrorBtn, h('div', {class: 'sep'}), undoBtn, redoBtn),
-    h('div', {class: 'tl-group tl-group-right'},
-      h('label', {class: 'tl-field'}, 'Length', lengthIn, lengthSec), loop.el, glance.el, autoKey.el, warn, h('div', {class: 'sep'}), saveState, saveBtn));
-
-  // ---- the tracks ----
-  const labels = h('div', {class: 'tl-labels'});
-  const inner = h('div', {class: 'tl-inner'});
-  const scroll = h('div', {class: 'tl-scroll'}, inner);
-  const body = h('div', {class: 'tl-body'}, labels, scroll);
-  const playhead = h('div', {class: 'playhead'});
-  fill(root, bar, body);
+  // ---- the rows ----
+  const content = h('div', {class: 'tl-content'});
+  const scroller = h('div', {class: 'tl-scroller'}, content);
+  const resize = h('div', {class: 'tl-resize', title: 'Drag to make the timeline taller or shorter'});
+  fill(root, resize, toolbar, scroller);
+  const graphHost = h('div', {class: 'tl-graph-host'});
 
   function step(n) {
     St.pause();
@@ -80,253 +73,170 @@ export function mountTimeline(root) {
   }
 
   function addKey() {
-    const r = St.addKeyframe();
-    if (r === 'exists') toast('There is a keyframe here already: it is selected.', 'info', 2200);
+    if (St.addKeyframe() === 'exists') toast('There is a keyframe here already: it is selected.', 'info', 2000);
   }
 
-  function deleteKey() {
+  function deleteKeys() {
     const r = St.deleteKeyframe();
     if (r === 'first') toast('The first keyframe always stays at 0. Change its pose instead.', 'info');
-    else if (r === 'none') toast('Select a keyframe first (click a diamond).', 'info', 2200);
+    else if (r === 'none') toast('Select a keyframe first (click a diamond).', 'info', 2000);
   }
 
-  function copyPose() {
-    S.clipboard = A.compact(St.currentValues());
-    toast('Pose copied.', 'ok', 1500);
+  function zoomBy(f) {
+    St.setView({zoom: Math.max(1, Math.min(48, px * f))});
   }
 
-  function pastePose() {
-    if (!S.clipboard) {
-      toast('Copy a pose first.', 'info', 2000);
-      return;
-    }
-    St.setPose(S.clipboard);
-  }
-
-  function mirrorPose() {
-    St.setPose(A.mirror(A.compact(St.currentValues())));
-  }
-
-  function setLength(v) {
-    const e = St.animEntry();
-    if (!e) return;
-    const last = e.draft.keyframes[e.draft.keyframes.length - 1].at;
-    let n = Math.round(Number(v));
-    if (!Number.isFinite(n) || n < 1) n = e.draft.length;
-    if (n < last) {
-      toast(`It cannot be shorter than its last keyframe (tick ${last}).`, 'info');
-      n = last;
-    }
-    St.changeAnim(d => { d.length = Math.min(24000, n); });
-  }
-
-  async function fixRest() {
-    const e = St.animEntry();
-    if (!e) return;
-    const d = e.draft;
-    const last = d.keyframes[d.keyframes.length - 1];
-    const at = last.at < d.length ? d.length : d.length + 8;
-    const ok = await confirmDialog({
-      title: 'End at rest?',
-      message: `A one-shot animation should end with every value at 0, so the NPC finishes in its own pose. Add a rest keyframe at tick ${at}?`,
-      confirm: 'Add it',
-    });
-    if (!ok) return;
-    St.changeAnim(x => {
-      x.keyframes.push({at, ease: 'ease-in-out', values: {}});
-      x.length = Math.max(x.length, at);
-    });
-    St.setTick(at);
-  }
-
+  /** The tick under a pointer x (fractional). */
   function tickAt(clientX) {
-    const r = inner.getBoundingClientRect();
-    return (clientX - r.left - 12) / px;
+    const r = content.getBoundingClientRect();
+    return (clientX - r.left - NAME_W - PAD) / px;
   }
 
-  function scrubFrom(e) {
-    St.pause();
-    const move = ev => St.setTick(Math.round(tickAt(ev.clientX)));
-    move(e);
-    const up = () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-    };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
+  function xOf(tick) {
+    return PAD + tick * px;
   }
 
-  function startKeyDrag(e, k) {
-    e.stopPropagation();
-    e.preventDefault();
-    St.pause();
-    S.selectedAt = k.at;
-    S.pending = null;
-    St.setTick(k.at);
-    if (k.at === 0) {
-      render();
-      return;
-    }
-    const el = e.currentTarget;
-    const gesture = 'move-key-' + performance.now();
-    let at = k.at;
-    dragging = {el};
-    el.classList.add('dragging');
-    const move = ev => {
-      const want = Math.max(1, Math.round(tickAt(ev.clientX)));
-      if (want === at) return;
-      const got = St.moveKeyframe(at, want, gesture);
-      if (got !== at) {
-        at = got;
-        el.style.left = (12 + at * px) + 'px';
-        St.setTick(at);
-      }
-    };
-    const up = () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      dragging = null;
-      St.endGesture();
-      render();
-    };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-  }
-
-  function lanesFor(d) {
-    // For each part, the spans between keyframes where any of its channels changes.
-    const out = {};
+  function rowList() {
+    const out = [{kind: 'all'}];
     for (const g of GROUPS) {
-      const spans = [], marks = [];
-      for (let i = 0; i < d.keyframes.length; i++) {
-        const k = d.keyframes[i];
-        const active = g.channels.some(c => (k.values[c] || 0) !== 0);
-        if (active) marks.push(k.at);
-        if (i > 0) {
-          const p = d.keyframes[i - 1];
-          if (g.channels.some(c => (k.values[c] || 0) !== (p.values[c] || 0))) spans.push([p.at, k.at]);
-        }
-      }
-      if (d.loop && d.keyframes.length > 1) {
-        const last = d.keyframes[d.keyframes.length - 1], first = d.keyframes[0];
-        if (d.length > last.at && g.channels.some(c => (last.values[c] || 0) !== (first.values[c] || 0))) spans.push([last.at, d.length]);
-      }
-      out[g.part] = {spans, marks};
+      out.push({kind: 'part', part: g.part, keys: g.channels});
+      if (S.expanded.has(g.part)) for (const r of rowsFor(g.part)) out.push({kind: 'value', part: g.part, row: r, keys: [r.key]});
     }
     return out;
   }
 
-  function render() {
-    if (dragging) {
-      renderLater = true;
-      return;
+  /** For each keyframe: whether any of these channels changes into or out of it. */
+  function changes(d, keys) {
+    const ks = d.keyframes;
+    const val = (k, c) => k.values[c] || 0;
+    return ks.map((k, i) => keys.some(c => {
+      const v = val(k, c);
+      const prev = i > 0 ? val(ks[i - 1], c) : d.loop && ks.length > 1 ? val(ks[ks.length - 1], c) : v;
+      const next = i < ks.length - 1 ? val(ks[i + 1], c) : d.loop ? val(ks[0], c) : v;
+      return v !== prev || v !== next || (i === 0 && v !== 0);
+    }));
+  }
+
+  /** The stretches between keyframes where any of these channels moves. */
+  function spans(d, keys) {
+    const ks = d.keyframes;
+    const out = [];
+    const differ = (a, b) => keys.some(c => (a.values[c] || 0) !== (b.values[c] || 0));
+    for (let i = 1; i < ks.length; i++) if (differ(ks[i - 1], ks[i])) out.push([ks[i - 1].at, ks[i].at]);
+    if (d.loop && ks.length > 1 && d.length > ks[ks.length - 1].at && differ(ks[ks.length - 1], ks[0])) out.push([ks[ks.length - 1].at, d.length]);
+    return out;
+  }
+
+  function nameCell(row) {
+    if (row.kind === 'all') {
+      return h('div', {class: 'tl-name', title: 'Every keyframe: each holds the whole pose'}, icon('diamond', 12), 'Keyframes');
     }
-    renderLater = false;
+    if (row.kind === 'part') {
+      const open = S.expanded.has(row.part);
+      const caret = h('span', {class: ['caret', open && 'open'], on: {click: ev => { ev.stopPropagation(); St.toggleExpanded(row.part); }}}, icon('caret', 14));
+      return h('div', {class: 'tl-name', title: `${PART_NAMES[row.part]}: click to select, the arrow to show its values`,
+        on: {click: () => {
+          if (S.part === row.part) St.toggleExpanded(row.part);
+          else St.selectPart(row.part);
+        }}},
+      caret, h('span', {class: 'sw', style: {background: PART_COLORS[row.part]}}), PART_NAMES[row.part]);
+    }
+    const r = row.row;
+    return h('div', {class: 'tl-name', title: r.hint, on: {click: () => St.selectChannel(row.part, r.key)}},
+      h('span', {class: 'axis-chip', style: {background: AXIS_COLORS[r.axis]}, text: r.axis.toUpperCase()}), r.label);
+  }
+
+  function trackCell(row, d) {
+    const track = h('div', {class: 'tl-track', dataset: {kind: row.kind}});
+    const ks = d.keyframes;
+    const lit = row.kind === 'all' ? ks.map(() => true) : changes(d, row.keys);
+    const color = row.kind === 'part' ? PART_COLORS[row.part] : row.kind === 'value' ? AXIS_COLORS[row.row.axis] : null;
+    if (row.kind !== 'all') {
+      for (const [a, b] of spans(d, row.keys)) {
+        track.append(h('div', {class: 'tl-span', style: {left: xOf(a) + 'px', width: Math.max(2, (b - a) * px) + 'px', background: color}}));
+      }
+    }
+    ks.forEach((k, i) => {
+      const rest = row.kind === 'all' && Object.values(k.values).every(v => !v);
+      const el = h('div', {
+        class: ['kf', !lit[i] && 'faint', S.keySel.has(k.at) && 'sel', rest && 'rest'],
+        style: {left: xOf(k.at) + 'px', background: color && lit[i] ? color : undefined},
+        dataset: {at: String(k.at)},
+        title: `Tick ${k.at} (${A.seconds(k.at)})${k.at ? ' · ' + k.ease : ''}${rest ? ' · at rest' : ''}`,
+      });
+      track.append(el);
+    });
+    return track;
+  }
+
+  function ruler(d) {
+    const el = h('div', {class: 'tl-ruler'});
+    const {minor, mid, label} = rulerSteps(px);
+    const maxTick = Math.floor((trackW - PAD) / px);
+    for (let t = 0; t <= maxTick; t += minor) {
+      const sec = t % 20 === 0;
+      el.append(h('div', {class: ['tl-tick', sec ? 'sec' : t % mid === 0 && 'mid'], style: {left: xOf(t) + 'px'}}));
+      if (sec) el.append(h('div', {class: 'tl-tick-label sec', style: {left: xOf(t) + 'px'}, text: t / 20 + ' s'}));
+      else if (label && t % label === 0) el.append(h('div', {class: 'tl-tick-label', style: {left: xOf(t) + 'px'}, text: String(t)}));
+    }
+    el.append(handle);
+    void d;
+    return el;
+  }
+
+  const playhead = h('div', {class: 'tl-playhead'});
+  const handle = h('div', {class: 'tl-playhead-handle'});
+  const box = h('div', {class: 'tl-box', hidden: true});
+
+  function render() {
     const e = St.animEntry();
     root.hidden = S.mode !== 'animations';
-    const has = !!e;
-    for (const b of [playBtn, startBtn, prevBtn, nextBtn, addBtn, delBtn, copyBtn, pasteBtn, mirrorBtn, saveBtn]) b.disabled = !has;
-    easeSel.disabled = lengthIn.disabled = loop.input.disabled = glance.input.disabled = !has;
-    undoBtn.disabled = !St.canUndo();
-    redoBtn.disabled = !St.canRedo();
+    for (const b of [playBtn, startBtn, prevBtn, nextBtn, endBtn, addBtn, loopBtn]) b.disabled = !e;
+    loopBtn.classList.toggle('on', !!(e && e.draft.loop));
+    delBtn.disabled = !(S.keySel.size && [...S.keySel].some(x => x !== 0));
+    snapSel.value = String(S.view.snapTicks);
+    angleSel.value = String(S.view.snapAngle);
+    onionBtn.classList.toggle('on', !!S.view.onion);
+    onionSel.hidden = !S.view.onion;
+    onionSel.value = S.view.onionMode;
+    graphBtn.classList.toggle('on', !!S.view.graph);
     if (!e) {
-      fill(labels);
-      fill(inner, h('div', {class: 'side-empty', text: 'Pick an animation on the left, or make a new one.'}));
-      warn.hidden = true;
-      saveState.textContent = '';
+      fill(content, h('div', {class: 'tl-empty', text: 'Pick an animation on the left, or make a new one.'}));
+      content.style.width = '';
       updateHead();
       return;
     }
     const d = e.draft;
-    lengthIn.value = d.length;
-    lengthSec.textContent = A.seconds(d.length);
-    loop.input.checked = d.loop;
-    glance.input.checked = d.glance;
-    autoKey.input.checked = S.autoKey;
-    const rest = d.loop || A.endsAtRest(d, S.channelKeys);
-    warn.hidden = rest;
-    warn.title = 'A one-shot animation should end with every value at 0 so the NPC finishes in its own pose. Click to add a rest keyframe at the end.';
-    saveState.textContent = e.isNew ? 'Not saved yet' : e.dirty ? 'Unsaved changes' : 'Saved';
-    saveBtn.disabled = !e.dirty && !e.isNew;
-    delBtn.disabled = S.selectedAt === null || S.selectedAt === 0;
-    pasteBtn.disabled = !S.clipboard;
+    const avail = Math.max(240, scroller.clientWidth - NAME_W - 14);
+    px = S.view.zoom > 0 ? S.view.zoom : Math.max(1, Math.min(40, (avail - PAD * 2) / (d.length + 4)));
+    trackW = Math.max(avail, PAD * 2 + (d.length + 24) * px);
+    content.style.width = (NAME_W + trackW) + 'px';
+    rowsNow = rowList();
 
-    const k = S.selectedAt === null ? null : d.keyframes.find(x => x.at === S.selectedAt);
-    fill(easeSel, ...S.easings.map(key => h('option', {value: key, text: EASING_NAMES[key] || key})));
-    easeSel.value = k ? k.ease : 'linear';
-    easeSel.disabled = !k || k.at === 0;
-    easeSel.title = !k ? 'Select a keyframe to set how it moves into it' : k.at === 0 ? 'The first keyframe has nothing before it' : 'How it moves into this keyframe';
-
-    // Scale: fit the length into the width, but never closer than 5 px a tick.
-    const width = Math.max(200, scroll.clientWidth || 600);
-    const span = d.length + 6;
-    px = Math.max(5, Math.min(40, (width - 24) / span));
-    const total = Math.max(width, 24 + span * px);
-    inner.style.width = total + 'px';
-    inner.style.setProperty('--px', px + 'px');
-
-    const ruler = h('div', {class: 'tl-ruler', on: {pointerdown: scrubFrom}});
-    const every = px >= 9 ? 1 : px >= 4 ? 2 : 5;
-    const labelEvery = px * 5 >= 34 ? 5 : px * 10 >= 34 ? 10 : 20;
-    const maxTick = Math.floor((total - 12) / px);
-    for (let t = 0; t <= maxTick; t += every) {
-      const x = 12 + t * px;
-      const major = t % 5 === 0;
-      ruler.append(h('div', {class: ['tl-tick', major && 'major'], style: {left: x + 'px'}}));
-      if (t % 20 === 0) ruler.append(h('div', {class: 'tl-tick-label sec', style: {left: x + 'px'}, text: t / 20 + ' s'}));
-      else if (t % labelEvery === 0) ruler.append(h('div', {class: 'tl-tick-label', style: {left: x + 'px'}, text: String(t)}));
-    }
-
-    const track = h('div', {
-      class: 'tl-track',
-      on: {
-        pointerdown: ev => {
-          if (ev.target !== track) return;
-          S.selectedAt = null;
-          scrubFrom(ev);
-        },
-        dblclick: ev => {
-          if (ev.target !== track) return;
-          St.setTick(Math.round(tickAt(ev.clientX)));
-          addKey();
-        },
-      },
-    });
-    for (const key of d.keyframes) {
-      const restKey = Object.values(key.values).every(v => !v);
-      const el = h('div', {
-        class: ['key', key.at === S.selectedAt && 'selected', key.at === 0 && 'first', restKey && 'rest'],
-        style: {left: (12 + key.at * px) + 'px'},
-        dataset: {at: String(key.at)},
-        title: `Tick ${key.at} (${A.seconds(key.at)})${key.at ? ' · ' + (EASING_NAMES[key.ease] || key.ease) : ''}${restKey ? ' · at rest' : ''}`,
-        on: {pointerdown: ev => startKeyDrag(ev, key)},
-      });
-      track.append(el);
-    }
-
-    const laneEls = [];
-    const labelEls = [h('div', {class: 'tl-label ruler-label'}, 'Ticks', h('div', {class: 'spacer'}), lanesBtn), h('div', {class: 'tl-label main', text: 'Keyframes'})];
-    if (showLanes) {
-      const lanes = lanesFor(d);
-      for (const g of GROUPS) {
-        const color = LANE_COLORS[g.part];
-        const lane = h('div', {class: 'tl-lane'});
-        for (const [a, b] of lanes[g.part].spans) {
-          lane.append(h('div', {class: 'tl-span', style: {left: (12 + a * px) + 'px', width: Math.max(2, (b - a) * px) + 'px', background: color}}));
-        }
-        for (const at of lanes[g.part].marks) {
-          lane.append(h('div', {class: 'tl-mark', style: {left: (12 + at * px) + 'px', background: color}}));
-        }
-        laneEls.push(lane);
-        labelEls.push(h('div', {
-          class: 'tl-label', style: {cursor: 'pointer', color: S.part === g.part ? 'var(--text)' : ''}, title: 'Select ' + g.name.toLowerCase(),
-          on: {click: () => St.selectPart(S.part === g.part ? null : g.part)},
-        }, h('span', {class: 'sw', style: {background: color}}), g.name));
+    const head = h('div', {class: 'tl-row tl-head'}, h('div', {class: 'tl-name', text: S.view.graph ? 'Graph' : 'Animators'}), ruler(d));
+    const out = [head];
+    if (S.view.graph && hooks.graph) {
+      // The graph editor takes the rows' place; the names still pick what it draws.
+      const names = h('div', {class: 'tl-graph-names'}, rowsNow.filter(r => r.kind !== 'all').map(r => {
+        const picked = r.kind === 'value' && (S.channel || (S.part && rowsFor(S.part)[0] && rowsFor(S.part)[0].key)) === r.row.key && S.part === r.part;
+        return h('div', {class: ['tl-row', r.kind, S.part === r.part && 'active', picked && 'picked'], style: {height: ROW_H + 'px'}}, nameCell(r));
+      }));
+      out.push(h('div', {class: 'tl-graph-row'}, names, graphHost));
+      fill(content, out, playhead);
+      hooks.graph.render(graphHost, {px, pad: PAD, width: trackW, scrollEl: scroller, overlay: root});
+    } else {
+      if (hooks.graph) hooks.graph.hide();
+      const channel = S.channel || (S.part && rowsFor(S.part)[0] ? rowsFor(S.part)[0].key : null);
+      for (const r of rowsNow) {
+        const active = r.kind !== 'all' && S.part === r.part;
+        const picked = r.kind === 'value' && r.row.key === channel && S.part === r.part;
+        out.push(h('div', {class: ['tl-row', r.kind, active && 'active', picked && 'picked']}, nameCell(r), trackCell(r, d)));
       }
+      const grid = [];
+      for (let t = 0; t <= (trackW - PAD) / px; t += 20) grid.push(h('div', {class: 'tl-grid', style: {left: (NAME_W + xOf(t)) + 'px', top: HEAD_H + 'px', bottom: 0}}));
+      const end = h('div', {class: 'tl-end', style: {left: (NAME_W + xOf(d.length)) + 'px', right: 0, top: HEAD_H + 'px', bottom: 0}});
+      fill(content, out, grid, end, playhead, box);
     }
-    const end = h('div', {class: 'tl-end', style: {left: (12 + d.length * px) + 'px', right: 0}});
-    fill(inner, ruler, track, ...laneEls, end, playhead);
-    fill(labels, labelEls);
     updateHead();
   }
 
@@ -336,37 +246,195 @@ export function mountTimeline(root) {
     playBtn.classList.toggle('on', S.playing);
     if (!e) {
       readout.textContent = '';
-      playhead.hidden = true;
+      playhead.hidden = handle.hidden = true;
       return;
     }
-    playhead.hidden = false;
-    playhead.style.left = (12 + S.tick * px) + 'px';
+    playhead.hidden = handle.hidden = false;
+    const x = xOf(S.tick);
+    playhead.style.left = (NAME_W + x) + 'px';
+    playhead.style.top = HEAD_H + 'px';
+    playhead.style.height = Math.max(0, content.scrollHeight - HEAD_H) + 'px';
+    handle.style.left = x + 'px';
     const t = S.playing ? S.tick.toFixed(1) : String(Math.round(S.tick));
-    fill(readout, 'tick ', h('b', {text: t}), ` / ${e.draft.length}  ·  ${(S.tick / 20).toFixed(2)} s`);
+    handle.dataset.t = t;
+    fill(readout, h('b', {text: (S.tick / 20).toFixed(2) + ' s'}), `  ·  tick ${t} / ${e.draft.length}`);
     if (S.playing) {
-      const x = 12 + S.tick * px;
-      if (x < scroll.scrollLeft || x > scroll.scrollLeft + scroll.clientWidth - 20) scroll.scrollLeft = Math.max(0, x - 40);
+      const left = scroller.scrollLeft, w = scroller.clientWidth - NAME_W;
+      if (x < left || x > left + w - 30) scroller.scrollLeft = Math.max(0, x - 40);
     }
   }
 
-  on('select', render);
-  on('anim', render);
-  on('lists', render);
-  on('part', render);
-  on('tick', () => {
-    const e = St.animEntry();
-    if (!S.playing && e && !dragging) {
-      // Keep the diamonds' selection in step with the playhead.
-      inner.querySelectorAll('.key').forEach(el => el.classList.toggle('selected', Number(el.dataset.at) === S.selectedAt));
-      delBtn.disabled = S.selectedAt === null || S.selectedAt === 0;
-      const key = S.selectedAt === null ? null : e.draft.keyframes.find(x => x.at === S.selectedAt);
-      easeSel.value = key ? key.ease : 'linear';
-      easeSel.disabled = !key || key.at === 0;
+  // ---- pointer gestures: scrub on the ruler, drag and box-select keyframes on the rows ----
+
+  function scrub(e) {
+    St.pause();
+    const len = St.animEntry() ? St.animEntry().draft.length : 0;
+    const go = ev => St.setTick(Math.max(0, Math.min(len, snapTick(tickAt(ev.clientX), S.view.snapTicks, ev.shiftKey))));
+    go(e);
+    drag = {kind: 'scrub', move: go};
+  }
+
+  function startKeys(e, at) {
+    const ed = St.animEntry();
+    if (!ed) return;
+    const add = e.shiftKey || e.ctrlKey || e.metaKey;
+    if (add) St.selectKey(at, {toggle: true});
+    else if (!S.keySel.has(at)) St.selectKey(at);
+    else {
+      S.selectedAt = at;
+      St.emit('keys');
     }
+    St.pause();
+    St.setTick(at, false);
+    if (at === 0 || !S.keySel.has(at)) return;
+    const base = ed.draft.keyframes.map(k => ({at: k.at, ease: k.ease, values: {...k.values}}));
+    const moving = new Set(S.keySel);
+    const gesture = 'drag:keys:' + performance.now();
+    let delta = 0;
+    drag = {
+      kind: 'keys',
+      move: ev => {
+        const want = snapTick(tickAt(ev.clientX), S.view.snapTicks, ev.shiftKey);
+        const dt = Math.max(1, want) - at;
+        if (dt === delta) return;
+        if (St.moveKeyframes(base, moving, dt, gesture)) {
+          delta = dt;
+          S.keySel = new Set([...moving].map(t => (t === 0 ? 0 : t + delta)));
+          S.selectedAt = at + delta;
+          St.setTick(at + delta, false);
+        }
+      },
+      up: () => {
+        St.endGesture();
+        St.emit('keys');
+      },
+    };
+  }
+
+  function startBox(e) {
+    const r = content.getBoundingClientRect();
+    const x0 = e.clientX - r.left, y0 = e.clientY - r.top;
+    const add = e.shiftKey || e.ctrlKey || e.metaKey;
+    const before = new Set(S.keySel);
+    let moved = false;
+    drag = {
+      kind: 'box',
+      move: ev => {
+        const rr = content.getBoundingClientRect();
+        const x1 = ev.clientX - rr.left, y1 = ev.clientY - rr.top;
+        if (!moved && Math.hypot(x1 - x0, y1 - y0) < 4) return;
+        moved = true;
+        const left = Math.max(NAME_W, Math.min(x0, x1)), right = Math.max(x0, x1);
+        const top = Math.max(HEAD_H, Math.min(y0, y1)), bottom = Math.max(y0, y1);
+        Object.assign(box.style, {left: left + 'px', top: top + 'px', width: Math.max(0, right - left) + 'px', height: Math.max(0, bottom - top) + 'px'});
+        box.hidden = false;
+        const ed = St.animEntry();
+        if (!ed) return;
+        const t0 = (left - NAME_W - PAD - 5) / px, t1 = (right - NAME_W - PAD + 5) / px;
+        const ticks = ed.draft.keyframes.map(k => k.at).filter(t => t >= t0 && t <= t1);
+        St.setKeySelection(add ? [...before, ...ticks] : ticks);
+      },
+      up: ev => {
+        box.hidden = true;
+        if (moved) return;
+        // A click: the playhead goes there, and the selection is let go (Shift keeps it).
+        const ed = St.animEntry();
+        if (!ed) return;
+        if (!add) St.setKeySelection([]);
+        St.pause();
+        St.setTick(Math.max(0, Math.min(ed.draft.length, snapTick(tickAt(ev.clientX), S.view.snapTicks, ev.shiftKey))));
+      },
+    };
+  }
+
+  scroller.addEventListener('pointerdown', e => {
+    if (e.button !== 0 || !St.animEntry()) return;
+    if (e.target.closest('.tl-name')) return;
+    if (e.target.closest('.tl-ruler')) {
+      e.preventDefault();
+      scrub(e);
+    } else if (e.target.classList.contains('kf')) {
+      e.preventDefault();
+      startKeys(e, Number(e.target.dataset.at));
+    } else if (e.target.closest('.tl-track') || e.target === content || e.target.classList.contains('tl-end') || e.target.classList.contains('tl-grid')) {
+      e.preventDefault();
+      startBox(e);
+    } else {
+      return;
+    }
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp, {once: true});
+  });
+  function onMove(ev) {
+    if (drag && drag.move) drag.move(ev);
+  }
+  function onUp(ev) {
+    window.removeEventListener('pointermove', onMove);
+    const d = drag;
+    drag = null;
+    if (d && d.up) d.up(ev);
+  }
+  scroller.addEventListener('dblclick', e => {
+    if (!e.target.closest('.tl-track') || e.target.classList.contains('kf')) return;
+    const ed = St.animEntry();
+    if (!ed) return;
+    St.setTick(Math.max(0, snapTick(tickAt(e.clientX), S.view.snapTicks, e.shiftKey)));
+    addKey();
+  });
+  scroller.addEventListener('wheel', e => {
+    if (!(e.ctrlKey || e.metaKey)) return;
+    e.preventDefault();
+    const before = tickAt(e.clientX);
+    zoomBy(e.deltaY < 0 ? 1.25 : 1 / 1.25);
+    // Keep the tick under the pointer where it was.
+    const r = scroller.getBoundingClientRect();
+    scroller.scrollLeft = Math.max(0, PAD + before * px - (e.clientX - r.left - NAME_W));
+  }, {passive: false});
+
+  // Resizing the timeline from its top edge.
+  resize.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    const y0 = e.clientY;
+    const h0 = root.getBoundingClientRect().height;
+    const move = ev => {
+      const want = Math.max(140, Math.min(window.innerHeight - 220, h0 + (y0 - ev.clientY)));
+      document.documentElement.style.setProperty('--tl-h', want + 'px');
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      try {
+        localStorage.setItem('livelynpcs.editor.timeline', getComputedStyle(document.documentElement).getPropertyValue('--tl-h').trim());
+      } catch {
+        // no storage
+      }
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up, {once: true});
+  });
+  try {
+    const saved = localStorage.getItem('livelynpcs.editor.timeline');
+    if (saved && /^\d+px$/.test(saved)) document.documentElement.style.setProperty('--tl-h', saved);
+  } catch {
+    // no storage
+  }
+
+  let queued = false;
+  const later = () => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      render();
+    });
+  };
+  for (const ev of ['select', 'anim', 'lists', 'part', 'keys', 'viewset']) on(ev, later);
+  on('tick', () => {
+    if (S.view.graph && hooks.graph) hooks.graph.tick();
     updateHead();
   });
   on('play', updateHead);
-  new ResizeObserver(() => render()).observe(scroll);
+  new ResizeObserver(() => later()).observe(scroller);
+  scroller.addEventListener('scroll', () => { if (S.view.graph && hooks.graph) hooks.graph.redraw(); });
   render();
-  return {render, copyPose, pastePose, mirrorPose, addKey, deleteKey, step};
+  return {render, addKey, deleteKeys, step};
 }
